@@ -1,4 +1,4 @@
-package com.github.deeepamin.gitlabciaid.services;
+package com.github.deeepamin.gitlabciaid.services.providers;
 
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.intellij.json.JsonFileType;
@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 

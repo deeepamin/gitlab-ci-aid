@@ -1,4 +1,4 @@
-package com.github.deeepamin.gitlabciaid.services;
+package com.github.deeepamin.gitlabciaid.services.providers;
 
 import com.intellij.openapi.project.Project;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;

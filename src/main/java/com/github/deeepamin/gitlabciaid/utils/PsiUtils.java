@@ -10,6 +10,7 @@ import java.util.Optional;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
 
 public class PsiUtils {
   public static boolean isScriptElement(PsiElement element) {
@@ -22,6 +23,10 @@ public class PsiUtils {
 
   public static boolean isNeedsElement(PsiElement element) {
     return isChild(element, List.of(NEEDS));
+  }
+
+  public static boolean isStagesElement(PsiElement element) {
+    return isChild(element, List.of(STAGES));
   }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {

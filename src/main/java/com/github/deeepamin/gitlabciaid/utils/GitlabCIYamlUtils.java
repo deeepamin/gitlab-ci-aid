@@ -1,6 +1,6 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
-import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.gitlabciaid.model.PluginData;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -12,9 +12,9 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLDocument;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
+import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 
 public class GitlabCIYamlUtils {
@@ -57,53 +57,53 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
   }
 
-  public static GitlabCIYamlData parseGitlabCIYamlData(Project project, VirtualFile file) {
-    var gitlabCIYamlData = new GitlabCIYamlData(file.getPath());
-
+  public static void parseGitlabCIYamlData(Project project, VirtualFile file, PluginData pluginData) {
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
-      assert psiFile != null;
+      if (psiFile == null) {
+        log.warn("Cannot find file: " + file.getPath());
+        return;
+      }
       psiFile.accept(new YamlRecursivePsiElementVisitor() {
-
         @Override
         public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
           var keyText = keyValue.getKeyText();
           if (INCLUDE.equals(keyText)) {
             // process include files to add to schema files which have names other than standard name
-            System.out.println(keyText);
             var plainTextChildren = PsiUtils.findChildren(keyValue, YAMLPlainTextImpl.class);
             var quotedTextChildren = PsiUtils.findChildren(keyValue, YAMLQuotedText.class);
 
             plainTextChildren.stream()
+                    .map(YAMLBlockScalarImpl::getText)
                     .distinct()
-                    .forEach(plainText -> GitlabCIYamlUtils.addSchemaFile(plainText.getText()));
+                    .forEach(schemaFile -> {
+                      GitlabCIYamlUtils.addSchemaFile(schemaFile);
+                      pluginData.addIncludedYaml(schemaFile);
+                    });
             quotedTextChildren.stream()
+                    .map(YAMLQuotedText::getText)
                     .distinct()
-                    .forEach(quotedText -> GitlabCIYamlUtils.addSchemaFile(quotedText.getText()));
+                    .forEach(schemaFile -> {
+                      GitlabCIYamlUtils.addSchemaFile(schemaFile);
+                      pluginData.addIncludedYaml(schemaFile);
+                    });
           }
           var superParent = keyValue.getParent().getParent();
           if (superParent instanceof YAMLDocument) {
             // top level elements
             if (!TOP_LEVEL_KEYWORDS.contains(keyText)) {
               // this means it's a job
-              gitlabCIYamlData.addJob(keyValue);
+              pluginData.addJob(keyValue);
             }
           }
-          if (STAGES.equals(keyText)) {
-            var children = keyValue.getChildren();
+          if (STAGE.equals(keyText)) {
+            pluginData.addStage(keyValue);
           }
           super.visitKeyValue(keyValue);
         }
-
-        @Override
-        public void visitMapping(@NotNull YAMLMapping mapping) {
-          super.visitMapping(mapping);
-        }
-
       });
     });
-    return gitlabCIYamlData;
   }
 
 }
