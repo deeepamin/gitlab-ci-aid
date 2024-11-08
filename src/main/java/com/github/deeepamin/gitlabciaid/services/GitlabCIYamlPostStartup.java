@@ -8,7 +8,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
-import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
 import kotlin.Unit;

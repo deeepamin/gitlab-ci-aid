@@ -25,7 +25,7 @@ public class GitlabCIYamlScriptReferenceContributor extends PsiReferenceContribu
             new PsiReferenceProvider() {
               @Override
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
-                System.out.println(psiElement.getText() + " is of type " + psiElement.getClass().getName());
+//                System.out.println(psiElement.getText() + " is of type " + psiElement.getClass().getName());
                 return getGitlabCIYamlFile(psiElement).isEmpty() ? PsiReference.EMPTY_ARRAY : Optional.of(psiElement)
                         .flatMap(element -> {
                           if (PsiUtils.isScriptElement(psiElement)) {
