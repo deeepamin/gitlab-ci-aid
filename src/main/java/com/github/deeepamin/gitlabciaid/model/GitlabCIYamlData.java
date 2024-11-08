@@ -1,14 +1,14 @@
 package com.github.deeepamin.gitlabciaid.model;
 
-import com.intellij.psi.PsiElement;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GitlabCIYamlData {
   private final String path;
-  private final Map<String, PsiElement> stages;
-  private final Map<String, PsiElement> jobs;
+  private final Map<String, YAMLKeyValue> stages;
+  private final Map<String, YAMLKeyValue> jobs;
 
   public GitlabCIYamlData(String path) {
     this.path = path;
@@ -16,20 +16,20 @@ public class GitlabCIYamlData {
     this.jobs = new HashMap<>();
   }
 
-  public Map<String, PsiElement> getStages() {
+  public Map<String, YAMLKeyValue> getStages() {
     return stages;
   }
 
-  public void addStage(PsiElement stage) {
-    stages.put(stage.getText(), stage);
+  public void addStage(YAMLKeyValue stage) {
+    stages.put(stage.getKeyText(), stage);
   }
 
-  public Map<String, PsiElement> getJobs() {
+  public Map<String, YAMLKeyValue> getJobs() {
     return jobs;
   }
 
-  public void addJob(PsiElement job) {
-    jobs.put(job.getText(), job);
+  public void addJob(YAMLKeyValue job) {
+    jobs.put(job.getKeyText(), job);
   }
 }
 

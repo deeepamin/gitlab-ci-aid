@@ -14,10 +14,11 @@ import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlFile;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesIncludeLocalFiles;
+import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesNeeds;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesScripts;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class GitlabCIYamlScriptReferenceContributor extends PsiReferenceContributor {
+public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
   @Override
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
@@ -32,6 +33,8 @@ public class GitlabCIYamlScriptReferenceContributor extends PsiReferenceContribu
                             return referencesScripts(psiElement);
                           } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
                             return referencesIncludeLocalFiles(psiElement);
+                          } else if (PsiUtils.isNeedsElement(psiElement)) {
+                            return referencesNeeds(psiElement);
                           }
                           return Optional.of(PsiReference.EMPTY_ARRAY);
                         })

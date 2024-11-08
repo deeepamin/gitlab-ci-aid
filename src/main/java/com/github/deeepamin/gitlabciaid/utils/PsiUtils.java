@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 
 public class PsiUtils {
@@ -17,6 +18,10 @@ public class PsiUtils {
 
   public static boolean isIncludeLocalFileElement(PsiElement element) {
     return isChild(element, List.of(INCLUDE));
+  }
+
+  public static boolean isNeedsElement(PsiElement element) {
+    return isChild(element, List.of(NEEDS));
   }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {

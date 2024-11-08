@@ -12,8 +12,9 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlScriptReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlPostStartup"/>
+        <completion.contributor language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCodeContributor"/>?
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlSchemaProviderFactory"/>
