@@ -5,9 +5,7 @@
     <vendor>deeepamin</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <!-- Parsing YAML -->
     <depends>org.jetbrains.plugins.yaml</depends>
-    <!-- Parsing JSON -->
     <depends>com.intellij.modules.json</depends>
     <resource-bundle>messages.MyBundle</resource-bundle>
 
