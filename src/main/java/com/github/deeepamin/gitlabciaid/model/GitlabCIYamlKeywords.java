@@ -11,11 +11,12 @@ public class GitlabCIYamlKeywords {
   public static final String AFTER_SCRIPT = "after_script";
   public static final String BEFORE_SCRIPT = "before_script";
   public static final String CACHE = "cache";
-   public static final String IMAGE = "image";
+  public static final String IMAGE = "image";
   public static final String PAGES = "pages";
   public static final String SCRIPT = "script";
   public static final String SERVICES = "services";
   public static final String STAGE = "stage";
+  public static final String NEEDS = "needs";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,
