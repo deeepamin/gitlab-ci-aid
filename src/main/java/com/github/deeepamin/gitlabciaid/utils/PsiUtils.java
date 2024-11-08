@@ -3,6 +3,7 @@ package com.github.deeepamin.gitlabciaid.utils;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,30 +20,38 @@ public class PsiUtils {
   }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
-    if (element == null || parentKeys.isEmpty()) {
-      return false;
-    }
-    Optional<YAMLKeyValue> parent = getParent(element, parentKeys);
+    Optional<YAMLKeyValue> parent = findParent(element, parentKeys);
     return parent.isPresent();
   }
 
-  public static Optional<YAMLKeyValue> getParent(PsiElement element, List<String> parentKeys) {
+  public static Optional<YAMLKeyValue> findParent(PsiElement element, List<String> parentKeys) {
     if (element == null || parentKeys.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(element)
-            .flatMap(PsiUtils::toYAMLKeyValue)
-            .filter(keyValue -> parentKeys.stream().anyMatch(keyValue.getKeyText()::equals))
-            .or(() -> Optional.of(element)
-                    .map(PsiElement::getParent)
-                    .flatMap(parent -> getParent(parent, parentKeys))
-            );
+    if (element instanceof YAMLKeyValue keyValue) {
+      var keyText = keyValue.getKeyText();
+      if (parentKeys.contains(keyText)) {
+        return Optional.of(keyValue);
+      }
+    }
+    return findParent(element.getParent(), parentKeys);
   }
 
-  public static Optional<YAMLKeyValue> toYAMLKeyValue(PsiElement element) {
-    if (element instanceof YAMLKeyValue yamlKeyValue) {
-      return Optional.of(yamlKeyValue);
+  public static <T extends PsiElement> List<T> findChildren(final PsiElement element, final Class<T> clazz) {
+    var children = new ArrayList<T>();
+    findChildren(element, clazz, children);
+    return children;
+  }
+
+  private static <T extends PsiElement> void findChildren(final PsiElement element, final Class<T> clazz, List<T> children) {
+    if (element == null) {
+      return;
     }
-    return Optional.empty();
+    if (clazz.isInstance(element)) {
+      children.add((T) element);
+    }
+    for (PsiElement child : element.getChildren()) {
+      findChildren(child, clazz, children);
+    }
   }
 }
