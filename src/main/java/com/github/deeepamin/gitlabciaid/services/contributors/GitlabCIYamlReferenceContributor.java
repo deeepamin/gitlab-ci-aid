@@ -1,4 +1,4 @@
-package com.github.deeepamin.gitlabciaid.services;
+package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.psi.PsiElement;
@@ -16,6 +16,7 @@ import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.getGitlab
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesIncludeLocalFiles;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesNeeds;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesScripts;
+import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesStages;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
@@ -35,6 +36,8 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
                             return referencesIncludeLocalFiles(psiElement);
                           } else if (PsiUtils.isNeedsElement(psiElement)) {
                             return referencesNeeds(psiElement);
+                          } else if (PsiUtils.isStagesElement(psiElement)) {
+                            return referencesStages(psiElement);
                           }
                           return Optional.of(PsiReference.EMPTY_ARRAY);
                         })

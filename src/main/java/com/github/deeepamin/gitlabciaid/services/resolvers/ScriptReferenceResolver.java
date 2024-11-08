@@ -1,4 +1,4 @@
-package com.github.deeepamin.gitlabciaid.services;
+package com.github.deeepamin.gitlabciaid.services.resolvers;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -9,10 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 
-public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
-
-  public IncludeFileReferenceResolver(@NotNull PsiElement element) {
+public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
+  private static final List<String> SCRIPT_RUNNERS = List.of("./", "python ", "python3 ");
+  public ScriptReferenceResolver(@NotNull PsiElement element) {
     super(element);
   }
 
@@ -22,11 +23,12 @@ public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
     var text = myElement.getText();
     var pathBuilder = new StringBuilder();
     var basePath = project.getBasePath();
-    pathBuilder.append(basePath);
-    if (!text.startsWith(File.separator)) {
-      pathBuilder.append(File.separator);
-    }
-    pathBuilder.append(text);
+    pathBuilder.append(basePath).append(File.separator);
+    SCRIPT_RUNNERS.forEach(runner -> {
+      if (text.startsWith(runner)) {
+        pathBuilder.append(text.substring(runner.length()));
+      }
+    });
     var localFileSystemPath = LocalFileSystem.getInstance().findFileByPath(pathBuilder.toString());
     if (localFileSystemPath != null) {
       return PsiManager.getInstance(project).findFile(localFileSystemPath);

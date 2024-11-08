@@ -1,4 +1,4 @@
-package com.github.deeepamin.gitlabciaid.services;
+package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.intellij.codeInsight.completion.CompletionContributor;
 

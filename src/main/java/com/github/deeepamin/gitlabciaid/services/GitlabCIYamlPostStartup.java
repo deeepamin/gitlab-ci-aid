@@ -1,6 +1,5 @@
 package com.github.deeepamin.gitlabciaid.services;
 
-import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -16,19 +15,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GitlabCIYamlPostStartup implements ProjectActivity {
-  public static final Map<String, GitlabCIYamlData> PATH_TO_YAML_DATA = new HashMap<>();
 
   private static void processOpenedFile(Project project, VirtualFile file) {
     executeOnThreadPool(project, () -> {
       if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
         return;
       }
-      //TODO check already parsed
-      PATH_TO_YAML_DATA.put(file.getPath(), GitlabCIYamlUtils.parseGitlabCIYamlData(project, file));
+      GitlabCIYamlCache.readPluginData(project, file);
     });
   }
 
