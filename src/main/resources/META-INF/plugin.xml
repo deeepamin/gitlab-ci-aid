@@ -1,18 +1,21 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin require-restart="false">
     <id>com.github.deeepamin.gitlabciaid</id>
-    <name>gitlab-ci-aid</name>
+    <name>Gitlab CI Aid</name>
     <vendor>deeepamin</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-
+    <!-- Parsing YAML -->
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <!-- Parsing JSON -->
+    <depends>com.intellij.modules.json</depends>
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.deeepamin.gitlabciaid.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlScriptReferenceContributor"/>
+        <postStartupActivity implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlPostStartup"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.deeepamin.gitlabciaid.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlSchemaProviderFactory"/>
+    </extensions>
 </idea-plugin>
