@@ -1,6 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.providers;
 
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
+import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.json.JsonFileType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
@@ -32,6 +33,9 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
 
   @Override
   public boolean isAvailable(@NotNull VirtualFile virtualFile) {
+    if (virtualFile instanceof VirtualFileWindow) {
+      virtualFile = ((VirtualFileWindow) virtualFile).getDelegate();
+    }
     return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(virtualFile.toNioPath());
   }
 
