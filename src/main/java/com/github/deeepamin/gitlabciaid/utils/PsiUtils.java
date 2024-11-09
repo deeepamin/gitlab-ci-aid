@@ -58,6 +58,7 @@ public class PsiUtils {
     return children;
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends PsiElement> void findChildren(final PsiElement element, final Class<T> clazz, List<T> children) {
     if (element == null) {
       return;
