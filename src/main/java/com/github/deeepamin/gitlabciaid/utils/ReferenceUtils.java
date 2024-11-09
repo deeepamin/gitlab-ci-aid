@@ -1,6 +1,6 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
-import com.github.deeepamin.gitlabciaid.model.PluginData;
+import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
@@ -63,7 +63,7 @@ public class ReferenceUtils {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
       var parent = PLUGIN_DATA.values().stream()
-              .map(PluginData::getStagesElement)
+              .map(GitlabCIYamlData::getStagesElement)
               .filter(Objects::nonNull)
               .findFirst().orElse(null);
       var children = PsiUtils.findChildren(parent, YAMLPlainTextImpl.class);

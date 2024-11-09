@@ -1,6 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services;
 
-import com.github.deeepamin.gitlabciaid.model.PluginData;
+import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -17,17 +17,17 @@ import java.util.function.Predicate;
 import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.parseGitlabCIYamlData;
 
 public class GitlabCIYamlCache {
-  public static final Map<String, PluginData> PLUGIN_DATA = new HashMap<>();
+  public static final Map<String, GitlabCIYamlData> PLUGIN_DATA = new HashMap<>();
 
-  public static void readPluginData(Project project, VirtualFile file) {
-    var pluginData = new PluginData(file.getPath());
-    getPluginData(project, file, pluginData);
+  public static void readGitlabCIYamlData(Project project, VirtualFile file) {
+    var gitlabCIYamlData = new GitlabCIYamlData(file.getPath());
+    getGitlabCIYamlData(project, file, gitlabCIYamlData);
   }
 
-  private static void getPluginData(Project project, VirtualFile file, PluginData pluginData) {
-    parseGitlabCIYamlData(project, file, pluginData);
-    PLUGIN_DATA.put(file.getPath(), pluginData);
-    pluginData.getIncludedYamls().forEach(yaml -> {
+  private static void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
+    parseGitlabCIYamlData(project, file, gitlabCIYamlData);
+    PLUGIN_DATA.put(file.getPath(), gitlabCIYamlData);
+    gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
       if (!PLUGIN_DATA.containsKey(yaml)) {
         var pathBuilder = new StringBuilder();
         var basePath = project.getBasePath();
@@ -40,8 +40,8 @@ public class GitlabCIYamlCache {
         if (includedYamlVirtualFile == null || !includedYamlVirtualFile.exists() || includedYamlVirtualFile.isDirectory() || !includedYamlVirtualFile.isValid()) {
           return;
         }
-        var includedYamlPluginData = new PluginData(yaml);
-        getPluginData(project, includedYamlVirtualFile, includedYamlPluginData);
+        var includedYamlData = new GitlabCIYamlData(yaml);
+        getGitlabCIYamlData(project, includedYamlVirtualFile, includedYamlData);
       }
     });
   }
@@ -54,7 +54,7 @@ public class GitlabCIYamlCache {
 
   public static List<String> getStageNamesDefinedAtStagesLevel() {
     var stagesElements = PLUGIN_DATA.values().stream()
-            .map(PluginData::getStagesElement)
+            .map(GitlabCIYamlData::getStagesElement)
             .toList();
 
     List<String> definedStages = new ArrayList<>();
@@ -72,7 +72,7 @@ public class GitlabCIYamlCache {
             .toList();
   }
 
-  public static String getFileName(String job, Project project, Predicate<Map.Entry<String, PluginData>> predicate) {
+  public static String getFileName(Project project, Predicate<Map.Entry<String, GitlabCIYamlData>> predicate) {
      String filePath = PLUGIN_DATA.entrySet().stream()
              .filter(predicate)
              .map(Map.Entry::getKey)

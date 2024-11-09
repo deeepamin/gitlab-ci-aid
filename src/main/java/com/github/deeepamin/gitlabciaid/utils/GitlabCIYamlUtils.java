@@ -1,6 +1,6 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
-import com.github.deeepamin.gitlabciaid.model.PluginData;
+import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -58,7 +58,7 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
   }
 
-  public static void parseGitlabCIYamlData(Project project, VirtualFile file, PluginData pluginData) {
+  public static void parseGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -80,14 +80,14 @@ public class GitlabCIYamlUtils {
                     .distinct()
                     .forEach(schemaFile -> {
                       GitlabCIYamlUtils.addSchemaFile(schemaFile);
-                      pluginData.addIncludedYaml(schemaFile);
+                      gitlabCIYamlData.addIncludedYaml(schemaFile);
                     });
             quotedTextChildren.stream()
                     .map(YAMLQuotedText::getText)
                     .distinct()
                     .forEach(schemaFile -> {
                       GitlabCIYamlUtils.addSchemaFile(schemaFile);
-                      pluginData.addIncludedYaml(schemaFile);
+                      gitlabCIYamlData.addIncludedYaml(schemaFile);
                     });
           }
           var superParent = keyValue.getParent().getParent();
@@ -95,14 +95,14 @@ public class GitlabCIYamlUtils {
             // top level elements
             if (!TOP_LEVEL_KEYWORDS.contains(keyText)) {
               // this means it's a job
-              pluginData.addJob(keyValue);
+              gitlabCIYamlData.addJob(keyValue);
             }
           }
           if (STAGE.equals(keyText)) {
-            pluginData.addStage(keyValue);
+            gitlabCIYamlData.addStage(keyValue);
           }
           if (STAGES.equals(keyText)) {
-            pluginData.setStagesElement(keyValue);
+            gitlabCIYamlData.setStagesElement(keyValue);
           }
           super.visitKeyValue(keyValue);
         }

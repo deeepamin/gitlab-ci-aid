@@ -23,7 +23,7 @@ public class GitlabCIYamlPostStartup implements ProjectActivity {
       if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
         return;
       }
-      GitlabCIYamlCache.readPluginData(project, file);
+      GitlabCIYamlCache.readGitlabCIYamlData(project, file);
     });
   }
 
