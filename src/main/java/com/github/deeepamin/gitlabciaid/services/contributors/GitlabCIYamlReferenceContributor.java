@@ -16,6 +16,7 @@ import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.getGitlab
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesIncludeLocalFiles;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesNeeds;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesScripts;
+import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesStage;
 import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesStages;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
@@ -38,6 +39,8 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
                             return referencesNeeds(psiElement);
                           } else if (PsiUtils.isStagesElement(psiElement)) {
                             return referencesStages(psiElement);
+                          } else if (PsiUtils.isStageElement(psiElement)) {
+                            return referencesStage(psiElement);
                           }
                           return Optional.of(PsiReference.EMPTY_ARRAY);
                         })
