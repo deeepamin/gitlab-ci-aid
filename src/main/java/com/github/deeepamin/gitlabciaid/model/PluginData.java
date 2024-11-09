@@ -12,6 +12,7 @@ public class PluginData {
   private final Map<String, List<PsiElement>> stages;
   private final Map<String, YAMLKeyValue> jobs;
   private final List<String> includedYamls;
+  private YAMLKeyValue stagesElement;
 
   public PluginData(String path) {
     this.stages = new HashMap<>();
@@ -46,6 +47,14 @@ public class PluginData {
 
   public List<String> getIncludedYamls() {
     return includedYamls;
+  }
+
+  public YAMLKeyValue getStagesElement() {
+    return stagesElement;
+  }
+
+  public void setStagesElement(YAMLKeyValue stagesElement) {
+    this.stagesElement = stagesElement;
   }
 }
 

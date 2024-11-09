@@ -8,13 +8,14 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.json</depends>
     <depends>org.jetbrains.plugins.terminal</depends>
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.GitlabCIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlPostStartup"/>
         <completion.contributor language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlCodeContributor"/>
         <multiHostInjector implementation="com.github.deeepamin.gitlabciaid.services.injectors.GitlabCIYamlScriptInjector"/>
+        <annotator language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.annotators.GitlabCIYamlAnnotator"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>

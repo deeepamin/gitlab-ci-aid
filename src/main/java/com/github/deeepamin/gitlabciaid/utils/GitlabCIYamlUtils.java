@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 
 public class GitlabCIYamlUtils {
@@ -99,6 +100,9 @@ public class GitlabCIYamlUtils {
           }
           if (STAGE.equals(keyText)) {
             pluginData.addStage(keyValue);
+          }
+          if (STAGES.equals(keyText)) {
+            pluginData.setStagesElement(keyValue);
           }
           super.visitKeyValue(keyValue);
         }

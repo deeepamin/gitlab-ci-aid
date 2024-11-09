@@ -8,24 +8,19 @@ import com.intellij.psi.ResolveResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+public class StagesReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+  private final PsiElement target;
 
-public class StageReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-  // From Stages to stage -> multiple jobs could have same stage so list of target
-  private final List<PsiElement> targets;
-
-  public StageReferenceResolver(@NotNull PsiElement element, List<PsiElement> targets) {
+  // From one stage to top level stages
+  public StagesReferenceResolver(@NotNull PsiElement element, PsiElement target) {
     super(element);
-    this.targets = targets;
+    this.target = target;
   }
 
   @Override
   public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
-    if (targets != null) {
-      return targets.stream()
-              .map(PsiElementResolveResult::new)
-              .toList()
-              .toArray(ResolveResult[]::new);
+    if (target != null) {
+      return new ResolveResult[]{new PsiElementResolveResult(target)};
     }
     return ResolveResult.EMPTY_ARRAY;
   }

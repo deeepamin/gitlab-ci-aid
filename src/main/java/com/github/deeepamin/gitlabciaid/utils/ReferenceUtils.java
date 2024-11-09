@@ -1,14 +1,17 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
+import com.github.deeepamin.gitlabciaid.model.PluginData;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.StageReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.StagesReferenceResolver;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCache.PLUGIN_DATA;
@@ -52,6 +55,25 @@ public class ReferenceUtils {
               .findFirst()
               .orElse(null);
       return Optional.of(new PsiReference[]{ new StageReferenceResolver(element, targetStages) });
+    }
+    return Optional.of(PsiReference.EMPTY_ARRAY);
+  }
+
+  public static Optional<PsiReference[]> referencesStage(PsiElement element) {
+    if (element instanceof YAMLPlainTextImpl) {
+      var stageName = element.getText();
+      var parent = PLUGIN_DATA.values().stream()
+              .map(PluginData::getStagesElement)
+              .filter(Objects::nonNull)
+              .findFirst().orElse(null);
+      var children = PsiUtils.findChildren(parent, YAMLPlainTextImpl.class);
+      var targetChild = children.stream()
+              .filter(child -> child.getText().equals(stageName))
+              .findFirst()
+              .orElse(null);
+      if (targetChild != null) {
+        return Optional.of(new PsiReference[]{new StagesReferenceResolver(element, targetChild)});
+      }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
