@@ -1,6 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.resolvers;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
@@ -27,6 +28,9 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
     SCRIPT_RUNNERS.forEach(runner -> {
       if (text.startsWith(runner)) {
         pathBuilder.append(text.substring(runner.length()));
+        var textLen = text.length();
+        // to only underline the file name
+        setRangeInElement(new TextRange(runner.length(), textLen));
       }
     });
     var localFileSystemPath = LocalFileSystem.getInstance().findFileByPath(pathBuilder.toString());
