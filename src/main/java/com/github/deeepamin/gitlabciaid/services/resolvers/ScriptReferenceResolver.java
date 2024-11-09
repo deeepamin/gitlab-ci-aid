@@ -24,7 +24,10 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
     var text = myElement.getText();
     var pathBuilder = new StringBuilder();
     var basePath = project.getBasePath();
-    pathBuilder.append(basePath).append(File.separator);
+    pathBuilder.append(basePath);
+    if (!text.startsWith(File.separator)) {
+      pathBuilder.append(File.separator);
+    }
     SCRIPT_RUNNERS.forEach(runner -> {
       if (text.startsWith(runner)) {
         pathBuilder.append(text.substring(runner.length()));
