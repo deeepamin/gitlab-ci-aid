@@ -36,7 +36,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(job -> LookupElementBuilder.create(job)
                                     .bold()
                                     .withIcon(Icons.ICON_NEEDS.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(job, psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
+                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
                             .toList());
                   }
                   boolean isStageElement = PsiUtils.isStageElement(psiElement);
@@ -47,7 +47,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(stage, psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                   boolean isStagesElement = PsiUtils.isStagesElement(psiElement);
@@ -58,7 +58,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(stage, psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                 });
