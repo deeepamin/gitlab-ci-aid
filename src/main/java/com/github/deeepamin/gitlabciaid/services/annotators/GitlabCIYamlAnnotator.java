@@ -1,7 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.annotators;
 
 import com.github.deeepamin.gitlabciaid.GitlabCIAidBundle;
-import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCache;
+import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.codeInspection.InspectionManager;
@@ -66,7 +66,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGE)))
             .ifPresent(stage -> {
-              var allStages = GitlabCIYamlCache.getStageNamesDefinedAtStagesLevel();
+              var allStages = GitlabCIYamlApplicationService.getStageNamesDefinedAtStagesLevel();
               if (!allStages.contains(psiElement.getText())) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
                         .highlightType(LIKE_UNKNOWN_SYMBOL)
@@ -79,7 +79,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(NEEDS)))
             .ifPresent(job -> {
-              var allJobs = GitlabCIYamlCache.getJobNames();
+              var allJobs = GitlabCIYamlApplicationService.getJobNames();
               if (!allJobs.contains(psiElement.getText())) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
                         .highlightType(LIKE_UNKNOWN_SYMBOL)

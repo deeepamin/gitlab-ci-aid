@@ -13,6 +13,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlPostStartup"/>
+        <applicationService serviceImplementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService"/>
         <completion.contributor language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlCodeContributor"/>
         <multiHostInjector implementation="com.github.deeepamin.gitlabciaid.services.injectors.GitlabCIYamlScriptInjector"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.annotators.GitlabCIYamlAnnotator"/>

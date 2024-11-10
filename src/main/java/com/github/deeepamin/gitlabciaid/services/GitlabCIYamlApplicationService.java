@@ -3,6 +3,7 @@ package com.github.deeepamin.gitlabciaid.services;
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
@@ -15,15 +16,23 @@ import java.util.function.Predicate;
 
 import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.parseGitlabCIYamlData;
 
-public class GitlabCIYamlCache {
-  public static final Map<String, GitlabCIYamlData> PLUGIN_DATA = new HashMap<>();
+public class GitlabCIYamlApplicationService {
+  private static final Map<String, GitlabCIYamlData> PLUGIN_DATA = new HashMap<>();
 
-  public static void readGitlabCIYamlData(Project project, VirtualFile file) {
+  public static GitlabCIYamlApplicationService getInstance() {
+    return ApplicationManager.getApplication().getService(GitlabCIYamlApplicationService.class);
+  }
+
+  public static Map<String, GitlabCIYamlData> getPluginData() {
+    return PLUGIN_DATA;
+  }
+
+  public void readGitlabCIYamlData(Project project, VirtualFile file) {
     var gitlabCIYamlData = new GitlabCIYamlData(file.getPath());
     getGitlabCIYamlData(project, file, gitlabCIYamlData);
   }
 
-  private static void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
+  private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
     parseGitlabCIYamlData(project, file, gitlabCIYamlData);
     PLUGIN_DATA.put(file.getPath(), gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
