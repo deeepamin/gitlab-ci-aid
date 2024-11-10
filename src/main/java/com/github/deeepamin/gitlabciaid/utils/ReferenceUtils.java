@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCache.PLUGIN_DATA;
+import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService.getPluginData;
 
 public class ReferenceUtils {
   public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
@@ -49,7 +49,8 @@ public class ReferenceUtils {
   public static Optional<PsiReference[]> referencesNeeds(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var need = element.getText();
-      var targetJob = PLUGIN_DATA.values().stream()
+      var targetJob = getPluginData().values()
+              .stream()
               .flatMap(yamlData -> yamlData.getJobs().entrySet().stream())
               .filter(entry -> entry.getKey().equals(need))
               .map(Map.Entry::getValue)
@@ -63,7 +64,8 @@ public class ReferenceUtils {
   public static Optional<PsiReference[]> referencesStages(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
-      var targetStages = PLUGIN_DATA.values().stream()
+      var targetStages = getPluginData().values()
+              .stream()
               .flatMap(yamlData -> yamlData.getStages().entrySet().stream())
               .filter(entry -> entry.getKey().equals(stageName))
               .map(Map.Entry::getValue)
@@ -77,7 +79,8 @@ public class ReferenceUtils {
   public static Optional<PsiReference[]> referencesStage(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
-      var parent = PLUGIN_DATA.values().stream()
+      var parent = getPluginData().values()
+              .stream()
               .map(GitlabCIYamlData::getStagesElement)
               .filter(Objects::nonNull)
               .findFirst().orElse(null);

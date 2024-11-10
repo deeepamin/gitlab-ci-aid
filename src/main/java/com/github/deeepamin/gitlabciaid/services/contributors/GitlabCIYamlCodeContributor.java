@@ -1,7 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.model.Icons;
-import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCache;
+import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService;
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
@@ -31,34 +31,34 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                 .ifPresent(file -> {
                   boolean isNeedsElement = PsiUtils.isNeedsElement(psiElement);
                   if (isNeedsElement) {
-                    var allJobs = GitlabCIYamlCache.getJobNames();
+                    var allJobs = GitlabCIYamlApplicationService.getJobNames();
                     result.addAllElements(allJobs.stream()
                             .map(job -> LookupElementBuilder.create(job)
                                     .bold()
                                     .withIcon(Icons.ICON_NEEDS.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
+                                    .withTypeText(GitlabCIYamlApplicationService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
                             .toList());
                   }
                   boolean isStageElement = PsiUtils.isStageElement(psiElement);
                   if (isStageElement) {
                     // on stage element show suggestions from top level stages
-                    var allStages = GitlabCIYamlCache.getStageNamesDefinedAtStagesLevel();
+                    var allStages = GitlabCIYamlApplicationService.getStageNamesDefinedAtStagesLevel();
                     result.addAllElements(allStages.stream()
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(GitlabCIYamlApplicationService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                   boolean isStagesElement = PsiUtils.isStagesElement(psiElement);
                   if (isStagesElement) {
                     // on top level stages show suggestion from job level
-                    var allStages = GitlabCIYamlCache.getStageNamesDefinedAtJobLevel();
+                    var allStages = GitlabCIYamlApplicationService.getStageNamesDefinedAtJobLevel();
                     result.addAllElements(allStages.stream()
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlCache.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(GitlabCIYamlApplicationService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                 });
