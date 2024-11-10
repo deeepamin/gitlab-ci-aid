@@ -22,8 +22,6 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.utils.FileUtils.SCRIPT_EXTENSIONS;
 import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
-import static com.intellij.codeInspection.ProblemHighlightType.WARNING;
-import static com.intellij.codeInspection.ProblemHighlightType.WEAK_WARNING;
 
 public class GitlabCIYamlAnnotator implements Annotator {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlAnnotator.class);
