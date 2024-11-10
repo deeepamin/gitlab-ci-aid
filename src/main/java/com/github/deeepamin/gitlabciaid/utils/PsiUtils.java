@@ -2,6 +2,8 @@ package com.github.deeepamin.gitlabciaid.utils;
 
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLQuotedText;
+import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,5 +71,9 @@ public class PsiUtils {
     for (PsiElement child : element.getChildren()) {
       findChildren(child, clazz, children);
     }
+  }
+
+  public static boolean isYamlTextElement(PsiElement element) {
+    return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
   }
 }

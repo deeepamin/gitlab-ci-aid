@@ -17,6 +17,21 @@ import java.util.Optional;
 import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlCache.PLUGIN_DATA;
 
 public class ReferenceUtils {
+  public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
+    if (PsiUtils.isScriptElement(psiElement)) {
+      return referencesScripts(psiElement);
+    } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
+      return referencesIncludeLocalFiles(psiElement);
+    } else if (PsiUtils.isNeedsElement(psiElement)) {
+      return referencesNeeds(psiElement);
+    } else if (PsiUtils.isStagesElement(psiElement)) {
+      return referencesStages(psiElement);
+    } else if (PsiUtils.isStageElement(psiElement)) {
+      return referencesStage(psiElement);
+    }
+    return Optional.of(PsiReference.EMPTY_ARRAY);
+  }
+
   public static Optional<PsiReference[]> referencesScripts(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       return Optional.of(new PsiReference[]{new ScriptReferenceResolver(element)});

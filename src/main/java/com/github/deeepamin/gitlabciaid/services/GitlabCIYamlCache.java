@@ -1,13 +1,12 @@
 package com.github.deeepamin.gitlabciaid.services;
 
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,19 +28,12 @@ public class GitlabCIYamlCache {
     PLUGIN_DATA.put(file.getPath(), gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
       if (!PLUGIN_DATA.containsKey(yaml)) {
-        var pathBuilder = new StringBuilder();
-        var basePath = project.getBasePath();
-        pathBuilder.append(basePath);
-        if (!yaml.startsWith(File.separator)) {
-          pathBuilder.append(File.separator);
-        }
-        pathBuilder.append(yaml);
-        var includedYamlVirtualFile = LocalFileSystem.getInstance().findFileByPath(pathBuilder.toString());
-        if (includedYamlVirtualFile == null || !includedYamlVirtualFile.exists() || includedYamlVirtualFile.isDirectory() || !includedYamlVirtualFile.isValid()) {
+        var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
+        if (yamlVirtualFile == null) {
           return;
         }
         var includedYamlData = new GitlabCIYamlData(yaml);
-        getGitlabCIYamlData(project, includedYamlVirtualFile, includedYamlData);
+        getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData);
       }
     });
   }

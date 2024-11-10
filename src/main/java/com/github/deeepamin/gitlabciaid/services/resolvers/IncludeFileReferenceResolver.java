@@ -1,14 +1,12 @@
 package com.github.deeepamin.gitlabciaid.services.resolvers;
 
+import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
 
@@ -20,14 +18,7 @@ public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
   public @Nullable PsiElement resolve() {
     final Project project = myElement.getProject();
     var text = myElement.getText();
-    var pathBuilder = new StringBuilder();
-    var basePath = project.getBasePath();
-    pathBuilder.append(basePath);
-    if (!text.startsWith(File.separator)) {
-      pathBuilder.append(File.separator);
-    }
-    pathBuilder.append(text);
-    var localFileSystemPath = LocalFileSystem.getInstance().findFileByPath(pathBuilder.toString());
+    var localFileSystemPath = FileUtils.getVirtualFile(text, project).orElse(null);
     if (localFileSystemPath != null) {
       return PsiManager.getInstance(project).findFile(localFileSystemPath);
     }

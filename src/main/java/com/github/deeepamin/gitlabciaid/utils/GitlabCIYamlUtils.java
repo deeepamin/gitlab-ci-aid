@@ -29,7 +29,7 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LE
 
 public class GitlabCIYamlUtils {
   private static final List<String> SCHEMA_FILES = new ArrayList<>();
-  private static final Logger log = Logger.getInstance(GitlabCIYamlUtils.class);
+  private static final Logger LOG = Logger.getInstance(GitlabCIYamlUtils.class);
 
   static {
     SCHEMA_FILES.add(".gitlab-ci.yml");
@@ -54,7 +54,8 @@ public class GitlabCIYamlUtils {
             .map(PsiFile::getOriginalFile)
             .map(PsiFile::getViewProvider)
             .map(FileViewProvider::getVirtualFile)
-            .map(VirtualFile::toNioPath)
+            .map(VirtualFile::getPath)
+            .map(Path::of)
             .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
   }
 
@@ -63,7 +64,7 @@ public class GitlabCIYamlUtils {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
       if (psiFile == null) {
-        log.warn("Cannot find file: " + file.getPath());
+        LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
         return;
       }
       psiFile.accept(new YamlRecursivePsiElementVisitor() {
