@@ -1,6 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
-import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
+import com.github.deeepamin.gitlabciaid.utils.ReferenceUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceContributor;
@@ -13,11 +13,6 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlFile;
-import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesIncludeLocalFiles;
-import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesNeeds;
-import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesScripts;
-import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesStage;
-import static com.github.deeepamin.gitlabciaid.utils.ReferenceUtils.referencesStages;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
@@ -30,20 +25,7 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
 //                System.out.println(psiElement.getText() + " is of type " + psiElement.getClass().getName());
                 return getGitlabCIYamlFile(psiElement).isEmpty() ? PsiReference.EMPTY_ARRAY : Optional.of(psiElement)
-                        .flatMap(element -> {
-                          if (PsiUtils.isScriptElement(psiElement)) {
-                            return referencesScripts(psiElement);
-                          } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
-                            return referencesIncludeLocalFiles(psiElement);
-                          } else if (PsiUtils.isNeedsElement(psiElement)) {
-                            return referencesNeeds(psiElement);
-                          } else if (PsiUtils.isStagesElement(psiElement)) {
-                            return referencesStages(psiElement);
-                          } else if (PsiUtils.isStageElement(psiElement)) {
-                            return referencesStage(psiElement);
-                          }
-                          return Optional.of(PsiReference.EMPTY_ARRAY);
-                        })
+                        .flatMap(ReferenceUtils::getReferences)
                         .orElse(PsiReference.EMPTY_ARRAY);
               }
             }, PsiReferenceRegistrar.LOWER_PRIORITY

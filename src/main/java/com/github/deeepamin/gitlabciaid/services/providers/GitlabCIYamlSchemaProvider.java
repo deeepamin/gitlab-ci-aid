@@ -3,6 +3,7 @@ package com.github.deeepamin.gitlabciaid.services.providers;
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.json.JsonFileType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
@@ -12,10 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
+  private static final Logger LOG = Logger.getInstance(GitlabCIYamlSchemaProvider.class);
   private static final String SCHEMA_NAME = "Gitlab CI";
   private static final String SCHEMA_PATH = "/schemas/gitlab-ci-yml.json";
   private final VirtualFile schemaFile;
@@ -34,9 +37,14 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
   @Override
   public boolean isAvailable(@NotNull VirtualFile virtualFile) {
     if (virtualFile instanceof VirtualFileWindow) {
+      LOG.debug("VirtualFileWindow");
       virtualFile = ((VirtualFileWindow) virtualFile).getDelegate();
     }
-    return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(virtualFile.toNioPath());
+    if (virtualFile instanceof LightVirtualFile) {
+      LOG.debug("LightVirtualFile" + virtualFile.getPath());
+    }
+    var path = virtualFile.getPath();
+    return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(Path.of(path));
   }
 
   @Override
