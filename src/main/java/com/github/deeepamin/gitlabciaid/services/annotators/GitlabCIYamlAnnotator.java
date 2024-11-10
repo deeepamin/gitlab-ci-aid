@@ -22,6 +22,7 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.utils.FileUtils.SCRIPT_EXTENSIONS;
 import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
+import static com.intellij.codeInspection.ProblemHighlightType.WARNING;
 
 public class GitlabCIYamlAnnotator implements Annotator {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlAnnotator.class);
@@ -69,7 +70,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               var allStages = GitlabCIYamlCache.getStageNamesDefinedAtStagesLevel();
               if (!allStages.contains(psiElement.getText())) {
                 holder.newAnnotation(HighlightSeverity.ERROR, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
-                        .highlightType(LIKE_UNKNOWN_SYMBOL)
+                        .highlightType(WARNING)
                         .create();
               }
             });
@@ -82,7 +83,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               var allJobs = GitlabCIYamlCache.getJobNames();
               if (!allJobs.contains(psiElement.getText())) {
                 holder.newAnnotation(HighlightSeverity.ERROR, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
-                        .highlightType(LIKE_UNKNOWN_SYMBOL)
+                        .highlightType(WARNING)
                         .create();
               }
             });
