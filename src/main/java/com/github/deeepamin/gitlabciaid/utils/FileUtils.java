@@ -38,7 +38,7 @@ public class FileUtils {
     return Optional.empty();
   }
 
-  public static boolean createFile(String fileRelativePathToRoot, Project project, boolean openAfterCreation) {
+  public static void createFile(String fileRelativePathToRoot, Project project, boolean openAfterCreation) {
     var basePath = project.getBasePath();
     var pathBuilder = new StringBuilder();
     pathBuilder.append(basePath);
@@ -63,8 +63,7 @@ public class FileUtils {
         }
       }
     } catch (IOException e) {
-      LOG.error("Error creating file", e);
+      LOG.error("Error creating file " + fileRelativePathToRoot, e);
     }
-    return Files.exists(path);
   }
 }

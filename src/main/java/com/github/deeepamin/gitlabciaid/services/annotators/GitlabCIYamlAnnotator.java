@@ -23,6 +23,7 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.utils.FileUtils.SCRIPT_EXTENSIONS;
 import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
 import static com.intellij.codeInspection.ProblemHighlightType.WARNING;
+import static com.intellij.codeInspection.ProblemHighlightType.WEAK_WARNING;
 
 public class GitlabCIYamlAnnotator implements Annotator {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlAnnotator.class);
@@ -69,8 +70,8 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .ifPresent(stage -> {
               var allStages = GitlabCIYamlCache.getStageNamesDefinedAtStagesLevel();
               if (!allStages.contains(psiElement.getText())) {
-                holder.newAnnotation(HighlightSeverity.ERROR, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
-                        .highlightType(WARNING)
+                holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
+                        .highlightType(LIKE_UNKNOWN_SYMBOL)
                         .create();
               }
             });
@@ -82,8 +83,8 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .ifPresent(job -> {
               var allJobs = GitlabCIYamlCache.getJobNames();
               if (!allJobs.contains(psiElement.getText())) {
-                holder.newAnnotation(HighlightSeverity.ERROR, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
-                        .highlightType(WARNING)
+                holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
+                        .highlightType(LIKE_UNKNOWN_SYMBOL)
                         .create();
               }
             });
