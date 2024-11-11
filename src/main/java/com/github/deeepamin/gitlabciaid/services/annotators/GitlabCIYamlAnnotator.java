@@ -71,22 +71,18 @@ public class GitlabCIYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> GitlabCIYamlApplicationService.getJobNames().contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
-            .ifPresent(job -> {
-                      holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                            .textAttributes(JOB_HIGHLIGHTER)
-                            .create();
-            }
+            .ifPresent(job -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                  .textAttributes(JOB_HIGHLIGHTER)
+                  .create()
             );
   }
 
   private void annotateStages(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGES)))
-            .ifPresent(stage -> {
-              holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                      .textAttributes(STAGE_HIGHLIGHTER)
-                      .create();
-            });
+            .ifPresent(stage -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                    .textAttributes(STAGE_HIGHLIGHTER)
+                    .create());
   }
 
   private void annotateNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
