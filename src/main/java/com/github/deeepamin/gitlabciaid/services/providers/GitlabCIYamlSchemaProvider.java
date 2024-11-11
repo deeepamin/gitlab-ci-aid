@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
 import com.jetbrains.jsonSchema.extension.SchemaType;
+import com.jetbrains.jsonSchema.impl.JsonSchemaVersion;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,5 +61,10 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
   @Override
   public @NotNull SchemaType getSchemaType() {
     return SchemaType.schema;
+  }
+
+  @Override
+  public JsonSchemaVersion getSchemaVersion() {
+    return JsonSchemaVersion.SCHEMA_7;
   }
 }

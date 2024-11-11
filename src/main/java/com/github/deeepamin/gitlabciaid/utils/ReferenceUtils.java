@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,8 +48,9 @@ public class ReferenceUtils {
   }
 
   public static Optional<PsiReference[]> referencesNeeds(PsiElement element) {
-    if (element instanceof YAMLPlainTextImpl) {
-      var need = element.getText();
+    if (PsiUtils.isYamlTextElement(element)) {
+      // for cases: needs: ["some_job"]
+      var need = element.getText().replaceAll("\"", "");
       var targetJob = getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getJobs().entrySet().stream())
@@ -69,8 +71,8 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getStages().entrySet().stream())
               .filter(entry -> entry.getKey().equals(stageName))
               .map(Map.Entry::getValue)
-              .findFirst()
-              .orElse(null);
+              .flatMap(List::stream)
+              .toList();
       return Optional.of(new PsiReference[]{ new StageReferenceResolver(element, targetStages) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
