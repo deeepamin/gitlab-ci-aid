@@ -76,4 +76,25 @@ public class PsiUtils {
   public static boolean isYamlTextElement(PsiElement element) {
     return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
   }
+
+  public static boolean hasChild(PsiElement element, String childKey) {
+    if (element == null || childKey == null) {
+      return false;
+    }
+    if (element instanceof YAMLKeyValue keyValue) {
+      if (keyValue.getKeyText().equals(childKey)) {
+        return true;
+      }
+    }
+    if (element.getText().equals(childKey)) {
+      return true;
+    }
+    var children = element.getChildren();
+    for (PsiElement child : children) {
+      if (hasChild(child, childKey)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -9,6 +9,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLDocument;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
@@ -94,7 +95,14 @@ public class GitlabCIYamlUtils {
           var superParent = keyValue.getParent().getParent();
           if (superParent instanceof YAMLDocument) {
             // top level elements
-            if (!TOP_LEVEL_KEYWORDS.contains(keyText)) {
+            var key = keyValue.getKey();
+            if (key instanceof LeafPsiElement) {
+              key = key.getParent();
+            }
+
+            // rules can also be top level elements, but they don't have stage as child
+            var hasChildStage = PsiUtils.hasChild(key, STAGE);
+            if (!TOP_LEVEL_KEYWORDS.contains(keyText) && hasChildStage) {
               // this means it's a job
               gitlabCIYamlData.addJob(keyValue);
             }

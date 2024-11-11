@@ -1,6 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.utils.ReferenceUtils;
+import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceContributor;
@@ -8,6 +9,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.Optional;
@@ -19,7 +21,10 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
   @Override
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
-            psiElement(YAMLPlainTextImpl.class),
+            PlatformPatterns.or(
+                    psiElement(YAMLPlainTextImpl.class),
+                    psiElement(YAMLQuotedText.class)
+            ),
             new PsiReferenceProvider() {
               @Override
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
@@ -28,7 +33,7 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
                         .flatMap(ReferenceUtils::getReferences)
                         .orElse(PsiReference.EMPTY_ARRAY);
               }
-            }, PsiReferenceRegistrar.LOWER_PRIORITY
+            }, PsiReferenceRegistrar.DEFAULT_PRIORITY
     );
   }
 }
