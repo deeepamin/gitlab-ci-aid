@@ -29,27 +29,30 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 
 public class GitlabCIYamlUtils {
-  private static final List<String> SCHEMA_FILES = new ArrayList<>();
+  // TODO Gitlab allows changing default file name, config for that?
+  public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yml";
+  private static final List<String> GITLAB_CI_YAML_FILES = new ArrayList<>();
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlUtils.class);
 
   static {
-    SCHEMA_FILES.add(".gitlab-ci.yml");
+    GITLAB_CI_YAML_FILES.add(GITLAB_CI_DEFAULT_YAML_FILE);
   }
 
-  public static void addSchemaFile(String schemaFilePath) {
+  public static void addYamlFile(final String yamlFilePath) {
     // used to add all the files included in .gitlab-ci.yml
-    SCHEMA_FILES.add(schemaFilePath);
+    LOG.info("Found yaml file: " + yamlFilePath);
+    GITLAB_CI_YAML_FILES.add(yamlFilePath);
   }
 
-  public static boolean isGitlabCIYamlFile(Path path) {
-    return path != null && SCHEMA_FILES.stream().anyMatch(schemaFile -> path.toString().endsWith(schemaFile));
+  public static boolean isGitlabCIYamlFile(final Path path) {
+    return path != null && GITLAB_CI_YAML_FILES.stream().anyMatch(yamlFile -> path.toString().endsWith(yamlFile));
   }
 
-  public static boolean isValidGitlabCIYamlFile(VirtualFile file) {
-    return file != null && file.isValid() && file.exists() && SCHEMA_FILES.stream().anyMatch(schemaFile -> file.getPath().endsWith(schemaFile));
+  public static boolean isValidGitlabCIYamlFile(final VirtualFile file) {
+    return file != null && file.isValid() && file.exists() && GITLAB_CI_YAML_FILES.stream().anyMatch(yamlFile -> file.getPath().endsWith(yamlFile));
   }
 
-  public static Optional<Path> getGitlabCIYamlFile(PsiElement psiElement) {
+  public static Optional<Path> getGitlabCIYamlFile(final PsiElement psiElement) {
     return Optional.ofNullable(psiElement)
             .map(PsiElement::getContainingFile)
             .map(PsiFile::getOriginalFile)
@@ -60,7 +63,7 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
   }
 
-  public static void parseGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
+  public static void parseGitlabCIYamlData(final Project project, final VirtualFile file, final GitlabCIYamlData gitlabCIYamlData) {
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -81,14 +84,14 @@ public class GitlabCIYamlUtils {
                     .map(YAMLBlockScalarImpl::getText)
                     .distinct()
                     .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addSchemaFile(schemaFile);
+                      GitlabCIYamlUtils.addYamlFile(schemaFile);
                       gitlabCIYamlData.addIncludedYaml(schemaFile);
                     });
             quotedTextChildren.stream()
                     .map(YAMLQuotedText::getText)
                     .distinct()
                     .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addSchemaFile(schemaFile);
+                      GitlabCIYamlUtils.addYamlFile(schemaFile);
                       gitlabCIYamlData.addIncludedYaml(schemaFile);
                     });
           }

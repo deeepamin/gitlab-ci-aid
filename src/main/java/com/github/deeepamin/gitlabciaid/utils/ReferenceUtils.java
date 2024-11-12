@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService.getPluginData;
+import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService.getPluginData;
 
 public class ReferenceUtils {
   public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
