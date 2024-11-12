@@ -2,13 +2,20 @@ package com.github.deeepamin.gitlabciaid.services;
 
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
+import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,15 +23,25 @@ import java.util.function.Predicate;
 
 import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.parseGitlabCIYamlData;
 
-public class GitlabCIYamlApplicationService {
+@Service(Service.Level.PROJECT)
+public final class GitlabCIYamlProjectService implements DumbAware {
+  private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
   private static final Map<String, GitlabCIYamlData> PLUGIN_DATA = new HashMap<>();
 
-  public static GitlabCIYamlApplicationService getInstance() {
-    return ApplicationManager.getApplication().getService(GitlabCIYamlApplicationService.class);
+  public static GitlabCIYamlProjectService getInstance(Project project) {
+    return project.getService(GitlabCIYamlProjectService.class);
   }
 
   public static Map<String, GitlabCIYamlData> getPluginData() {
     return PLUGIN_DATA;
+  }
+
+  public void processOpenedFile(Project project, VirtualFile file) {
+      if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
+        return;
+      }
+      //TODO check for already parsed files, need PSI listeners to track changes in those files
+      readGitlabCIYamlData(project, file);
   }
 
   public void readGitlabCIYamlData(Project project, VirtualFile file) {
@@ -39,6 +56,7 @@ public class GitlabCIYamlApplicationService {
       if (!PLUGIN_DATA.containsKey(yaml)) {
         var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
         if (yamlVirtualFile == null) {
+          LOG.debug(yaml + " not found on " + project.getBasePath());
           return;
         }
         var includedYamlData = new GitlabCIYamlData(yaml);
@@ -84,5 +102,18 @@ public class GitlabCIYamlApplicationService {
       return filePath.replaceFirst("^" + basePath + "/", "");
     }
     return "";
+  }
+
+  public void afterStartup(@NotNull Project project) {
+    final var basePath = project.getBasePath();
+    final var gitlabCIYamlPath = basePath + GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILE;
+    final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(gitlabCIYamlPath);
+    if (gitlabCIYamlFile != null) {
+      LOG.info("Found " + GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILE + " in " + gitlabCIYamlPath);
+      readGitlabCIYamlData(project, gitlabCIYamlFile);
+    } else {
+      final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+      Arrays.stream(fileEditorManager.getOpenFiles()).forEach(openedFile -> processOpenedFile(project, openedFile));
+    }
   }
 }

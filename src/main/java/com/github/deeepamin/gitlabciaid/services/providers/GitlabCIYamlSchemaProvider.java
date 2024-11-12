@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlSchemaProvider.class);
-  private static final String SCHEMA_NAME = "Gitlab CI";
+  private static final String SCHEMA_NAME = "Gitlab CI [Auto]";
   private static final String SCHEMA_PATH = "/schemas/gitlab-ci-yml.json";
   private final VirtualFile schemaFile;
 
@@ -44,8 +44,7 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
     if (virtualFile instanceof LightVirtualFile) {
       LOG.debug("LightVirtualFile" + virtualFile.getPath());
     }
-    var path = virtualFile.getPath();
-    return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(Path.of(path));
+    return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(Path.of(virtualFile.getPath()));
   }
 
   @Override

@@ -1,7 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.annotators;
 
 import com.github.deeepamin.gitlabciaid.GitlabCIAidBundle;
-import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlApplicationService;
+import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.codeInspection.InspectionManager;
@@ -52,7 +52,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGE)))
             .ifPresent(stage -> {
-              var allStages = GitlabCIYamlApplicationService.getStageNamesDefinedAtStagesLevel();
+              var allStages = GitlabCIYamlProjectService.getStageNamesDefinedAtStagesLevel();
               var stageName = psiElement.getText().replaceAll("\"", "");
               if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
@@ -69,7 +69,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
 
   private void annotateJobs(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(element -> GitlabCIYamlApplicationService.getJobNames().contains(element.getText()))
+            .filter(element -> GitlabCIYamlProjectService.getJobNames().contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
             .ifPresent(job -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                   .textAttributes(JOB_HIGHLIGHTER)
@@ -90,7 +90,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .filter(element -> PsiUtils.isChild(element, List.of(NEEDS)))
             .filter(element -> !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS))
             .ifPresent(job -> {
-              var allJobs = GitlabCIYamlApplicationService.getJobNames();
+              var allJobs = GitlabCIYamlProjectService.getJobNames();
               var jobName = psiElement.getText().replaceAll("\"", "");
               if (!allJobs.contains(jobName)) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
