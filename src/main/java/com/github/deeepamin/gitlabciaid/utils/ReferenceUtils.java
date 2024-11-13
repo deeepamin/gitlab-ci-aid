@@ -2,10 +2,10 @@ package com.github.deeepamin.gitlabciaid.utils;
 
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.StageReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.StagesReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToStageReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.StageToStagesReferenceResolver;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
@@ -24,11 +24,11 @@ public class ReferenceUtils {
     } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
       return referencesIncludeLocalFiles(psiElement);
     } else if (PsiUtils.isNeedsElement(psiElement)) {
-      return referencesNeeds(psiElement);
+      return referencesNeedsToJob(psiElement);
     } else if (PsiUtils.isStagesElement(psiElement)) {
-      return referencesStages(psiElement);
+      return referencesStagesToStage(psiElement);
     } else if (PsiUtils.isStageElement(psiElement)) {
-      return referencesStage(psiElement);
+      return referencesStageToStages(psiElement);
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
@@ -47,10 +47,10 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesNeeds(PsiElement element) {
+  public static Optional<PsiReference[]> referencesNeedsToJob(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
-      // for cases: needs: ["some_job"]
-      var need = element.getText().replaceAll("\"", "");
+      // for cases: needs: ["some_job"] / needs: ["some_job] / needs: [some_job"]
+      var need = handleQuotedText(element.getText());
       var targetJob = getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getJobs().entrySet().stream())
@@ -58,12 +58,12 @@ public class ReferenceUtils {
               .map(Map.Entry::getValue)
               .findFirst()
               .orElse(null);
-      return Optional.of(new PsiReference[]{new NeedsReferenceResolver(element, targetJob)});
+      return Optional.of(new PsiReference[]{new NeedsToJobReferenceResolver(element, targetJob)});
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesStages(PsiElement element) {
+  public static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
       var targetStages = getPluginData().values()
@@ -73,12 +73,12 @@ public class ReferenceUtils {
               .map(Map.Entry::getValue)
               .flatMap(List::stream)
               .toList();
-      return Optional.of(new PsiReference[]{ new StageReferenceResolver(element, targetStages) });
+      return Optional.of(new PsiReference[]{ new StagesToStageReferenceResolver(element, targetStages) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesStage(PsiElement element) {
+  public static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
       var parent = getPluginData().values()
@@ -92,9 +92,16 @@ public class ReferenceUtils {
               .findFirst()
               .orElse(null);
       if (targetChild != null) {
-        return Optional.of(new PsiReference[]{new StagesReferenceResolver(element, targetChild)});
+        return Optional.of(new PsiReference[]{new StageToStagesReferenceResolver(element, targetChild)});
       }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
+  }
+
+  public static String handleQuotedText(String text) {
+    if (text.startsWith("\"") && text.endsWith("\"")) {
+      text = text.replaceAll("\"", "");
+    }
+    return text;
   }
 }

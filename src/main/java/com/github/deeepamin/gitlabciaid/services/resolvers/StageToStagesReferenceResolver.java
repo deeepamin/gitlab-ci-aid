@@ -8,10 +8,11 @@ import com.intellij.psi.ResolveResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NeedsReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+public class StageToStagesReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
   private final PsiElement target;
 
-  public NeedsReferenceResolver(@NotNull PsiElement element, PsiElement target) {
+  // From one stage to top level stages
+  public StageToStagesReferenceResolver(@NotNull PsiElement element, PsiElement target) {
     super(element);
     this.target = target;
   }
