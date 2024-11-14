@@ -9,6 +9,8 @@ import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.regex.Pattern;
+
 public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
   public ScriptReferenceResolver(@NotNull PsiElement element) {
     super(element);
@@ -18,14 +20,13 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
   public @Nullable PsiElement resolve() {
     final Project project = myElement.getProject();
     var elementText = myElement.getText();
-    FileUtils.SCRIPT_RUNNERS.stream()
-            .filter(elementText::startsWith)
-            .forEach(runner -> {
-              var textLen = elementText.length();
-              // to only underline the file name
-              setRangeInElement(new TextRange(runner.length(), textLen));
-            });
-    var localFileSystemPath = FileUtils.getVirtualFile(elementText, project).orElse(null);
+    var scriptPathIndex = getShOrPyScript(elementText);
+    var scriptPath = elementText;
+    if (scriptPathIndex != null) {
+      scriptPath = scriptPathIndex.path;
+      setRangeInElement(new TextRange(scriptPathIndex.start, scriptPathIndex.end));
+    }
+    var localFileSystemPath = FileUtils.getVirtualFile(scriptPath, project).orElse(null);
     if (localFileSystemPath != null) {
       return PsiManager.getInstance(project).findFile(localFileSystemPath);
     }
@@ -35,5 +36,18 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
   @Override
   public @NotNull String getCanonicalText() {
     return myElement.getText();
+  }
+
+  private ScriptPathIndex getShOrPyScript(String elementText) {
+    String regex = "(\\./|/)\\S+\\.(sh|py)";
+    Pattern pattern = Pattern.compile(regex);
+    var matcher = pattern.matcher(elementText);
+    if (matcher.find()) {
+      return new ScriptPathIndex(matcher.group(), matcher.start(), matcher.end());
+    }
+    return null;
+  }
+
+  private record ScriptPathIndex(String path, int start, int end) {
   }
 }
