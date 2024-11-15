@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 public class FileUtils {
   private static final Logger LOG = Logger.getInstance(FileUtils.class);
-  public static final List<String> SCRIPT_EXTENSIONS = List.of(".sh", ".py");
   public static final List<String> SCRIPT_RUNNERS = List.of("python ", "python3 ");
 
   public static Optional<VirtualFile> getVirtualFile(String fileRelativePathToRoot, Project project) {
