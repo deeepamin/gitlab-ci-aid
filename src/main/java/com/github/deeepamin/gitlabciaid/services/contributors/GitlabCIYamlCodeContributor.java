@@ -13,6 +13,8 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -32,7 +34,10 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                   boolean isNeedsElement = PsiUtils.isNeedsElement(psiElement);
                   if (isNeedsElement) {
                     var allJobs = GitlabCIYamlProjectService.getJobNames();
-                    result.addAllElements(allJobs.stream()
+                    var parentJob = PsiUtils.findParent(psiElement, allJobs);
+                    List<String> filteredJobs = new ArrayList<>(allJobs);
+                    parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
+                    result.addAllElements(filteredJobs.stream()
                             .map(job -> LookupElementBuilder.create(job)
                                     .bold()
                                     .withIcon(Icons.ICON_NEEDS.getIcon())
