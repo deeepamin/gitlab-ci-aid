@@ -9,7 +9,7 @@ import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.regex.Pattern;
+import static com.github.deeepamin.gitlabciaid.utils.FileUtils.getShOrPyScript;
 
 public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
   public ScriptReferenceResolver(@NotNull PsiElement element) {
@@ -23,8 +23,8 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
     var scriptPathIndex = getShOrPyScript(elementText);
     var scriptPath = elementText;
     if (scriptPathIndex != null) {
-      scriptPath = scriptPathIndex.path;
-      setRangeInElement(new TextRange(scriptPathIndex.start, scriptPathIndex.end));
+      scriptPath = scriptPathIndex.path();
+      setRangeInElement(new TextRange(scriptPathIndex.start(), scriptPathIndex.end()));
     }
     var localFileSystemPath = FileUtils.getVirtualFile(scriptPath, project).orElse(null);
     if (localFileSystemPath != null) {
@@ -38,16 +38,4 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
     return myElement.getText();
   }
 
-  private ScriptPathIndex getShOrPyScript(String elementText) {
-    String regex = "(\\./|/)\\S+\\.(sh|py)";
-    Pattern pattern = Pattern.compile(regex);
-    var matcher = pattern.matcher(elementText);
-    if (matcher.find()) {
-      return new ScriptPathIndex(matcher.group(), matcher.start(), matcher.end());
-    }
-    return null;
-  }
-
-  private record ScriptPathIndex(String path, int start, int end) {
-  }
 }

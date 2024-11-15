@@ -4,6 +4,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java") // Java support
+    id("jacoco")
     alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
@@ -11,6 +12,26 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+
+val pluginGroup = providers.gradleProperty("pluginGroup").get()
+val pluginName = providers.gradleProperty("pluginName").get()
+val pluginDescription = providers.gradleProperty("pluginDescription").get()
+val pluginVersion = providers.gradleProperty("pluginVersion").get()
+val pluginSinceBuild = providers.gradleProperty("pluginSinceBuild").get()
+val vendorName = providers.gradleProperty("vendorName").get()
+val vendorEmail = providers.gradleProperty("vendorEmail").get()
+val pluginRepositoryUrl = providers.gradleProperty("pluginRepositoryUrl").get()
+val platformVersion = providers.gradleProperty("platformVersion").get()
+
+println("pluginGroup [$pluginGroup]")
+println("pluginName [$pluginName]")
+println("pluginDescription [$pluginDescription]")
+println("pluginVersion [$pluginVersion]")
+println("platformVersion [$platformVersion]")
+println("pluginSinceBuild [$pluginSinceBuild]")
+println("vendorName [$vendorName]")
+println("vendorEmail [$vendorEmail]")
+println("pluginRepositoryUrl [$pluginRepositoryUrl]")
 
 // Configure project's dependencies
 repositories {
@@ -23,9 +44,14 @@ repositories {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     testImplementation(libs.junit)
+    testImplementation("org.opentest4j:opentest4j:1.3.0")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
@@ -77,7 +103,6 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
 
@@ -104,8 +129,8 @@ intellijPlatform {
 
 // Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -122,6 +147,18 @@ tasks {
     publishPlugin {
         dependsOn(patchChangelog)
     }
+
+    jacocoTestReport {
+        dependsOn(test)
+        reports {
+            html.required.set(true)
+            csv.required.set(true)
+        }
+    }
+}
+
+tasks.withType<Test> {
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 intellijPlatformTesting {

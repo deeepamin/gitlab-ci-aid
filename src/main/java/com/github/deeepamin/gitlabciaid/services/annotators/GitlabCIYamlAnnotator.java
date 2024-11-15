@@ -11,6 +11,7 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -28,28 +29,30 @@ import static com.github.deeepamin.gitlabciaid.utils.FileUtils.SCRIPT_EXTENSIONS
 import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.NUMBER;
 
 public class GitlabCIYamlAnnotator implements Annotator {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlAnnotator.class);
   private static final String STAGE_ATTRIBUTE = "STAGE";
   private static final String JOB_ATTRIBUTE = "JOB";
+  private static final String SCRIPT_ATTRIBUTE = "SCRIPT";
   private static final TextAttributesKey STAGE_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(STAGE_ATTRIBUTE, INSTANCE_FIELD);
   private static final TextAttributesKey JOB_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(JOB_ATTRIBUTE, INSTANCE_METHOD);
+  private static final TextAttributesKey SCRIPT_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(SCRIPT_ATTRIBUTE, NUMBER);
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (PsiUtils.isYamlTextElement(element)) {
-      annotateStage(element, holder);
-      annotateStages(element, holder);
-      annotateNeedsJob(element, holder);
-      annotateScriptNotFound(element, holder);
-    }
     if (element instanceof LeafPsiElement) {
-      annotateJobs(element, holder);
+      highlightJobs(element, holder);
+    } else if (PsiUtils.isYamlTextElement(element)) {
+      annotateHighlightNeedsJob(element, holder);
+      annotateHighlightScript(element, holder);
+      annotateHighlightStage(element, holder);
+      annotateStages(element, holder);
     }
   }
 
-  private void annotateStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void annotateHighlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGE)))
             .ifPresent(stage -> {
@@ -68,7 +71,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
             });
   }
 
-  private void annotateJobs(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightJobs(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> GitlabCIYamlProjectService.getJobNames().contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
@@ -86,7 +89,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
                     .create());
   }
 
-  private void annotateNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void annotateHighlightNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(NEEDS)))
             .filter(element -> !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS))
@@ -105,19 +108,19 @@ public class GitlabCIYamlAnnotator implements Annotator {
             });
   }
 
-  private void annotateScriptNotFound(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void annotateHighlightScript(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, SCRIPT_KEYWORDS))
             .ifPresent(scriptElement -> {
               var filePath = scriptElement.getText();
-              boolean isScript = SCRIPT_EXTENSIONS.stream()
-                      .anyMatch(filePath::endsWith);
-              if (!isScript) {
-                LOG.debug("File extension is not of a script " + scriptElement.getText());
+              var scriptPathIndex = FileUtils.getShOrPyScript(filePath);
+              if (scriptPathIndex == null) {
+                LOG.debug("Can't found script in " + scriptElement.getText());
                 return;
               }
               var project = scriptElement.getProject();
-              var virtualScriptFile = FileUtils.getVirtualFile(filePath, project).orElse(null);
+              var scriptPath = scriptPathIndex.path();
+              var virtualScriptFile = FileUtils.getVirtualFile(scriptPath, project).orElse(null);
               if (virtualScriptFile == null) {
                 var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
                 var quickFix = new CreateScriptQuickFix();
@@ -127,6 +130,20 @@ public class GitlabCIYamlAnnotator implements Annotator {
                         .highlightType(LIKE_UNKNOWN_SYMBOL)
                         .newLocalQuickFix(quickFix, problemDescriptor)
                         .registerFix()
+                        .create();
+              }  else {
+                var scriptElementTextRange = scriptElement.getTextRange();
+                var highlightStartRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.start();
+                if (highlightStartRange > scriptElementTextRange.getEndOffset()) {
+                  highlightStartRange = scriptElementTextRange.getStartOffset();
+                }
+                var highlightEndRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.end();
+                if (highlightEndRange > scriptElementTextRange.getEndOffset()) {
+                  highlightEndRange = scriptElementTextRange.getEndOffset();
+                }
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .textAttributes(SCRIPT_HIGHLIGHTER)
+                        .range(new TextRange(highlightStartRange, highlightEndRange))
                         .create();
               }
             });

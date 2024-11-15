@@ -1,0 +1,47 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+include:
+  - pipeline.yml
+
+stages:
+  - validate
+  - build
+  - test
+  - deploy
+
+build-dev:
+  stage: build
+  image: java:latest
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+  needs:
+    - <warning descr="Job 'validate' is undefined">validate</warning>
+    - test-job
+
+build-sit:
+  stage: build
+  image: java:latest
+  tags:
+    - build-sit-tag
+  variables:
+    ENV: sit
+  needs:
+    - test-job
+    - build-dev
+
+test-job:
+  stage: test
+  image: test:latest
+  tags:
+    - test
+  needs: [<warning descr="Job '\"validate\"' is undefined">"validate"</warning>, "build-dev", "build-sit"]

@@ -1,0 +1,26 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+include:
+  - pipeline.yml
+
+stages:
+  - build
+
+build-dev:
+  stage: build
+  script: ./build-dev.sh
+  image: java:latest
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+  needs:
+    - test-job
