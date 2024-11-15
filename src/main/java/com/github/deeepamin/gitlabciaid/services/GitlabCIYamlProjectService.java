@@ -36,6 +36,10 @@ public final class GitlabCIYamlProjectService implements DumbAware {
     return PLUGIN_DATA;
   }
 
+  public static void clearPluginData() {
+    PLUGIN_DATA.clear();
+  }
+
   public void processOpenedFile(Project project, VirtualFile file) {
       if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
         return;

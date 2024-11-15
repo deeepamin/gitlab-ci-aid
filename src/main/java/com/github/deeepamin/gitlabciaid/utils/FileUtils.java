@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class FileUtils {
   private static final Logger LOG = Logger.getInstance(FileUtils.class);
@@ -65,5 +66,18 @@ public class FileUtils {
     } catch (IOException e) {
       LOG.error("Error creating file " + fileRelativePathToRoot, e);
     }
+  }
+
+  public static ScriptPathIndex getShOrPyScript(String elementText) {
+    String regex = "(\\./|/)\\S+\\.(sh|py)";
+    Pattern pattern = Pattern.compile(regex);
+    var matcher = pattern.matcher(elementText);
+    if (matcher.find()) {
+      return new ScriptPathIndex(matcher.group(), matcher.start(), matcher.end());
+    }
+    return null;
+  }
+
+  public record ScriptPathIndex(String path, int start, int end) {
   }
 }

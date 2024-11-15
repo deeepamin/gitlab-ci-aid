@@ -1,0 +1,57 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+include:
+  - /ci/pipeline.yml
+
+stages:
+  - validate
+  - build
+  - test
+  - deploy
+
+build-dev:
+  stage: <caret>build
+  image: java:latest
+  script: ./build.sh
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+  needs:
+    - checkstyle
+
+build-sit:
+  stage: build
+  image: java:latest
+  script: ./build.sh
+  tags:
+    - build-sit-tag
+  variables:
+    ENV: sit
+  needs:
+    - checkstyle
+    - build-dev
+
+test-job:
+  stage: test
+  image: test:latest
+  script: ./build.sh
+  tags:
+    - test
+  needs: ["checkstyle", "build-dev", "build-sit"]
+
+deploy-job:
+  stage: deploy
+  image: deploy:latest
+  script: ./deploy.sh
+  tags:
+    - deploy
+  needs: ["test-job"]

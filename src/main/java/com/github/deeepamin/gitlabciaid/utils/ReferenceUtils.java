@@ -4,8 +4,8 @@ import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToStageReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.StageToStagesReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToJobStageReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
@@ -73,7 +73,7 @@ public class ReferenceUtils {
               .map(Map.Entry::getValue)
               .flatMap(List::stream)
               .toList();
-      return Optional.of(new PsiReference[]{ new StagesToStageReferenceResolver(element, targetStages) });
+      return Optional.of(new PsiReference[]{ new StagesToJobStageReferenceResolver(element, targetStages) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
@@ -92,7 +92,7 @@ public class ReferenceUtils {
               .findFirst()
               .orElse(null);
       if (targetChild != null) {
-        return Optional.of(new PsiReference[]{new StageToStagesReferenceResolver(element, targetChild)});
+        return Optional.of(new PsiReference[]{new JobStageToStagesReferenceResolver(element, targetChild)});
       }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);

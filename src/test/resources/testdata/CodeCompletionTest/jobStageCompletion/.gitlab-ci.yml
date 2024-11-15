@@ -1,0 +1,58 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+stages:
+  - build
+  - test
+  - deploy
+
+build-dev:
+  stage: build
+  image: java:latest
+  script: ./build.sh
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+
+build-sit:
+  stage: build
+  image: java:latest
+  script: ./build.sh
+  tags:
+    - build-sit-tag
+  variables:
+    ENV: sit
+  needs:
+    - build-dev
+
+test-job:
+  stage: <caret>
+  image: test:latest
+  script: ./build.sh
+  tags:
+    - test
+  needs: ["build-dev", "build-sit"]
+
+deploy-job:
+  stage: deploy
+  image: deploy:latest
+  script: ./deploy.sh
+  tags:
+    - deploy
+  needs: ["test-job"]
+
+release-job:
+  stage: release
+  image: release:latest
+  script: ./deploy.sh
+  tags:
+    - release
+  needs: ["deploy-job"]
