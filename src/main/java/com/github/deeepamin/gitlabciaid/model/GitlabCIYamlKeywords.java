@@ -24,6 +24,12 @@ public class GitlabCIYamlKeywords {
   public static final String PIPELINE = "pipeline";
   public static final String PARALLEL = "parallel";
   public static final String MATRIX = "matrix";
+  public static final String COMPONENT = "component";
+  public static final String FILE = "file";
+  public static final String REMOTE = "remote";
+  public static final String TEMPLATE = "template";
+  public static final String INPUTS = "inputs";
+  public static final String RULES = "rules";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,
@@ -42,6 +48,7 @@ public class GitlabCIYamlKeywords {
   public static final List<String> SCRIPT_KEYWORDS = List.of(SCRIPT, AFTER_SCRIPT, BEFORE_SCRIPT);
 
   public static final List<String> NEEDS_POSSIBLE_CHILD_KEYWORDS = List.of(ARTIFACTS, OPTIONAL, PROJECT, REF, PIPELINE, PARALLEL, MATRIX);
+  public static final List<String> INCLUDE_POSSIBLE_CHILD_KEYWORDS = List.of(COMPONENT, PROJECT, FILE, REF, REMOTE, TEMPLATE, INPUTS, RULES);
 
   public static final String PRE_STAGE = ".pre";
   public static final String BUILD_STAGE = "build";

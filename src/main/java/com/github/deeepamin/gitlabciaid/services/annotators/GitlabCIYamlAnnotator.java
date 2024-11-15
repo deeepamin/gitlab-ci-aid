@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.DEFAULT_STAGES;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE_POSSIBLE_CHILD_KEYWORDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
@@ -35,9 +37,13 @@ public class GitlabCIYamlAnnotator implements Annotator {
   private static final String STAGE_ATTRIBUTE = "STAGE";
   private static final String JOB_ATTRIBUTE = "JOB";
   private static final String SCRIPT_ATTRIBUTE = "SCRIPT";
+  private static final String INCLUDE_ATTRIBUTE = "INCLUDE";
+
   private static final TextAttributesKey STAGE_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(STAGE_ATTRIBUTE, INSTANCE_FIELD);
   private static final TextAttributesKey JOB_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(JOB_ATTRIBUTE, INSTANCE_METHOD);
   private static final TextAttributesKey SCRIPT_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(SCRIPT_ATTRIBUTE, NUMBER);
+  private static final TextAttributesKey INCLUDE_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(INCLUDE_ATTRIBUTE, NUMBER);
+
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -45,9 +51,10 @@ public class GitlabCIYamlAnnotator implements Annotator {
       highlightJobs(element, holder);
     } else if (PsiUtils.isYamlTextElement(element)) {
       annotateHighlightNeedsJob(element, holder);
-      annotateHighlightScript(element, holder);
       annotateHighlightStage(element, holder);
       annotateStages(element, holder);
+      annotateHighlightScript(element, holder);
+      annotateHighlightIncludeFile(element, holder);
     }
   }
 
@@ -143,6 +150,32 @@ public class GitlabCIYamlAnnotator implements Annotator {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                         .textAttributes(SCRIPT_HIGHLIGHTER)
                         .range(new TextRange(highlightStartRange, highlightEndRange))
+                        .create();
+              }
+            });
+  }
+
+  private void annotateHighlightIncludeFile(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+    Optional.of(psiElement)
+            .filter(element -> PsiUtils.isChild(element, List.of(INCLUDE)))
+            .filter(element -> !PsiUtils.isChild(element, INCLUDE_POSSIBLE_CHILD_KEYWORDS)) // component, project, etc. currently not supported
+            .ifPresent(includeElement -> {
+              var filePath = includeElement.getText();
+              var project = includeElement.getProject();
+              var virtualScriptFile = FileUtils.getVirtualFile(filePath, project).orElse(null);
+              if (virtualScriptFile == null) {
+                var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.include-not-found", includeElement.getText());
+                var quickFix = new CreateIncludeFileQuickFix();
+                var problemDescriptor = InspectionManager.getInstance(project)
+                        .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
+                holder.newAnnotation(HighlightSeverity.WARNING, errorText)
+                        .highlightType(LIKE_UNKNOWN_SYMBOL)
+                        .newLocalQuickFix(quickFix, problemDescriptor)
+                        .registerFix()
+                        .create();
+              }  else {
+                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                        .textAttributes(INCLUDE_HIGHLIGHTER)
                         .create();
               }
             });
