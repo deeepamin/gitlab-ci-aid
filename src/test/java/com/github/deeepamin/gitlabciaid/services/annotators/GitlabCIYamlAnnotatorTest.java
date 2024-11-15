@@ -60,7 +60,7 @@ public class GitlabCIYamlAnnotatorTest extends BaseTest {
     myFixture.configureByFile(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     List<HighlightInfo> highlightInfos = myFixture.doHighlighting();
     assertEquals(6, highlightInfos.size());
-    assertTrue(highlightInfos.get(3).getDescription().equals("Script './build-dev.sh' is not available on path"));
+    assertEquals("Script './build-dev.sh' is not available on path", highlightInfos.get(3).getDescription());
   }
 
   public void testCreateScriptQuickFix() {

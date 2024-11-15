@@ -25,7 +25,6 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS_
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
-import static com.github.deeepamin.gitlabciaid.utils.FileUtils.SCRIPT_EXTENSIONS;
 import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;

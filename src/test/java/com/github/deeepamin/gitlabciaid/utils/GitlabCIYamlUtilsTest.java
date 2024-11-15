@@ -48,7 +48,7 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     var path = GitlabCIYamlUtils.getGitlabCIYamlFile(psiYaml);
     assertTrue(path.isPresent());
     var expectedPath = "/src/UtilsTest/.gitlab-ci.yml";
-    assertEquals(path.get().toString(), expectedPath);
+    assertEquals(expectedPath, path.get().toString());
 
     var pipelineYml = getCIPipelineYamlFile(rootDir);
     var pipelinePsiYml = getPsiManager().findFile(pipelineYml);
@@ -56,7 +56,7 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     var pipelineYmlPath = GitlabCIYamlUtils.getGitlabCIYamlFile(pipelinePsiYml);
     assertTrue(pipelineYmlPath.isPresent());
     var expectedPipelinePath = "/src/UtilsTest/pipeline.yml";
-    assertEquals(pipelineYmlPath.get().toString(), expectedPipelinePath);
+    assertEquals(expectedPipelinePath, pipelineYmlPath.get().toString());
   }
 
   public void testParseGitlabCIYamlDataValidFiles() {
