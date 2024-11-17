@@ -2,7 +2,7 @@
 <idea-plugin require-restart="false">
     <id>com.github.deeepamin.gitlabciaid</id>
     <name>Gitlab CI Aid</name>
-    <vendor>deeepamin</vendor>
+    <vendor email="deeeepamin@gmail.com" url="https://github.com/deeepamin">Deep Amin</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
@@ -16,6 +16,8 @@
         <completion.contributor language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlCodeContributor"/>
         <multiHostInjector implementation="com.github.deeepamin.gitlabciaid.services.injectors.GitlabCIYamlScriptInjector"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.annotators.GitlabCIYamlAnnotator"/>
+        <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
+        <fileTypeOverrider implementation="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileTypeOverrider" order="last"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>

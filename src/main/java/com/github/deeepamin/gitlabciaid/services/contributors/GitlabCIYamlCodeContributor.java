@@ -1,7 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.model.Icons;
-import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlProjectService;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class GitlabCIYamlCodeContributor extends CompletionContributor {
@@ -33,7 +33,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                 .ifPresent(file -> {
                   boolean isNeedsElement = PsiUtils.isNeedsElement(psiElement);
                   if (isNeedsElement) {
-                    var allJobs = GitlabCIYamlProjectService.getJobNames();
+                    var allJobs = getGitlabCIYamlProjectService(psiElement).getJobNames();
                     var parentJob = PsiUtils.findParent(psiElement, allJobs);
                     List<String> filteredJobs = new ArrayList<>(allJobs);
                     parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
@@ -41,29 +41,29 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(job -> LookupElementBuilder.create(job)
                                     .bold()
                                     .withIcon(Icons.ICON_NEEDS.getIcon())
-                                    .withTypeText(GitlabCIYamlProjectService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
+                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
                             .toList());
                   }
                   boolean isStageElement = PsiUtils.isStageElement(psiElement);
                   if (isStageElement) {
                     // on stage element show suggestions from top level stages
-                    var allStages = GitlabCIYamlProjectService.getStageNamesDefinedAtStagesLevel();
+                    var allStages = getGitlabCIYamlProjectService(psiElement).getStageNamesDefinedAtStagesLevel();
                     result.addAllElements(allStages.stream()
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlProjectService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                   boolean isStagesElement = PsiUtils.isStagesElement(psiElement);
                   if (isStagesElement) {
                     // on top level stages show suggestion from job level
-                    var allStages = GitlabCIYamlProjectService.getStageNamesDefinedAtJobLevel();
+                    var allStages = getGitlabCIYamlProjectService(psiElement).getStageNamesDefinedAtJobLevel();
                     result.addAllElements(allStages.stream()
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(GitlabCIYamlProjectService.getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
                   }
                 });

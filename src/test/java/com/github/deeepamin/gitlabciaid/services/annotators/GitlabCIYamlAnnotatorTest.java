@@ -68,4 +68,5 @@ public class GitlabCIYamlAnnotatorTest extends BaseTest {
     assertEquals(1, allQuickFixes.size());
     assertEquals("Create script", allQuickFixes.get(0).getText());
   }
+  //TODO write test for include file annotator and quick fix
 }

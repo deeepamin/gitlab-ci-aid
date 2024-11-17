@@ -1,9 +1,7 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
-import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
-import com.intellij.openapi.application.ApplicationManager;
+import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
@@ -30,11 +28,14 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LE
 
 public class GitlabCIYamlUtils {
   // TODO Gitlab allows changing default file name, config for that?
-  public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yml";
+  public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
+  public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
+
   private static final List<String> GITLAB_CI_YAML_FILES = new ArrayList<>();
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlUtils.class);
 
   static {
+    GITLAB_CI_YAML_FILES.add(GITLAB_CI_DEFAULT_YML_FILE);
     GITLAB_CI_YAML_FILES.add(GITLAB_CI_DEFAULT_YAML_FILE);
   }
 
@@ -63,63 +64,11 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
   }
 
-  public static void parseGitlabCIYamlData(final Project project, final VirtualFile file, final GitlabCIYamlData gitlabCIYamlData) {
-    ApplicationManager.getApplication().runReadAction(() -> {
-      var psiManager = PsiManager.getInstance(project);
-      var psiFile = psiManager.findFile(file);
-      if (psiFile == null) {
-        LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
-        return;
-      }
-      psiFile.accept(new YamlRecursivePsiElementVisitor() {
-        @Override
-        public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
-          var keyText = keyValue.getKeyText();
-          if (INCLUDE.equals(keyText)) {
-            // process include files to add to schema files which have names other than standard name
-            var plainTextChildren = PsiUtils.findChildren(keyValue, YAMLPlainTextImpl.class);
-            var quotedTextChildren = PsiUtils.findChildren(keyValue, YAMLQuotedText.class);
-
-            plainTextChildren.stream()
-                    .map(YAMLBlockScalarImpl::getText)
-                    .distinct()
-                    .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addYamlFile(schemaFile);
-                      gitlabCIYamlData.addIncludedYaml(schemaFile);
-                    });
-            quotedTextChildren.stream()
-                    .map(YAMLQuotedText::getText)
-                    .distinct()
-                    .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addYamlFile(schemaFile);
-                      gitlabCIYamlData.addIncludedYaml(schemaFile);
-                    });
-          }
-          var superParent = keyValue.getParent().getParent();
-          if (superParent instanceof YAMLDocument) {
-            // top level elements
-            var key = keyValue.getKey();
-            if (key instanceof LeafPsiElement) {
-              key = key.getParent();
-            }
-
-            // rules can also be top level elements, but they don't have stage as child
-            var hasChildStage = PsiUtils.hasChild(key, STAGE);
-            if (!TOP_LEVEL_KEYWORDS.contains(keyText) && hasChildStage) {
-              // this means it's a job
-              gitlabCIYamlData.addJob(keyValue);
-            }
-          }
-          if (STAGE.equals(keyText)) {
-            gitlabCIYamlData.addStage(keyValue);
-          }
-          if (STAGES.equals(keyText)) {
-            gitlabCIYamlData.setStagesElement(keyValue);
-          }
-          super.visitKeyValue(keyValue);
-        }
-      });
-    });
+  public static GitlabCIYamlProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
+    var service = GitlabCIYamlProjectService.getInstance(psiElement.getProject());
+    if (service == null) {
+      throw new IllegalStateException("Cannot find gitlab CI yaml project service: " + psiElement.getProject().getName());
+    }
+    return service;
   }
-
 }

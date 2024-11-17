@@ -8,9 +8,6 @@ variables:
   TEST_VAR1: TEST_VALUE1
   TEST_VAR2: TEST_VALUE2
 
-include:
-  - pipeline.yml
-
 stages:
   - build
 

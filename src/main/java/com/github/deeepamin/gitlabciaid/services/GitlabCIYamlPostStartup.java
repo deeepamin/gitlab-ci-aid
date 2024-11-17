@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
 import kotlin.Unit;
@@ -25,6 +26,7 @@ public class GitlabCIYamlPostStartup implements ProjectActivity {
         executeOnThreadPool(() -> projectService.processOpenedFile(project, file));
       }
     });
+    Disposer.register(DisposerService.getInstance(project), projectService);
     return null;
   }
 
