@@ -1,11 +1,9 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
 import com.github.deeepamin.gitlabciaid.BaseTest;
-import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.intellij.testFramework.LightVirtualFile;
 
 import java.nio.file.Path;
-import java.util.List;
 
 public class GitlabCIYamlUtilsTest extends BaseTest {
   private static final String TEST_DIR_PATH = "/UtilsTest";

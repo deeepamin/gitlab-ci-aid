@@ -6,25 +6,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLDocument;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLQuotedText;
-import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
-import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
-import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 
 public class GitlabCIYamlUtils {
   // TODO Gitlab allows changing default file name, config for that?
