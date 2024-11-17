@@ -1,7 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services.annotators;
 
 import com.github.deeepamin.gitlabciaid.GitlabCIAidBundle;
-import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.github.deeepamin.gitlabciaid.utils.ReferenceUtils;
