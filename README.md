@@ -3,8 +3,8 @@
 *The best Aid you can get in Intellij for working with Gitlab CI YAML! 🚀*
 
 ![Build](https://github.com/deeepamin/gitlab-ci-aid/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid)
 
 ## Why Gitlab CI Aid?
 
