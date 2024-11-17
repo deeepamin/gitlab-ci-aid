@@ -4,20 +4,33 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java") // Java support
-    alias(libs.plugins.kotlin) // Kotlin support
+    id("jacoco")
     alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.kover) // Gradle Kover Plugin
 }
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 
-// Set the JVM language level used to build the project.
-kotlin {
-    jvmToolchain(17)
-}
+val pluginGroup = providers.gradleProperty("pluginGroup").get()
+val pluginName = providers.gradleProperty("pluginName").get()
+val pluginDescription = providers.gradleProperty("pluginDescription").get()
+val pluginVersion = providers.gradleProperty("pluginVersion").get()
+val pluginSinceBuild = providers.gradleProperty("pluginSinceBuild").get()
+val vendorName = providers.gradleProperty("vendorName").get()
+val vendorEmail = providers.gradleProperty("vendorEmail").get()
+val pluginRepositoryUrl = providers.gradleProperty("pluginRepositoryUrl").get()
+val platformVersion = providers.gradleProperty("platformVersion").get()
+
+println("pluginGroup [$pluginGroup]")
+println("pluginName [$pluginName]")
+println("pluginDescription [$pluginDescription]")
+println("pluginVersion [$pluginVersion]")
+println("platformVersion [$platformVersion]")
+println("pluginSinceBuild [$pluginSinceBuild]")
+println("vendorName [$vendorName]")
+println("pluginRepositoryUrl [$pluginRepositoryUrl]")
 
 // Configure project's dependencies
 repositories {
@@ -26,12 +39,18 @@ repositories {
     // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
     intellijPlatform {
         defaultRepositories()
+        intellijDependencies()
     }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     testImplementation(libs.junit)
+    testImplementation("org.opentest4j:opentest4j:1.3.0")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
@@ -83,7 +102,6 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
 
@@ -108,21 +126,16 @@ intellijPlatform {
     }
 }
 
+// Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
     groups.empty()
     repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
-}
-
-// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
-kover {
-    reports {
-        total {
-            xml {
-                onCheck = true
-            }
-        }
-    }
 }
 
 tasks {
@@ -133,6 +146,18 @@ tasks {
     publishPlugin {
         dependsOn(patchChangelog)
     }
+
+    jacocoTestReport {
+        dependsOn(test)
+        reports {
+            html.required.set(true)
+            csv.required.set(true)
+        }
+    }
+}
+
+tasks.withType<Test> {
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 intellijPlatformTesting {

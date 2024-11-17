@@ -1,18 +1,25 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin require-restart="false">
     <id>com.github.deeepamin.gitlabciaid</id>
-    <name>gitlab-ci-aid</name>
-    <vendor>deeepamin</vendor>
+    <name>Gitlab CI Aid</name>
+    <vendor email="deeeepamin@gmail.com" url="https://github.com/deeepamin">Deep Amin</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.json</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
+    <resource-bundle>messages.GitlabCIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.deeepamin.gitlabciaid.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
+        <postStartupActivity implementation="com.github.deeepamin.gitlabciaid.services.GitlabCIYamlPostStartup"/>
+        <completion.contributor language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.contributors.GitlabCIYamlCodeContributor"/>
+        <multiHostInjector implementation="com.github.deeepamin.gitlabciaid.services.injectors.GitlabCIYamlScriptInjector"/>
+        <annotator language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.annotators.GitlabCIYamlAnnotator"/>
+        <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
+        <fileTypeOverrider implementation="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileTypeOverrider" order="last"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.deeepamin.gitlabciaid.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>
+    </extensions>
 </idea-plugin>
