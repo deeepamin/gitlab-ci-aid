@@ -8,7 +8,7 @@ import javax.swing.Icon;
 public enum Icons {
   ICON_NEEDS(AllIcons.Nodes.Related),
   ICON_STAGE(AllIcons.Debugger.VariablesTab),
-  ICON_GITLAB_LOGO(IconLoader.getIcon("/icons/gitlabLogo.svg"));
+  ICON_GITLAB_LOGO(IconLoader.getIcon("/icons/gitlabLogo.svg", Icons.class)),;
 
   private final Icon icon;
 
