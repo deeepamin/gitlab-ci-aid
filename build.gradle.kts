@@ -30,7 +30,6 @@ println("pluginVersion [$pluginVersion]")
 println("platformVersion [$platformVersion]")
 println("pluginSinceBuild [$pluginSinceBuild]")
 println("vendorName [$vendorName]")
-println("vendorEmail [$vendorEmail]")
 println("pluginRepositoryUrl [$pluginRepositoryUrl]")
 
 // Configure project's dependencies
