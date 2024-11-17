@@ -2,8 +2,8 @@ package com.github.deeepamin.gitlabciaid.services.providers;
 
 import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.intellij.injected.editor.VirtualFileWindow;
-import com.intellij.json.JsonFileType;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
@@ -13,10 +13,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlSchemaProvider.class);
@@ -25,13 +23,8 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
   private final VirtualFile schemaFile;
 
   public GitlabCIYamlSchemaProvider() {
-    this.schemaFile = Optional.ofNullable(getClass().getResourceAsStream(SCHEMA_PATH))
-            .map(schemaStream -> {
-              try (final Scanner scanner = new Scanner(schemaStream, StandardCharsets.UTF_8)) {
-                final String schemaContent = scanner.useDelimiter("\\A").next();
-                return new LightVirtualFile("gitlab-ci-yml.json", JsonFileType.INSTANCE, schemaContent);
-              }
-            })
+    this.schemaFile = Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
+            .map(VfsUtil::findFileByURL)
             .orElse(null);
   }
 

@@ -1,6 +1,7 @@
 package com.github.deeepamin.gitlabciaid.utils;
 
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import static com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService.getPluginData;
 
 public class ReferenceUtils {
   public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
@@ -51,7 +50,9 @@ public class ReferenceUtils {
     if (PsiUtils.isYamlTextElement(element)) {
       // for cases: needs: ["some_job"] / needs: ["some_job] / needs: [some_job"]
       var need = handleQuotedText(element.getText());
-      var targetJob = getPluginData().values()
+      var project = element.getProject();
+      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var targetJob = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getJobs().entrySet().stream())
               .filter(entry -> entry.getKey().equals(need))
@@ -66,7 +67,9 @@ public class ReferenceUtils {
   public static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
-      var targetStages = getPluginData().values()
+      var project = element.getProject();
+      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var targetStages = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getStages().entrySet().stream())
               .filter(entry -> entry.getKey().equals(stageName))
@@ -81,7 +84,9 @@ public class ReferenceUtils {
   public static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
     if (element instanceof YAMLPlainTextImpl) {
       var stageName = element.getText();
-      var parent = getPluginData().values()
+      var project = element.getProject();
+      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var parent = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .map(GitlabCIYamlData::getStagesElement)
               .filter(Objects::nonNull)

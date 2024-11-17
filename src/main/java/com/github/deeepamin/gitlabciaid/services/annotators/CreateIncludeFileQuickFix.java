@@ -28,6 +28,13 @@ public class CreateIncludeFileQuickFix implements LocalQuickFix {
       return;
     }
     var includePath = element.getText();
-    FileUtils.createFile(includePath, project, true);
+    var includeAbsolutePath = FileUtils.getFilePath(includePath, project);
+    FileUtils.createFile(includeAbsolutePath);
+    FileUtils.refreshFileAndOpenInEditor(includeAbsolutePath, project);
+  }
+
+  @Override
+  public boolean startInWriteAction() {
+    return false;
   }
 }

@@ -58,29 +58,4 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     var expectedPipelinePath = "/src/UtilsTest/pipeline.yml";
     assertEquals(expectedPipelinePath, pipelineYmlPath.get().toString());
   }
-
-  public void testParseGitlabCIYamlDataValidFiles() {
-    var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, TEST_DIR_PATH);
-    var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
-    var gitlabCIYamlData = new GitlabCIYamlData(GITLAB_CI_DEFAULT_YAML_FILE);
-    GitlabCIYamlUtils.parseGitlabCIYamlData(getProject(), gitlabCIYaml, gitlabCIYamlData);
-
-    var includedYamls = gitlabCIYamlData.getIncludedYamls();
-    assertEquals(1, includedYamls.size());
-    assertEquals(PIPELINE_YML, includedYamls.get(0));
-    var expectedStages = List.of("build", "test", "deploy");
-    var stageNames = gitlabCIYamlData.getStages().keySet().stream().toList();
-    assertEquals(3, stageNames.size());
-    assertTrue(expectedStages.containsAll(stageNames));
-    assertEquals(2, gitlabCIYamlData.getStages().get("build").size());
-    assertEquals(1, gitlabCIYamlData.getStages().get("test").size());
-    assertEquals(1, gitlabCIYamlData.getStages().get("deploy").size());
-
-    var expectedJobNames = List.of("build-dev", "build-sit", "test-job", "deploy-job");
-    var jobNames = gitlabCIYamlData.getJobs().keySet().stream().toList();
-    assertEquals(4, jobNames.size());
-    assertTrue(expectedJobNames.containsAll(jobNames));
-    assertNotNull(gitlabCIYamlData.getPath());
-    assertNotNull(gitlabCIYamlData.getStagesElement());
-  }
 }

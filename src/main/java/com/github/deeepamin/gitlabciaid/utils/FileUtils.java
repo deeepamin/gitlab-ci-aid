@@ -38,7 +38,26 @@ public class FileUtils {
     return Optional.empty();
   }
 
-  public static void createFile(String fileRelativePathToRoot, Project project, boolean openAfterCreation) {
+  public static void createFile(Path path) {
+    try {
+      if (!Files.exists(path)) {
+        var parent = path.getParent();
+        Files.createDirectories(parent);
+        Files.createFile(path);
+      }
+    } catch (IOException e) {
+      LOG.error("Error creating file " + path, e);
+    }
+  }
+
+  public static void refreshFileAndOpenInEditor(Path path, Project project) {
+    var virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(path.toString()));
+    if (virtualFile != null) {
+      FileEditorManager.getInstance(project).openFile(virtualFile, true);
+    }
+  }
+
+  public static Path getFilePath(String fileRelativePathToRoot, Project project) {
     var basePath = project.getBasePath();
     var pathBuilder = new StringBuilder();
     pathBuilder.append(basePath);
@@ -51,20 +70,7 @@ public class FileUtils {
       pathBuilder.append(File.separator);
     }
     pathBuilder.append(fileRelativePathToRoot);
-    var path = Path.of(pathBuilder.toString());
-    try {
-      if (!Files.exists(path)) {
-        Files.createFile(path);
-      }
-      if (openAfterCreation) {
-        var virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(path.toString()));
-        if (virtualFile != null) {
-          FileEditorManager.getInstance(project).openFile(virtualFile, true);
-        }
-      }
-    } catch (IOException e) {
-      LOG.error("Error creating file " + fileRelativePathToRoot, e);
-    }
+    return Path.of(pathBuilder.toString());
   }
 
   public static ScriptPathIndex getShOrPyScript(String elementText) {

@@ -28,6 +28,13 @@ public class CreateScriptQuickFix implements LocalQuickFix {
       return;
     }
     var scriptPath = element.getText();
-    FileUtils.createFile(scriptPath, project, true);
+    var scriptAbsolutePath = FileUtils.getFilePath(scriptPath, project);
+    FileUtils.createFile(scriptAbsolutePath);
+    FileUtils.refreshFileAndOpenInEditor(scriptAbsolutePath, project);
+  }
+
+  @Override
+  public boolean startInWriteAction() {
+    return false;
   }
 }
