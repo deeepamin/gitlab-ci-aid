@@ -8,7 +8,7 @@
 - Intellij plugin verification issues fixed
 
 
-## [1.0.0] - 16.11.2024
+## [1.0.0] - 2024-11-16
 ### Added
 First stable release with following features:
 
