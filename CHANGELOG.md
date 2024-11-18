@@ -3,7 +3,11 @@
 # gitlab-ci-aid Changelog
 
 ## [Unreleased]
-## [1.0.1]
+## [1.0.2] - 2024-11-18
+### Added
+- Jetbrains marketplace exception analyzer
+
+## [1.0.1] - 2024-11-18
 ### Fixed
 - Intellij plugin verification issues fixed
 
