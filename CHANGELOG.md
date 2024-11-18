@@ -3,21 +3,30 @@
 # gitlab-ci-aid Changelog
 
 ## [Unreleased]
+
 ## [1.0.2] - 2024-11-18
+
 ### Added
+
 - Jetbrains marketplace exception analyzer
 
 ## [1.0.1] - 2024-11-18
+
 ### Fixed
+
 - Intellij plugin verification issues fixed
 
-
 ## [1.0.0] - 2024-11-16
+
 ### Added
-First stable release with following features:
 
 - Auto-completion and syntax highlighting
 - Local navigation support for stages, jobs, script files and include files
 - Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
+
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/deeepamin/gitlab-ci-aid/commits/v1.0.0
