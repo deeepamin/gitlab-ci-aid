@@ -17,7 +17,6 @@
         <multiHostInjector implementation="com.github.deeepamin.gitlabciaid.services.injectors.GitlabCIYamlScriptInjector"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.gitlabciaid.services.annotators.GitlabCIYamlAnnotator"/>
         <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
-        <fileTypeOverrider implementation="com.github.deeepamin.gitlabciaid.language.GitlabCIYamlFileTypeOverrider" order="last"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.gitlabciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>
