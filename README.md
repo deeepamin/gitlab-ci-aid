@@ -1,10 +1,18 @@
-# Gitlab CI Aid
 
-*The best Aid you can get in Intellij for working with Gitlab CI YAML! 🚀*
+<div style="text-align:center;">
+    <a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid">
+        <img src="./src/main/resources/META-INF/pluginIcon.svg" width="200" height="200" alt="logo"/>
+    </a>
+</div>
+<h1 style="text-align:center;">Gitlab CI Aid</h1>
+<p style="text-align:center;">The best aid you can get in Intellij for working with Gitlab CI YAML! 🚀</p>
 
-![Build](https://github.com/deeepamin/gitlab-ci-aid/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid)
+<p style="text-align:center;">
+<a href="https://actions-badge.atrox.dev/deeepamin/gitlab-ci-aid/goto?ref=main"><img alt="Build Status" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fdeeepamin%2Fgitlab-ci-aid%2Fbadge%3Fref%3Dmain&style=flat" /></a>
+<a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid"><img src="https://img.shields.io/jetbrains/plugin/v/25859-gitlab-ci-aid.svg?style=flat-square" alt="version"></a>
+<a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid"><img src="https://img.shields.io/jetbrains/plugin/d/25859-gitlab-ci-aid.svg?style=flat-square" alt="downloads"></a>
+</p>
+<br>
 
 ## Why Gitlab CI Aid?
 
@@ -30,6 +38,10 @@ in configuration. Reduce errors and accelerate your pipeline development.
 
 <!-- Plugin description end -->
 
+## Change log
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
 ## Limitations / Future Improvements
 * Only works with default Gitlab CI file name (.gitlab-ci.yml/yaml), Gitlab supports name change but no API for getting the name
 * Only works with local files currently, no components, remote files or templates
@@ -41,12 +53,6 @@ in configuration. Reduce errors and accelerate your pipeline development.
 ## Notes
 * Some features may not work while IntelliJ is indexing the project
 * If there's an issue with some feature, reopening the file should help 
-
-
-## Template TODOs
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].

@@ -23,15 +23,6 @@ val vendorEmail = providers.gradleProperty("vendorEmail").get()
 val pluginRepositoryUrl = providers.gradleProperty("pluginRepositoryUrl").get()
 val platformVersion = providers.gradleProperty("platformVersion").get()
 
-println("pluginGroup [$pluginGroup]")
-println("pluginName [$pluginName]")
-println("pluginDescription [$pluginDescription]")
-println("pluginVersion [$pluginVersion]")
-println("platformVersion [$platformVersion]")
-println("pluginSinceBuild [$pluginSinceBuild]")
-println("vendorName [$vendorName]")
-println("pluginRepositoryUrl [$pluginRepositoryUrl]")
-
 // Configure project's dependencies
 repositories {
     mavenCentral()
