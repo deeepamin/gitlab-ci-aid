@@ -1,13 +1,13 @@
 
-<div style="text-align:center;">
+<div align="center">
     <a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid">
         <img src="./src/main/resources/META-INF/pluginIcon.svg" width="200" height="200" alt="logo"/>
     </a>
 </div>
-<h1 style="text-align:center;">Gitlab CI Aid</h1>
-<p style="text-align:center;">The best aid you can get in Intellij for working with Gitlab CI YAML! 🚀</p>
+<h1 align="center">Gitlab CI Aid</h1>
+<p align="center">The best aid you can get in Intellij for working with Gitlab CI YAML! 🚀</p>
 
-<p style="text-align:center;">
+<p align="center">
 <a href="https://actions-badge.atrox.dev/deeepamin/gitlab-ci-aid/goto?ref=main"><img alt="Build Status" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fdeeepamin%2Fgitlab-ci-aid%2Fbadge%3Fref%3Dmain&style=flat" /></a>
 <a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid"><img src="https://img.shields.io/jetbrains/plugin/v/25859-gitlab-ci-aid.svg?style=flat-square" alt="version"></a>
 <a href="https://plugins.jetbrains.com/plugin/25859-gitlab-ci-aid"><img src="https://img.shields.io/jetbrains/plugin/d/25859-gitlab-ci-aid.svg?style=flat-square" alt="downloads"></a>

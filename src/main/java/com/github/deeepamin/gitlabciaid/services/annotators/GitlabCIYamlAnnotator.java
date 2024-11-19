@@ -2,6 +2,7 @@ package com.github.deeepamin.gitlabciaid.services.annotators;
 
 import com.github.deeepamin.gitlabciaid.GitlabCIAidBundle;
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
+import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.github.deeepamin.gitlabciaid.utils.ReferenceUtils;
 import com.intellij.codeInspection.InspectionManager;
@@ -47,6 +48,10 @@ public class GitlabCIYamlAnnotator implements Annotator {
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+    if (GitlabCIYamlUtils.getGitlabCIYamlFile(element).isEmpty()) {
+      LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", element.getText()));
+      return;
+    }
     if (element instanceof LeafPsiElement) {
       highlightJobs(element, holder);
     } else if (PsiUtils.isYamlTextElement(element)) {
