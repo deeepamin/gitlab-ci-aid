@@ -1,5 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services.injectors;
 
+import com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.lang.injection.MultiHostInjector;
 import com.intellij.lang.injection.MultiHostRegistrar;
@@ -21,6 +22,10 @@ public class GitlabCIYamlScriptInjector implements MultiHostInjector {
 
   @Override
   public void getLanguagesToInject(@NotNull MultiHostRegistrar registrar, @NotNull PsiElement context) {
+    if (GitlabCIYamlUtils.getGitlabCIYamlFile(context).isEmpty()) {
+      LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", context.getText()));
+      return;
+    }
     if (context instanceof YAMLPlainTextImpl) {
       var parent = context.getParent();
       if (parent instanceof YAMLKeyValue) {
