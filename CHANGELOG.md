@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# gitlab-ci-aid Changelog
+# Gitlab CI Aid Changelog
 
 ## [Unreleased]
 
