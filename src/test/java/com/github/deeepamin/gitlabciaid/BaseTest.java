@@ -45,6 +45,13 @@ public abstract class BaseTest extends BasePlatformTestCase {
             .orElse(null);
   }
 
+  protected VirtualFile getYamlFile(VirtualFile rootDir, String fileName) {
+    return Arrays.stream(rootDir.getChildren())
+            .filter(file -> file.getPath().contains(fileName))
+            .findFirst()
+            .orElse(null);
+  }
+
 
   protected PsiElement getPsiGitlabCiYaml(VirtualFile rootDir) {
     var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
