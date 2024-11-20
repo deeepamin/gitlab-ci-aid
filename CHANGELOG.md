@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2024-11-20
+
+## Added
+
+- .gitlab-ci.yml and .gitlab-ci.yaml both are considered as default files
+- Improved job processing
+
+### Fixed
+
+- Non Gitlab CI Yaml files are annotated/highlighted
+- Some python script paths weren't highlighted correctly
+
 ## [1.0.2] - 2024-11-18
 
 ### Added
@@ -27,6 +39,7 @@
 - Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
 
 [Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...HEAD
+[1.0.3]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/deeepamin/gitlab-ci-aid/commits/v1.0.0
