@@ -144,10 +144,16 @@ tasks {
             csv.required.set(true)
         }
     }
-}
 
-tasks.withType<Test> {
-    finalizedBy(tasks.jacocoTestReport)
+    test {
+        useJUnit()
+        extensions.configure(JacocoTaskExtension::class) {
+            isIncludeNoLocationClasses = true
+            excludes = listOf("jdk.internal.reflect.*")
+        }
+        finalizedBy(jacocoTestReport)
+    }
+
 }
 
 intellijPlatformTesting {

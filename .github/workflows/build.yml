@@ -126,11 +126,18 @@ jobs:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
 
-      # Upload the Kover report to CodeCov
-      - name: Upload Code Coverage Report
-        uses: codecov/codecov-action@v5
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2.11.0
         with:
-          files: ${{ github.workspace }}/build/reports/kover/report.xml
+          generate-branches-badge: true
+          jacoco-csv-file: build/customJacocoReportDir/test/jacocoTestReport.csv
+
+      - name: Update Jacoco Badge
+        uses: test-room-7/action-update-file@v1.8.0
+        with:
+          file-path: .github/badges/jacoco.svg
+          commit-msg: Update Jacoco Badge
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
