@@ -42,12 +42,8 @@ import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.GITLAB_CI
 public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
   private final Map<String, GitlabCIYamlData> pluginData;
-  private final Project project;
-  private final PsiTreeChangeListener psiTreeChangeListener;
 
   public GitlabCIYamlProjectService(Project project) {
-    this.project = project;
-    this.psiTreeChangeListener = new PsiTreeChangeListener();
     pluginData = new HashMap<>();
   }
 
@@ -196,7 +192,6 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
 
   public void afterStartup(@NotNull Project project) {
     final var basePath = project.getBasePath();
-    PsiManager.getInstance(project).addPsiTreeChangeListener(psiTreeChangeListener, this);
     var foundDefaultGitlabCIYaml = false;
     for (var yamlFile : GITLAB_CI_DEFAULT_YAML_FILES) {
       final var gitlabCIYamlPath = basePath + File.separator + yamlFile;
@@ -217,6 +212,5 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   @Override
   public void dispose() {
     clearPluginData();
-    PsiManager.getInstance(project).removePsiTreeChangeListener(psiTreeChangeListener);
   }
 }
