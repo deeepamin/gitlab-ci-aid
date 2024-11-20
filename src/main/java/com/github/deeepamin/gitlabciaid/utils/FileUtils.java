@@ -74,7 +74,7 @@ public class FileUtils {
   }
 
   public static ScriptPathIndex getShOrPyScript(String elementText) {
-    String regex = "(\\./|/)\\S+\\.(sh|py)";
+    String regex = "(\\.?/?\\S+\\.(sh|py))";
     Pattern pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(elementText);
     if (matcher.find()) {

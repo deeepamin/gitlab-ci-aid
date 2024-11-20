@@ -10,12 +10,14 @@ import java.util.List;
 public class GitlabCIYamlAnnotatorTest extends BaseTest {
   private static final String TEST_DIR_PATH = "/AnnotatorTest";
   private VirtualFile ciYamlFile;
+  private VirtualFile nonGitlabYamlFile;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH + "/" + getTestDirectoryName(), "");
     ciYamlFile = getGitlabCIYamlFile(rootDir);
+    nonGitlabYamlFile = getYamlFile(rootDir, "build.yml");
   }
 
   public void testCorrectHighlighting() {
@@ -66,7 +68,11 @@ public class GitlabCIYamlAnnotatorTest extends BaseTest {
   public void testCreateScriptQuickFix() {
     List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     assertEquals(1, allQuickFixes.size());
-    assertEquals("Create script", allQuickFixes.get(0).getText());
+    assertEquals("Create script", allQuickFixes.getFirst().getText());
+  }
+
+  public void testNonGitlabCIYamlFile() {
+    myFixture.testHighlighting(true, true, true, nonGitlabYamlFile);
   }
   //TODO write test for include file annotator and quick fix
 }

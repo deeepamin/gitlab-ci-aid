@@ -16,14 +16,10 @@ public class GitlabCIYamlUtils {
   // TODO Gitlab allows changing default file name, config for that?
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
   public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
+  public static final List<String> GITLAB_CI_DEFAULT_YAML_FILES = List.of(GITLAB_CI_DEFAULT_YML_FILE, GITLAB_CI_DEFAULT_YAML_FILE);
 
-  private static final List<String> GITLAB_CI_YAML_FILES = new ArrayList<>();
+  private static final List<String> GITLAB_CI_YAML_FILES = new ArrayList<>(GITLAB_CI_DEFAULT_YAML_FILES);
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlUtils.class);
-
-  static {
-    GITLAB_CI_YAML_FILES.add(GITLAB_CI_DEFAULT_YML_FILE);
-    GITLAB_CI_YAML_FILES.add(GITLAB_CI_DEFAULT_YAML_FILE);
-  }
 
   public static void addYamlFile(final String yamlFilePath) {
     // used to add all the files included in .gitlab-ci.yml

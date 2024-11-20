@@ -12,7 +12,8 @@ public class FileUtilsTest extends BaseTest {
             "./test.sh $ARG", "./test.sh",
             "python /ci/test.py", "/ci/test.py",
             "python3 /ci/test.py", "/ci/test.py",
-            "python3 ./test.py", "./test.py");
+            "python3 ./test.py", "./test.py",
+            "python3 ci/test.py", "ci/test.py");
     scriptPathAndExpectedValues.forEach((actual, expected) -> {
       var scriptPathIndex = FileUtils.getShOrPyScript(actual);
       assertNotNull(scriptPathIndex);

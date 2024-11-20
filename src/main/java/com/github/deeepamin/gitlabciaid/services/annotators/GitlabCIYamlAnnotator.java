@@ -15,6 +15,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 
 import java.util.List;
 import java.util.Optional;
@@ -125,6 +126,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .ifPresent(scriptElement -> {
               var filePath = scriptElement.getText();
               var scriptPathIndex = FileUtils.getShOrPyScript(filePath);
+
               if (scriptPathIndex == null) {
                 LOG.debug("Can't found script in " + scriptElement.getText());
                 return;
@@ -132,17 +134,21 @@ public class GitlabCIYamlAnnotator implements Annotator {
               var project = scriptElement.getProject();
               var scriptPath = scriptPathIndex.path();
               var virtualScriptFile = FileUtils.getVirtualFile(scriptPath, project).orElse(null);
+              var isNotScriptBlock = scriptElement.getParent() instanceof YAMLKeyValue;
               if (virtualScriptFile == null) {
-                var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
-                var quickFix = new CreateScriptQuickFix();
-                var problemDescriptor = InspectionManager.getInstance(project)
-                        .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
-                holder.newAnnotation(HighlightSeverity.ERROR, errorText)
-                        .highlightType(LIKE_UNKNOWN_SYMBOL)
-                        .newLocalQuickFix(quickFix, problemDescriptor)
-                        .registerFix()
-                        .create();
-              }  else {
+                // in block any command can be quoted/plain text, and then we don't want to show path related error
+                if (isNotScriptBlock) {
+                  var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
+                  var quickFix = new CreateScriptQuickFix();
+                  var problemDescriptor = InspectionManager.getInstance(project)
+                          .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
+                  holder.newAnnotation(HighlightSeverity.ERROR, errorText)
+                          .highlightType(LIKE_UNKNOWN_SYMBOL)
+                          .newLocalQuickFix(quickFix, problemDescriptor)
+                          .registerFix()
+                          .create();
+                }
+              } else {
                 var scriptElementTextRange = scriptElement.getTextRange();
                 var highlightStartRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.start();
                 if (highlightStartRange > scriptElementTextRange.getEndOffset()) {

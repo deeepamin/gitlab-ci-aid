@@ -13,16 +13,18 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLDocument;
+import org.jetbrains.yaml.YAMLUtil;
+import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
 import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,11 +36,16 @@ import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUD
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
+import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
 
 @Service(Service.Level.PROJECT)
 public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
-  private final Map<String, GitlabCIYamlData> pluginData = new HashMap<>();
+  private final Map<String, GitlabCIYamlData> pluginData;
+
+  public GitlabCIYamlProjectService(Project project) {
+    pluginData = new HashMap<>();
+  }
 
   public static GitlabCIYamlProjectService getInstance(Project project) {
     return project.getService(GitlabCIYamlProjectService.class);
@@ -92,6 +99,24 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
       }
       psiFile.accept(new YamlRecursivePsiElementVisitor() {
         @Override
+        public void visitFile(@NotNull PsiFile file) {
+          var isYamlFile = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file.getVirtualFile());
+          if (isYamlFile && file instanceof YAMLFile yamlFile) {
+            var topLevelKeys = YAMLUtil.getTopLevelKeys(yamlFile);
+
+            topLevelKeys.forEach(topLevelKey -> {
+              // rules can also be top level elements, but they don't have stage as child
+              var hasChildStage = PsiUtils.hasChild(topLevelKey, STAGE);
+              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText()) && hasChildStage) {
+                // this means it's a job
+                gitlabCIYamlData.addJob(topLevelKey);
+              }
+            });
+            super.visitFile(file);
+          }
+        }
+
+        @Override
         public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
           var keyText = keyValue.getKeyText();
           if (INCLUDE.equals(keyText)) {
@@ -113,21 +138,6 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
                       GitlabCIYamlUtils.addYamlFile(schemaFile);
                       gitlabCIYamlData.addIncludedYaml(schemaFile);
                     });
-          }
-          var superParent = keyValue.getParent().getParent();
-          if (superParent instanceof YAMLDocument) {
-            // top level elements
-            var key = keyValue.getKey();
-            if (key instanceof LeafPsiElement) {
-              key = key.getParent();
-            }
-
-            // rules can also be top level elements, but they don't have stage as child
-            var hasChildStage = PsiUtils.hasChild(key, STAGE);
-            if (!TOP_LEVEL_KEYWORDS.contains(keyText) && hasChildStage) {
-              // this means it's a job
-              gitlabCIYamlData.addJob(keyValue);
-            }
           }
           if (STAGE.equals(keyText)) {
             gitlabCIYamlData.addStage(keyValue);
@@ -182,12 +192,18 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
 
   public void afterStartup(@NotNull Project project) {
     final var basePath = project.getBasePath();
-    final var gitlabCIYamlPath = basePath + GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILE;
-    final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(gitlabCIYamlPath);
-    if (gitlabCIYamlFile != null) {
-      LOG.info("Found " + GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILE + " in " + gitlabCIYamlPath);
-      readGitlabCIYamlData(project, gitlabCIYamlFile);
-    } else {
+    var foundDefaultGitlabCIYaml = false;
+    for (var yamlFile : GITLAB_CI_DEFAULT_YAML_FILES) {
+      final var gitlabCIYamlPath = basePath + File.separator + yamlFile;
+      final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(gitlabCIYamlPath);
+      if (gitlabCIYamlFile != null) {
+        LOG.info("Found " + yamlFile + " in " + gitlabCIYamlPath);
+        readGitlabCIYamlData(project, gitlabCIYamlFile);
+        foundDefaultGitlabCIYaml = true;
+        break;
+      }
+    }
+    if (!foundDefaultGitlabCIYaml) {
       final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
       Arrays.stream(fileEditorManager.getOpenFiles()).forEach(openedFile -> processOpenedFile(project, openedFile));
     }
