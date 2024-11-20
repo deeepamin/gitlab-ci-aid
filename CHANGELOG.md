@@ -6,7 +6,7 @@
 
 ## [1.0.3] - 2024-11-20
 
-## Added
+### Added
 
 - .gitlab-ci.yml and .gitlab-ci.yaml both are considered as default files
 - Improved job processing
