@@ -27,9 +27,9 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
@@ -41,17 +41,17 @@ import static com.github.deeepamin.gitlabciaid.utils.GitlabCIYamlUtils.GITLAB_CI
 @Service(Service.Level.PROJECT)
 public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
-  private final Map<String, GitlabCIYamlData> pluginData;
+  private final Map<VirtualFile, GitlabCIYamlData> pluginData;
 
   public GitlabCIYamlProjectService(Project project) {
-    pluginData = new HashMap<>();
+    pluginData = new ConcurrentHashMap<>();
   }
 
   public static GitlabCIYamlProjectService getInstance(Project project) {
     return project.getService(GitlabCIYamlProjectService.class);
   }
 
-  public Map<String, GitlabCIYamlData> getPluginData() {
+  public Map<VirtualFile, GitlabCIYamlData> getPluginData() {
     return pluginData;
   }
 
@@ -60,29 +60,31 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   }
 
   public void processOpenedFile(Project project, VirtualFile file) {
-      if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
-        return;
-      }
-      //TODO check for already parsed files, need PSI listeners to track changes in those files
-      readGitlabCIYamlData(project, file);
+    if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
+      return;
+    }
+    readGitlabCIYamlData(project, file);
   }
 
   public void readGitlabCIYamlData(Project project, VirtualFile file) {
-    var gitlabCIYamlData = new GitlabCIYamlData(file.getPath());
+    if (pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
+      return;
+    }
+    var gitlabCIYamlData = new GitlabCIYamlData(file, file.getModificationStamp());
     getGitlabCIYamlData(project, file, gitlabCIYamlData);
   }
 
   private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
     parseGitlabCIYamlData(project, file, gitlabCIYamlData);
-    pluginData.put(file.getPath(), gitlabCIYamlData);
+    pluginData.put(file, gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
-      if (!pluginData.containsKey(yaml)) {
-        var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
-        if (yamlVirtualFile == null) {
-          LOG.debug(yaml + " not found on " + project.getBasePath());
-          return;
-        }
-        var includedYamlData = new GitlabCIYamlData(yaml);
+      var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
+      if (yamlVirtualFile == null) {
+        LOG.debug(yaml + " not found on " + project.getBasePath());
+        return;
+      }
+      if (!pluginData.containsKey(yamlVirtualFile)) {
+        var includedYamlData = new GitlabCIYamlData(yamlVirtualFile, yamlVirtualFile.getModificationStamp());
         getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData);
       }
     });
@@ -177,11 +179,12 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             .toList();
   }
 
-  public String getFileName(Project project, Predicate<Map.Entry<String, GitlabCIYamlData>> predicate) {
+  public String getFileName(Project project, Predicate<Map.Entry<VirtualFile, GitlabCIYamlData>> predicate) {
      String filePath = pluginData.entrySet().stream()
              .filter(predicate)
              .map(Map.Entry::getKey)
              .findFirst()
+             .map(VirtualFile::getPath)
              .orElse(null);
     var basePath = project.getBasePath();
     if (filePath != null && basePath != null) {

@@ -1,5 +1,6 @@
 package com.github.deeepamin.gitlabciaid.model;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
@@ -10,21 +11,23 @@ import java.util.Map;
 
 public class GitlabCIYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files
-  private final String path;
+  private final VirtualFile file;
   private final Map<String, List<PsiElement>> stages;
   private final Map<String, YAMLKeyValue> jobs;
   private final List<String> includedYamls;
+  private final long modificationStamp;
   private YAMLKeyValue stagesElement;
 
-  public GitlabCIYamlData(String path) {
-    this.path = path;
+  public GitlabCIYamlData(VirtualFile file, long modificationStamp) {
+    this.file = file;
+    this.modificationStamp = modificationStamp;
     this.stages = new HashMap<>();
     this.jobs = new HashMap<>();
     this.includedYamls = new ArrayList<>();
   }
 
-  public String getPath() {
-    return path;
+  public VirtualFile getFile() {
+    return file;
   }
 
   public Map<String, List<PsiElement>> getStages() {
@@ -64,5 +67,12 @@ public class GitlabCIYamlData {
     this.stagesElement = stagesElement;
   }
 
+  private long getModificationStamp() {
+    return modificationStamp;
+  }
+
+  public boolean isUpToDate(VirtualFile newFile) {
+    return newFile.getModificationStamp() == this.getModificationStamp();
+  }
 }
 

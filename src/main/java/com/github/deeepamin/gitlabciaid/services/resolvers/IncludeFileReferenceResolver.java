@@ -1,6 +1,7 @@
 package com.github.deeepamin.gitlabciaid.services.resolvers;
 
 import com.github.deeepamin.gitlabciaid.utils.FileUtils;
+import com.github.deeepamin.gitlabciaid.utils.ReferenceUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
@@ -17,8 +18,8 @@ public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
   @Override
   public @Nullable PsiElement resolve() {
     final Project project = myElement.getProject();
-    var text = myElement.getText();
-    var localFileSystemPath = FileUtils.getVirtualFile(text, project).orElse(null);
+    var text = ReferenceUtils.handleQuotedText(myElement.getText());
+    var localFileSystemPath = FileUtils.findVirtualFile(text, project).orElse(null);
     if (localFileSystemPath != null) {
       return PsiManager.getInstance(project).findFile(localFileSystemPath);
     }
@@ -27,6 +28,6 @@ public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
 
   @Override
   public @NotNull String getCanonicalText() {
-    return myElement.getText();
+    return ReferenceUtils.handleQuotedText(myElement.getText());
   }
 }

@@ -2,18 +2,20 @@ package com.github.deeepamin.gitlabciaid.services;
 
 import com.github.deeepamin.gitlabciaid.BaseTest;
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
 
 public class GitlabCIYamlProjectServiceTest extends BaseTest {
   private static final String TEST_DIR_PATH = "/UtilsTest";
   private static boolean dataRead = false;
+  private static VirtualFile rootDir;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     if (!dataRead) {
-      var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "../");
+      rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "../");
       var projectService = getProject().getService(GitlabCIYamlProjectService.class);
       projectService.clearPluginData();
       readCIYamls(rootDir);
@@ -31,17 +33,19 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     var pluginData = projectService.getPluginData();
     assertNotNull(pluginData);
     assertEquals(2, pluginData.size());
-    var gitlabCIYamlPath = "/" + GITLAB_CI_DEFAULT_YAML_FILE;
-    var expectedFiles = List.of(gitlabCIYamlPath, PIPELINE_YML);
-    assertTrue(pluginData.keySet().containsAll(expectedFiles));
-    var yamlData = pluginData.get(gitlabCIYamlPath);
+
+    var gitlabCIYamlFile = getGitlabCIYamlFile(rootDir);
+    var pipelineCIYamlFile = getCIPipelineYamlFile(rootDir);
+    assertTrue(pluginData.keySet().containsAll(List.of(gitlabCIYamlFile, pipelineCIYamlFile)));
+    var yamlData = pluginData.get(gitlabCIYamlFile);
+
     assertNotNull(yamlData);
     assertEquals(1, yamlData.getIncludedYamls().size());
     assertEquals(4, yamlData.getJobs().size());
     assertEquals(3, yamlData.getStages().size());
     assertNotNull(yamlData.getStagesElement());
 
-    var pipelineCIYamlData = pluginData.get(PIPELINE_YML);
+    var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
     assertNotNull(pipelineCIYamlData);
     assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
     assertEquals(1, pipelineCIYamlData.getJobs().size());
@@ -49,17 +53,15 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     assertNull(pipelineCIYamlData.getStagesElement());
   }
 
-
   public void testParseGitlabCIYamlDataValidFiles() {
-    var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, TEST_DIR_PATH);
     var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
-    var gitlabCIYamlData = new GitlabCIYamlData(GITLAB_CI_DEFAULT_YAML_FILE);
+    var gitlabCIYamlData = new GitlabCIYamlData(gitlabCIYaml, gitlabCIYaml.getModificationStamp());
     var projectService = getProject().getService(GitlabCIYamlProjectService.class);
     projectService.parseGitlabCIYamlData(getProject(), gitlabCIYaml, gitlabCIYamlData);
 
     var includedYamls = gitlabCIYamlData.getIncludedYamls();
     assertEquals(1, includedYamls.size());
-    assertEquals(PIPELINE_YML, includedYamls.get(0));
+    assertEquals(PIPELINE_YML, includedYamls.getFirst());
     var expectedStages = List.of("build", "test", "deploy");
     var stageNames = gitlabCIYamlData.getStages().keySet().stream().toList();
     assertEquals(3, stageNames.size());
@@ -72,7 +74,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     var jobNames = gitlabCIYamlData.getJobs().keySet().stream().toList();
     assertEquals(4, jobNames.size());
     assertTrue(expectedJobNames.containsAll(jobNames));
-    assertNotNull(gitlabCIYamlData.getPath());
+    assertNotNull(gitlabCIYamlData.getFile());
     assertNotNull(gitlabCIYamlData.getStagesElement());
   }
 
@@ -101,10 +103,10 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     var job = "checkstyle";
     var projectService = getProject().getService(GitlabCIYamlProjectService.class);
     var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobs().containsKey(job));
-    assertEquals(PIPELINE_YML, jobFileName);
+    assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
     var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStages().containsKey(stage));
     var gitlabCIYamlPath = "/" + GITLAB_CI_DEFAULT_YAML_FILE;
-    assertEquals(gitlabCIYamlPath, stageFileName);
+    assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }
 }

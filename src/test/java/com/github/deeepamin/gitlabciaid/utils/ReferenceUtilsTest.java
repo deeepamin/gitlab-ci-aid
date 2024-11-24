@@ -3,9 +3,9 @@ package com.github.deeepamin.gitlabciaid.utils;
 import com.github.deeepamin.gitlabciaid.BaseTest;
 import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
@@ -108,6 +108,9 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals("test", ReferenceUtils.handleQuotedText("\"test\""));
     assertEquals("\"test", ReferenceUtils.handleQuotedText("\"test"));
     assertEquals("test\"", ReferenceUtils.handleQuotedText("test\""));
+    assertEquals("test", ReferenceUtils.handleQuotedText("'test'"));
+    assertEquals("'test", ReferenceUtils.handleQuotedText("'test"));
+    assertEquals("test'", ReferenceUtils.handleQuotedText("test'"));
   }
 
   private List<YAMLPlainTextImpl> getBuildElements() {

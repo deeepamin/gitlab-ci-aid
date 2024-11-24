@@ -16,7 +16,7 @@ stages:
 
 build-dev:
   stage: build
-  script: <error descr="Script './build-dev.sh' is not available on path">./build-dev.sh</error>
+  script: <caret>./build-dev.sh
   image: java:latest
   tags:
     - build-dev-tag

@@ -5,26 +5,23 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class FileUtils {
   private static final Logger LOG = Logger.getInstance(FileUtils.class);
-  public static final List<String> SCRIPT_RUNNERS = List.of("python ", "python3 ");
 
   public static Optional<VirtualFile> getVirtualFile(String fileRelativePathToRoot, Project project) {
     var basePath = project.getBasePath();
-    for (String runner : FileUtils.SCRIPT_RUNNERS) {
-      if (fileRelativePathToRoot.startsWith(runner)) {
-        fileRelativePathToRoot = fileRelativePathToRoot.substring(runner.length());
-      }
-    }
     var pathBuilder = new StringBuilder();
     pathBuilder.append(basePath);
     if (!fileRelativePathToRoot.startsWith(File.separator)) {
@@ -36,6 +33,15 @@ public class FileUtils {
       return Optional.of(virtualFile);
     }
     return Optional.empty();
+  }
+
+  public static Optional<VirtualFile> findVirtualFile(String filePath, Project project) {
+    if (filePath.contains(File.separator)) {
+      filePath = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+    }
+    return FilenameIndex.getVirtualFilesByName(filePath, GlobalSearchScope.projectScope(project))
+            .stream()
+            .findFirst();
   }
 
   public static void createFile(Path path) {
@@ -57,32 +63,34 @@ public class FileUtils {
     }
   }
 
-  public static Path getFilePath(String fileRelativePathToRoot, Project project) {
+  public static Path getFilePath(String textContainingFilePath, Project project) {
     var basePath = project.getBasePath();
+    var filePathIndexes = getFilePathAndIndexes(textContainingFilePath);
+    if (filePathIndexes.isEmpty()) {
+      return null;
+    }
+    var filePathIndex = filePathIndexes.getFirst();
     var pathBuilder = new StringBuilder();
     pathBuilder.append(basePath);
-    for (String runner : FileUtils.SCRIPT_RUNNERS) {
-      if (fileRelativePathToRoot.startsWith(runner)) {
-        fileRelativePathToRoot = fileRelativePathToRoot.substring(runner.length());
-      }
-    }
-    if (!fileRelativePathToRoot.startsWith(File.separator)) {
+    if (!textContainingFilePath.startsWith(File.separator)) {
       pathBuilder.append(File.separator);
     }
-    pathBuilder.append(fileRelativePathToRoot);
+    pathBuilder.append(filePathIndex.path().trim());
     return Path.of(pathBuilder.toString());
   }
 
-  public static ScriptPathIndex getShOrPyScript(String elementText) {
-    String regex = "(\\.?/?\\S+\\.(sh|py))";
+  public static List<FilePathIndex> getFilePathAndIndexes(String elementText) {
+    String regex = "(?:^|\\s)(\\./|/|[\\w\\-./]+)+\\.\\w+(?=\\s|$)";
     Pattern pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(elementText);
-    if (matcher.find()) {
-      return new ScriptPathIndex(matcher.group(), matcher.start(), matcher.end());
+    List<FilePathIndex> result = new ArrayList<>();
+    while (matcher.find()) {
+      result.add(new FilePathIndex(matcher.group().trim(), matcher.start(), matcher.end()));
     }
-    return null;
+    return result;
   }
 
-  public record ScriptPathIndex(String path, int start, int end) {
+  public record FilePathIndex(String path, int start, int end) {
+
   }
 }
