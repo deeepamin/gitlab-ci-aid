@@ -9,7 +9,7 @@ variables:
   TEST_VAR2: TEST_VALUE2
 
 include:
-  - pipeline.yml
+  - "<caret>pipeline.yml"
 
 stages:
   - validate
@@ -51,7 +51,7 @@ test-job:
 deploy-job:
   stage: deploy
   image: deploy:latest
-  script: <caret>./deploy.sh
+  script: ./deploy.sh
   tags:
     - deploy
   needs: ["test-job"]

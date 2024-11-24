@@ -124,44 +124,41 @@ public class GitlabCIYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, SCRIPT_KEYWORDS))
             .ifPresent(scriptElement -> {
-              var filePath = scriptElement.getText();
-              var scriptPathIndex = FileUtils.getShOrPyScript(filePath);
-
-              if (scriptPathIndex == null) {
-                LOG.debug("Can't found script in " + scriptElement.getText());
-                return;
-              }
-              var project = scriptElement.getProject();
-              var scriptPath = scriptPathIndex.path();
-              var virtualScriptFile = FileUtils.getVirtualFile(scriptPath, project).orElse(null);
-              var isNotScriptBlock = scriptElement.getParent() instanceof YAMLKeyValue;
-              if (virtualScriptFile == null) {
-                // in block any command can be quoted/plain text, and then we don't want to show path related error
-                if (isNotScriptBlock) {
-                  var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
-                  var quickFix = new CreateScriptQuickFix();
-                  var problemDescriptor = InspectionManager.getInstance(project)
-                          .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
-                  holder.newAnnotation(HighlightSeverity.ERROR, errorText)
-                          .highlightType(LIKE_UNKNOWN_SYMBOL)
-                          .newLocalQuickFix(quickFix, problemDescriptor)
-                          .registerFix()
+              var filePath = ReferenceUtils.handleQuotedText(scriptElement.getText());
+              var scriptPathIndexes = FileUtils.getFilePathAndIndexes(filePath);
+              for (var scriptPathIndex : scriptPathIndexes) {
+                var project = scriptElement.getProject();
+                var scriptPath = scriptPathIndex.path();
+                var virtualScriptFile = FileUtils.findVirtualFile(scriptPath, project).orElse(null);
+                var isNotScriptBlock = scriptElement.getParent() instanceof YAMLKeyValue;
+                if (virtualScriptFile == null) {
+                  // in block any command can be quoted/plain text, and then we don't want to show path related error
+                  if (isNotScriptBlock) {
+                    var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
+                    var quickFix = new CreateScriptQuickFix();
+                    var problemDescriptor = InspectionManager.getInstance(project)
+                            .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
+                    holder.newAnnotation(HighlightSeverity.ERROR, errorText)
+                            .highlightType(LIKE_UNKNOWN_SYMBOL)
+                            .newLocalQuickFix(quickFix, problemDescriptor)
+                            .registerFix()
+                            .create();
+                  }
+                } else {
+                  var scriptElementTextRange = scriptElement.getTextRange();
+                  var highlightStartRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.start();
+                  if (highlightStartRange > scriptElementTextRange.getEndOffset()) {
+                    highlightStartRange = scriptElementTextRange.getStartOffset();
+                  }
+                  var highlightEndRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.end();
+                  if (highlightEndRange > scriptElementTextRange.getEndOffset()) {
+                    highlightEndRange = scriptElementTextRange.getEndOffset();
+                  }
+                  holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                          .textAttributes(SCRIPT_HIGHLIGHTER)
+                          .range(new TextRange(highlightStartRange, highlightEndRange))
                           .create();
                 }
-              } else {
-                var scriptElementTextRange = scriptElement.getTextRange();
-                var highlightStartRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.start();
-                if (highlightStartRange > scriptElementTextRange.getEndOffset()) {
-                  highlightStartRange = scriptElementTextRange.getStartOffset();
-                }
-                var highlightEndRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.end();
-                if (highlightEndRange > scriptElementTextRange.getEndOffset()) {
-                  highlightEndRange = scriptElementTextRange.getEndOffset();
-                }
-                holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                        .textAttributes(SCRIPT_HIGHLIGHTER)
-                        .range(new TextRange(highlightStartRange, highlightEndRange))
-                        .create();
               }
             });
   }
@@ -171,9 +168,9 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .filter(element -> PsiUtils.isChild(element, List.of(INCLUDE)))
             .filter(element -> !PsiUtils.isChild(element, INCLUDE_POSSIBLE_CHILD_KEYWORDS)) // component, project, etc. currently not supported
             .ifPresent(includeElement -> {
-              var filePath = includeElement.getText();
+              var filePath = ReferenceUtils.handleQuotedText(includeElement.getText());
               var project = includeElement.getProject();
-              var virtualScriptFile = FileUtils.getVirtualFile(filePath, project).orElse(null);
+              var virtualScriptFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               if (virtualScriptFile == null) {
                 var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.include-not-found", includeElement.getText());
                 var quickFix = new CreateIncludeFileQuickFix();

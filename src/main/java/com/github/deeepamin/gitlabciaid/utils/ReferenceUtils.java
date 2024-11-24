@@ -3,14 +3,16 @@ package com.github.deeepamin.gitlabciaid.utils;
 import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToJobStageReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,14 +35,23 @@ public class ReferenceUtils {
   }
 
   public static Optional<PsiReference[]> referencesScripts(PsiElement element) {
-    if (element instanceof YAMLPlainTextImpl) {
-      return Optional.of(new PsiReference[]{new ScriptReferenceResolver(element)});
+    if (PsiUtils.isYamlTextElement(element)) {
+      var scriptText = handleQuotedText(element.getText());
+      var scriptPathIndexes = FileUtils.getFilePathAndIndexes(scriptText);
+      if (scriptPathIndexes.isEmpty()) {
+        return Optional.of(PsiReference.EMPTY_ARRAY);
+      }
+      List<PsiReference> references = new ArrayList<>();
+      for (var scriptPathIndex : scriptPathIndexes) {
+        references.add(new ScriptReferenceResolver(element, new TextRange(scriptPathIndex.start(), scriptPathIndex.end())));
+      }
+      return Optional.of(references.toArray(new PsiReference[0]));
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
   public static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
-    if (element instanceof YAMLPlainTextImpl) {
+    if (PsiUtils.isYamlTextElement(element)) {
       return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element)});
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
@@ -65,8 +76,8 @@ public class ReferenceUtils {
   }
 
   public static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
-    if (element instanceof YAMLPlainTextImpl) {
-      var stageName = element.getText();
+    if (PsiUtils.isYamlTextElement(element)) {
+      var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
       var targetStages = gitlabCIYamlProjectService.getPluginData().values()
@@ -82,8 +93,8 @@ public class ReferenceUtils {
   }
 
   public static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
-    if (element instanceof YAMLPlainTextImpl) {
-      var stageName = element.getText();
+    if (PsiUtils.isYamlTextElement(element)) {
+      var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
       var parent = gitlabCIYamlProjectService.getPluginData().values()
@@ -106,6 +117,8 @@ public class ReferenceUtils {
   public static String handleQuotedText(String text) {
     if (text.startsWith("\"") && text.endsWith("\"")) {
       text = text.replaceAll("\"", "");
+    } else if (text.startsWith("'") && text.endsWith("'")) {
+      text = text.replaceAll("'", "");
     }
     return text;
   }
