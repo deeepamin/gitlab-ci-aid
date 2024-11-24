@@ -11,6 +11,8 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.sh.ShLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLScalarList;
+import org.jetbrains.yaml.psi.YAMLScalarText;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.List;
@@ -32,17 +34,25 @@ public class GitlabCIYamlScriptInjector implements MultiHostInjector {
         LOG.debug(String.format("Script %s is not sequence item, skipping injection", context.getText()));
         return;
       }
-      var isScript = PsiUtils.isChild(context, SCRIPT_KEYWORDS);
-      if (isScript) {
-        registrar.startInjecting(ShLanguage.INSTANCE)
-                .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
-                .doneInjecting();
-      }
+      injectShell(registrar, context);
+    }
+    if (context instanceof YAMLScalarList || context instanceof YAMLScalarText) {
+      injectShell(registrar, context);
+    }
+  }
+
+  private void injectShell(MultiHostRegistrar registrar, PsiElement context) {
+    var isScript = PsiUtils.isChild(context, SCRIPT_KEYWORDS);
+    if (isScript) {
+      registrar
+              .startInjecting(ShLanguage.INSTANCE)
+              .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
+              .doneInjecting();
     }
   }
 
   @Override
   public @NotNull List<? extends Class<? extends PsiElement>> elementsToInjectIn() {
-    return List.of(YAMLPlainTextImpl.class);
+    return List.of(YAMLPlainTextImpl.class, YAMLScalarList.class, YAMLScalarText.class);
   }
 }
