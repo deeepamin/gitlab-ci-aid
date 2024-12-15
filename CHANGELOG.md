@@ -4,6 +4,23 @@
 
 ## [Unreleased]
 
+## [1.0.4] - 2024-12-15
+
+### Added
+
+- Script injection for multiline literal (|) and folded (>) blocks
+- Multiple script paths detection in script blocks
+
+### Changed
+
+- Improved caching for yaml parsing
+- Script and include files don’t require absolute path for navigation
+- Updated Gitlab CI schema json
+
+### Fixed
+
+- Quoted text in include file name resolves correctly
+
 ## [1.0.3] - 2024-11-20
 
 ### Added
@@ -38,7 +55,8 @@
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.0...v1.0.1
