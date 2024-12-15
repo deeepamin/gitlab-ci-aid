@@ -53,4 +53,8 @@ public class GitlabCIYamlUtils {
     }
     return service;
   }
+
+  public static boolean isYamlFile(VirtualFile file) {
+    return file != null && file.isValid() && !file.isDirectory() && (file.getPath().endsWith(".yml") || file.getPath().endsWith(".yaml"));
+  }
 }
