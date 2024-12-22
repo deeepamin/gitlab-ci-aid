@@ -90,6 +90,18 @@ public class FileUtils {
     return result;
   }
 
+  public static String sanitizeFilePath(String filePath) {
+    if (filePath == null) {
+      return null;
+    }
+    if (filePath.startsWith("\"") && filePath.endsWith("\"")) {
+      filePath = filePath.replaceAll("\"", "");
+    } else if (filePath.startsWith("'") && filePath.endsWith("'")) {
+      filePath = filePath.replaceAll("'", "");
+    }
+    return filePath.trim();
+  }
+
   public record FilePathIndex(String path, int start, int end) {
 
   }

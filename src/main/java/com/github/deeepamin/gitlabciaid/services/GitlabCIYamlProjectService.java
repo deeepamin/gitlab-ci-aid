@@ -78,7 +78,8 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
     parseGitlabCIYamlData(project, file, gitlabCIYamlData);
     pluginData.put(file, gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
-      var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
+      var sanitizedYamlPath = FileUtils.sanitizeFilePath(yaml);
+      var yamlVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
       if (yamlVirtualFile == null) {
         LOG.debug(yaml + " not found on " + project.getBasePath());
         return;
