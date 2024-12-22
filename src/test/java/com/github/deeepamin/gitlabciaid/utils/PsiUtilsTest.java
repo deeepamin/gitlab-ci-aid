@@ -36,7 +36,7 @@ public class PsiUtilsTest extends BaseTest {
     var quotedTextChildren = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class);
     assertEquals(4, quotedTextChildren.size());
     var plainTextChildren = PsiUtils.findChildren(psiYaml, YAMLPlainTextImpl.class);
-    assertEquals(30, plainTextChildren.size());
+    assertEquals(32, plainTextChildren.size());
 
     var pipelinePsiYml = getPsiCiPipelineYaml(rootDir);
     var quotedTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class);
@@ -47,7 +47,7 @@ public class PsiUtilsTest extends BaseTest {
 
   public void testIsYamlTextElement() {
     var psiYaml = getPsiGitlabCiYaml(rootDir);
-    var quotedTextChild = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class).get(0);
+    var quotedTextChild = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class).getFirst();
     assertTrue(PsiUtils.isYamlTextElement(quotedTextChild));
     var plainTextChild = findFirstChild(psiYaml, YAMLPlainTextImpl.class);
     assertTrue(PsiUtils.isYamlTextElement(plainTextChild));
@@ -55,7 +55,7 @@ public class PsiUtilsTest extends BaseTest {
     assertFalse(PsiUtils.isYamlTextElement(keyValueChild));
 
     var pipelinePsiYml = getPsiCiPipelineYaml(rootDir);
-    var quotedTextChildCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class).get(0);
+    var quotedTextChildCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class).getFirst();
     assertTrue(PsiUtils.isYamlTextElement(quotedTextChildCI));
     var plainTextChildCI = findFirstChild(pipelinePsiYml, YAMLPlainTextImpl.class);
     assertTrue(PsiUtils.isYamlTextElement(plainTextChildCI));

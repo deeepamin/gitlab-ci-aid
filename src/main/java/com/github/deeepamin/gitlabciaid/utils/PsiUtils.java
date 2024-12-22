@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.EXTENDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.gitlabciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
@@ -34,6 +35,10 @@ public class PsiUtils {
 
   public static boolean isStageElement(PsiElement element) {
     return isChild(element, List.of(STAGE));
+  }
+
+  public static boolean isExtendsElement(PsiElement element) {
+    return isChild(element, List.of(EXTENDS));
   }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {

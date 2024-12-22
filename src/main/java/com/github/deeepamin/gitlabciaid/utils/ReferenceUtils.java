@@ -4,7 +4,7 @@ import com.github.deeepamin.gitlabciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.openapi.util.TextRange;
@@ -24,8 +24,8 @@ public class ReferenceUtils {
       return referencesScripts(psiElement);
     } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
       return referencesIncludeLocalFiles(psiElement);
-    } else if (PsiUtils.isNeedsElement(psiElement)) {
-      return referencesNeedsToJob(psiElement);
+    } else if (PsiUtils.isNeedsElement(psiElement) || PsiUtils.isExtendsElement(psiElement)) {
+      return referencesNeedsOrExtendsToJob(psiElement);
     } else if (PsiUtils.isStagesElement(psiElement)) {
       return referencesStagesToStage(psiElement);
     } else if (PsiUtils.isStageElement(psiElement)) {
@@ -34,7 +34,7 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesScripts(PsiElement element) {
+  private static Optional<PsiReference[]> referencesScripts(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
       var scriptText = handleQuotedText(element.getText());
       var scriptPathIndexes = FileUtils.getFilePathAndIndexes(scriptText);
@@ -50,14 +50,14 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
+  private static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
       return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element)});
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesNeedsToJob(PsiElement element) {
+  private static Optional<PsiReference[]> referencesNeedsOrExtendsToJob(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
       // for cases: needs: ["some_job"] / needs: ["some_job] / needs: [some_job"]
       var need = handleQuotedText(element.getText());
@@ -70,12 +70,12 @@ public class ReferenceUtils {
               .map(Map.Entry::getValue)
               .findFirst()
               .orElse(null);
-      return Optional.of(new PsiReference[]{new NeedsToJobReferenceResolver(element, targetJob)});
+      return Optional.of(new PsiReference[]{new NeedsOrExtendsToJobReferenceResolver(element, targetJob)});
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
+  private static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
@@ -92,7 +92,7 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
+  private static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();

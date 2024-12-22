@@ -108,9 +108,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             var topLevelKeys = YAMLUtil.getTopLevelKeys(yamlFile);
 
             topLevelKeys.forEach(topLevelKey -> {
-              // rules can also be top level elements, but they don't have stage as child
-              var hasChildStage = PsiUtils.hasChild(topLevelKey, STAGE);
-              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText()) && hasChildStage) {
+              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
                 // this means it's a job
                 gitlabCIYamlData.addJob(topLevelKey);
               }

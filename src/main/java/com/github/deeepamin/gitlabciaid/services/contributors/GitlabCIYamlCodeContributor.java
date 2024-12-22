@@ -32,17 +32,27 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
         Optional.of(GitlabCIYamlUtils.isValidGitlabCIYamlFile(psiElement.getContainingFile().getVirtualFile()))
                 .ifPresent(file -> {
                   boolean isNeedsElement = PsiUtils.isNeedsElement(psiElement);
-                  if (isNeedsElement) {
+                  boolean isExtendsElement = PsiUtils.isExtendsElement(psiElement);
+                  if (isNeedsElement || isExtendsElement) {
                     var allJobs = getGitlabCIYamlProjectService(psiElement).getJobNames();
                     var parentJob = PsiUtils.findParent(psiElement, allJobs);
                     List<String> filteredJobs = new ArrayList<>(allJobs);
                     parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
+                    if (isNeedsElement) {
+                      //remove hidden jobs with "."
+                      filteredJobs.forEach(job -> {
+                        if (job.startsWith(".")) {
+                          filteredJobs.remove(job);
+                        }
+                      });
+                    }
                     result.addAllElements(filteredJobs.stream()
                             .map(job -> LookupElementBuilder.create(job)
                                     .bold()
                                     .withIcon(Icons.ICON_NEEDS.getIcon())
                                     .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getJobs().containsKey(job))))
                             .toList());
+                    return;
                   }
                   boolean isStageElement = PsiUtils.isStageElement(psiElement);
                   if (isStageElement) {
@@ -54,6 +64,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                                     .withIcon(Icons.ICON_STAGE.getIcon())
                                     .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
                             .toList());
+                    return;
                   }
                   boolean isStagesElement = PsiUtils.isStagesElement(psiElement);
                   if (isStagesElement) {

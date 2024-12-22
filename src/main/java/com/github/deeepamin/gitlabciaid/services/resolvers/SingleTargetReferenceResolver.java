@@ -8,10 +8,10 @@ import com.intellij.psi.ResolveResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NeedsToJobReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-  private final PsiElement target;
+public class SingleTargetReferenceResolver  extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+  protected final PsiElement target;
 
-  public NeedsToJobReferenceResolver(@NotNull PsiElement element, PsiElement target) {
+  public SingleTargetReferenceResolver(@NotNull PsiElement element, PsiElement target) {
     super(element);
     this.target = target;
   }

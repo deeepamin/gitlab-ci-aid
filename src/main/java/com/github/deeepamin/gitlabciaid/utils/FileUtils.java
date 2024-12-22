@@ -36,6 +36,12 @@ public class FileUtils {
   }
 
   public static Optional<VirtualFile> findVirtualFile(String filePath, Project project) {
+    if (filePath == null || filePath.isEmpty()) {
+      return Optional.empty();
+    }
+    if (filePath.startsWith("./")) {
+      filePath = filePath.substring(2);
+    }
     if (filePath.contains(File.separator)) {
       filePath = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
     }
