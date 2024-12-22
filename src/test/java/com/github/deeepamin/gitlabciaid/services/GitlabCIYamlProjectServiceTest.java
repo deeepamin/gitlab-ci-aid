@@ -41,7 +41,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
 
     assertNotNull(yamlData);
     assertEquals(1, yamlData.getIncludedYamls().size());
-    assertEquals(4, yamlData.getJobs().size());
+    assertEquals(5, yamlData.getJobs().size());
     assertEquals(3, yamlData.getStages().size());
     assertNotNull(yamlData.getStagesElement());
 
@@ -66,13 +66,13 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     var stageNames = gitlabCIYamlData.getStages().keySet().stream().toList();
     assertEquals(3, stageNames.size());
     assertTrue(expectedStages.containsAll(stageNames));
-    assertEquals(2, gitlabCIYamlData.getStages().get("build").size());
+    assertEquals(3, gitlabCIYamlData.getStages().get("build").size());
     assertEquals(1, gitlabCIYamlData.getStages().get("test").size());
     assertEquals(1, gitlabCIYamlData.getStages().get("deploy").size());
 
-    var expectedJobNames = List.of("build-dev", "build-sit", "test-job", "deploy-job");
+    var expectedJobNames = List.of(".extend-test","build-dev", "build-sit", "test-job", "deploy-job");
     var jobNames = gitlabCIYamlData.getJobs().keySet().stream().toList();
-    assertEquals(4, jobNames.size());
+    assertEquals(5, jobNames.size());
     assertTrue(expectedJobNames.containsAll(jobNames));
     assertNotNull(gitlabCIYamlData.getFile());
     assertNotNull(gitlabCIYamlData.getStagesElement());

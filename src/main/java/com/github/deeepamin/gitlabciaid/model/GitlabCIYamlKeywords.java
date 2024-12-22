@@ -30,10 +30,12 @@ public class GitlabCIYamlKeywords {
   public static final String TEMPLATE = "template";
   public static final String INPUTS = "inputs";
   public static final String RULES = "rules";
+  public static final String EXTENDS = "extends";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,
           BEFORE_SCRIPT,
+          SCRIPT,
           CACHE,
           DEFAULT,
           IMAGE,

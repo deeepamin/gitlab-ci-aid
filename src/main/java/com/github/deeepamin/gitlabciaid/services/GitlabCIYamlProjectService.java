@@ -78,7 +78,8 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
     parseGitlabCIYamlData(project, file, gitlabCIYamlData);
     pluginData.put(file, gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
-      var yamlVirtualFile = FileUtils.getVirtualFile(yaml, project).orElse(null);
+      var sanitizedYamlPath = FileUtils.sanitizeFilePath(yaml);
+      var yamlVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
       if (yamlVirtualFile == null) {
         LOG.debug(yaml + " not found on " + project.getBasePath());
         return;
@@ -107,9 +108,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             var topLevelKeys = YAMLUtil.getTopLevelKeys(yamlFile);
 
             topLevelKeys.forEach(topLevelKey -> {
-              // rules can also be top level elements, but they don't have stage as child
-              var hasChildStage = PsiUtils.hasChild(topLevelKey, STAGE);
-              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText()) && hasChildStage) {
+              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
                 // this means it's a job
                 gitlabCIYamlData.addJob(topLevelKey);
               }

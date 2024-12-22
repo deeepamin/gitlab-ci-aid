@@ -4,7 +4,7 @@ import com.github.deeepamin.gitlabciaid.BaseTest;
 import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.gitlabciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.JobStageToStagesReferenceResolver;
-import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsToJobReferenceResolver;
+import com.github.deeepamin.gitlabciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.gitlabciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.psi.PsiElement;
@@ -56,8 +56,19 @@ public class ReferenceUtilsTest extends BaseTest {
     assertNotNull(referenceNeeds);
     assertTrue(referenceNeeds.isPresent());
     assertEquals(1, referenceNeeds.get().length);
-    assertTrue(referenceNeeds.get()[0] instanceof NeedsToJobReferenceResolver);
+    assertTrue(referenceNeeds.get()[0] instanceof NeedsOrExtendsToJobReferenceResolver);
     assertEquals(needsJobElement, referenceNeeds.get()[0].getElement());
+  }
+
+  public void testGetReferencesExtendsToJob() {
+    var extendsJobElement = findChildWithKey(psiYaml, "\"test-job\"");
+    assertNotNull(extendsJobElement);
+    var referenceExtends = ReferenceUtils.getReferences(extendsJobElement);
+    assertNotNull(referenceExtends);
+    assertTrue(referenceExtends.isPresent());
+    assertEquals(1, referenceExtends.get().length);
+    assertTrue(referenceExtends.get()[0] instanceof NeedsOrExtendsToJobReferenceResolver);
+    assertEquals(extendsJobElement, referenceExtends.get()[0].getElement());
   }
 
   public void testGetReferencesStagesToStage() {
@@ -72,7 +83,7 @@ public class ReferenceUtilsTest extends BaseTest {
             .map(stage -> (YAMLKeyValue) stage.getParent())
             .toList();
     assertNotNull(stageElementsOnJobLevel);
-    assertEquals(2, stageElementsOnJobLevel.size());
+    assertEquals(3, stageElementsOnJobLevel.size());
     var stagesToStageReference = ReferenceUtils.getReferences(stageElementInStagesBlock);
     assertNotNull(stagesToStageReference);
     assertTrue(stagesToStageReference.isPresent());
@@ -116,7 +127,7 @@ public class ReferenceUtilsTest extends BaseTest {
   private List<YAMLPlainTextImpl> getBuildElements() {
     var buildStageElementsList = new ArrayList<YAMLPlainTextImpl>();
     findChildrenWithKey(psiYaml, "build", YAMLPlainTextImpl.class, buildStageElementsList);
-    assertEquals(3, buildStageElementsList.size());
+    assertEquals(4, buildStageElementsList.size());
     return buildStageElementsList;
   }
 }

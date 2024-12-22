@@ -1,7 +1,9 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.BaseTest;
+import com.intellij.codeInsight.lookup.LookupElement;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GitlabCIYamlCodeContributorTest extends BaseTest {
@@ -17,16 +19,31 @@ public class GitlabCIYamlCodeContributorTest extends BaseTest {
   }
 
   public void testNeedsJobCompletion() {
-    var expectedCompletions = List.of("build-dev", "build-sit", "test-job", "deploy-job");
+    var expectedCompletions = List.of("build-dev", "test-job", "deploy-job");
     // there are other completions from schema as well
-    // also the same job name is shown in needs, needs to be fixed
     assertTrue(completions.containsAll(expectedCompletions));
 
     myFixture.type("bui");
-    var completionsAfterTyping = myFixture.getLookupElementStrings();
+    var completionsAfterTypingElements = myFixture.completeBasic();
+    var completionsAfterTyping = Arrays.stream(completionsAfterTypingElements).map(LookupElement::getLookupString).toList();
     assertNotNull(completionsAfterTyping);
-    var expectedCompletionsAfterTyping = List.of("build-dev", "build-sit");
+    var expectedCompletionsAfterTyping = List.of("build-dev");
     var unexpectedCompletionsAfterTyping = List.of("test-job", "deploy-job");
+    assertTrue(completionsAfterTyping.containsAll(expectedCompletionsAfterTyping));
+    assertFalse(completionsAfterTyping.containsAll(unexpectedCompletionsAfterTyping));
+  }
+
+  public void testExtendsJobCompletion() {
+    var expectedCompletions = List.of(".test-job", ".deploy-job");
+    // there are other completions from schema as well
+    assertTrue(completions.containsAll(expectedCompletions));
+
+    myFixture.type("tes");
+    var completionsAfterTypingElements = myFixture.completeBasic();
+    var completionsAfterTyping = Arrays.stream(completionsAfterTypingElements).map(LookupElement::getLookupString).toList();
+    assertNotNull(completionsAfterTyping);
+    var expectedCompletionsAfterTyping = List.of(".test-job");
+    var unexpectedCompletionsAfterTyping = List.of(".deploy-job");
     assertTrue(completionsAfterTyping.containsAll(expectedCompletionsAfterTyping));
     assertFalse(completionsAfterTyping.containsAll(unexpectedCompletionsAfterTyping));
   }

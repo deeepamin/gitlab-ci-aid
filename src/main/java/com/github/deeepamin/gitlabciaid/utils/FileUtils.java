@@ -36,6 +36,12 @@ public class FileUtils {
   }
 
   public static Optional<VirtualFile> findVirtualFile(String filePath, Project project) {
+    if (filePath == null || filePath.isEmpty()) {
+      return Optional.empty();
+    }
+    if (filePath.startsWith("./")) {
+      filePath = filePath.substring(2);
+    }
     if (filePath.contains(File.separator)) {
       filePath = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
     }
@@ -88,6 +94,18 @@ public class FileUtils {
       result.add(new FilePathIndex(matcher.group().trim(), matcher.start(), matcher.end()));
     }
     return result;
+  }
+
+  public static String sanitizeFilePath(String filePath) {
+    if (filePath == null) {
+      return null;
+    }
+    if (filePath.startsWith("\"") && filePath.endsWith("\"")) {
+      filePath = filePath.replaceAll("\"", "");
+    } else if (filePath.startsWith("'") && filePath.endsWith("'")) {
+      filePath = filePath.replaceAll("'", "");
+    }
+    return filePath.trim();
   }
 
   public record FilePathIndex(String path, int start, int end) {
