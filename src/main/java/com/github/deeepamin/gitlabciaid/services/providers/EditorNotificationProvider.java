@@ -1,7 +1,6 @@
 package com.github.deeepamin.gitlabciaid.services.providers;
 
 import com.github.deeepamin.gitlabciaid.services.GitlabCIYamlProjectService;
-import com.github.deeepamin.gitlabciaid.settings.GitlabCIAidSettings;
 import com.github.deeepamin.gitlabciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -51,7 +50,6 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
     EditorNotificationPanel panel = new EditorNotificationPanel();
     panel.setText("Do you want to mark this file as a GitLab CI YAML file?");
     panel.createActionLabel("Mark as GitLab CI", () -> {
-      GitlabCIAidSettings.getInstance(project).addFilePathMapping(file.getPath());
       projectService.readGitlabCIYamlData(project, file);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {
