@@ -1,7 +1,9 @@
 package com.github.deeepamin.gitlabciaid.services.contributors;
 
 import com.github.deeepamin.gitlabciaid.BaseTest;
+import com.intellij.codeInsight.lookup.LookupElement;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GitlabCIYamlCodeContributorTest extends BaseTest {
@@ -22,7 +24,8 @@ public class GitlabCIYamlCodeContributorTest extends BaseTest {
     assertTrue(completions.containsAll(expectedCompletions));
 
     myFixture.type("bui");
-    var completionsAfterTyping = myFixture.getLookupElementStrings();
+    var completionsAfterTypingElements = myFixture.completeBasic();
+    var completionsAfterTyping = Arrays.stream(completionsAfterTypingElements).map(LookupElement::getLookupString).toList();
     assertNotNull(completionsAfterTyping);
     var expectedCompletionsAfterTyping = List.of("build-dev");
     var unexpectedCompletionsAfterTyping = List.of("test-job", "deploy-job");
@@ -35,8 +38,9 @@ public class GitlabCIYamlCodeContributorTest extends BaseTest {
     // there are other completions from schema as well
     assertTrue(completions.containsAll(expectedCompletions));
 
-    myFixture.type(".test");
-    var completionsAfterTyping = myFixture.getLookupElementStrings();
+    myFixture.type("tes");
+    var completionsAfterTypingElements = myFixture.completeBasic();
+    var completionsAfterTyping = Arrays.stream(completionsAfterTypingElements).map(LookupElement::getLookupString).toList();
     assertNotNull(completionsAfterTyping);
     var expectedCompletionsAfterTyping = List.of(".test-job");
     var unexpectedCompletionsAfterTyping = List.of(".deploy-job");
