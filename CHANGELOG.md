@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [1.0.5] - 2025-01-20
+
+### Added
+
+- Support for navigation, autocompletion and highlighting for "extends" keyword
+
+### Changed
+
+- Hidden jobs (starting with .) are highlighted and can be navigated to, not shown in autocompletion
+
+### Fixed
+
+- Quoted text in file path resolves in not navigating to file
 
 ## [1.0.4] - 2024-12-15
 
@@ -56,7 +69,8 @@
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.1...v1.0.2
