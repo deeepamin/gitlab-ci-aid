@@ -18,6 +18,7 @@
 
 - Quoted text in file path resolves in not navigating to file
 
+
 ## [1.0.4] - 2024-12-15
 
 ### Added
