@@ -45,10 +45,8 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 ## Limitations / Future Improvements
 * Only works with default Gitlab CI file name (.gitlab-ci.yml/yaml), Gitlab supports name change but no API for getting the name
 * Only works with local files currently, no components, remote files or templates
-* Reference tags are shown as warning with schema (there's a way from fellow plugin dev, but requires a lot of duplication of IntelliJ YAML parser)
 
 ## Known Issues
-* Newly added job is not highlighted - file has to be reopened for it to work
 
 ## Notes
 * Some features may not work while IntelliJ is indexing the project
