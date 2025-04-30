@@ -1,9 +1,0 @@
-{
-  "release-type": "java",
-  "changelog-path": "CHANGELOG.md",
-  "include-v-in-tag": true,
-  "bump-minor-pre-major": true,
-  "changelog": {
-    "commitMessage": "[skip ci] Changelog update - v${version}"
-  }
-}
