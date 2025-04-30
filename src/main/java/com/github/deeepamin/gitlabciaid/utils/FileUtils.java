@@ -11,6 +11,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +36,28 @@ public class FileUtils {
     return Optional.empty();
   }
 
-  public static Optional<VirtualFile> findVirtualFile(String filePath, Project project) {
+  public static Optional<VirtualFile> findVirtualFile(final String filePath, Project project) {
     if (filePath == null || filePath.isEmpty()) {
       return Optional.empty();
     }
+    String fileName = filePath;
     if (filePath.startsWith("./")) {
-      filePath = filePath.substring(2);
+      fileName = fileName.substring(2);
     }
     if (filePath.contains(File.separator)) {
-      filePath = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+      fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
     }
-    return FilenameIndex.getVirtualFilesByName(filePath, GlobalSearchScope.projectScope(project))
+    return FilenameIndex.getVirtualFilesByName(fileName, GlobalSearchScope.projectScope(project))
             .stream()
+            .filter(virtualFile -> {
+              var absolutePath = virtualFile.getPath();
+              var filePathToCheck = filePath;
+              filePathToCheck = FileUtils.sanitizeFilePath(filePathToCheck);
+              if (filePathToCheck.startsWith("./")) {
+                filePathToCheck = filePathToCheck.substring(2);
+              }
+              return absolutePath.contains(filePathToCheck);
+            })
             .findFirst();
   }
 
@@ -69,7 +80,7 @@ public class FileUtils {
     }
   }
 
-  public static Path getFilePath(String textContainingFilePath, Project project) {
+  public static Path getFilePath(String textContainingFilePath, Project project) throws InvalidPathException {
     var basePath = project.getBasePath();
     var filePathIndexes = getFilePathAndIndexes(textContainingFilePath);
     if (filePathIndexes.isEmpty()) {

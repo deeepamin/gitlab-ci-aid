@@ -128,16 +128,17 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             plainTextChildren.stream()
                     .map(YAMLBlockScalarImpl::getText)
                     .distinct()
-                    .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addYamlFile(schemaFile);
-                      gitlabCIYamlData.addIncludedYaml(schemaFile);
+                    .forEach(yamlFile -> {
+                      GitlabCIYamlUtils.addYamlFile(yamlFile);
+                      gitlabCIYamlData.addIncludedYaml(yamlFile);
                     });
             quotedTextChildren.stream()
                     .map(YAMLQuotedText::getText)
                     .distinct()
-                    .forEach(schemaFile -> {
-                      GitlabCIYamlUtils.addYamlFile(schemaFile);
-                      gitlabCIYamlData.addIncludedYaml(schemaFile);
+                    .forEach(yamlFile -> {
+                      var sanitizedYamlPath = FileUtils.sanitizeFilePath(yamlFile);
+                      GitlabCIYamlUtils.addYamlFile(sanitizedYamlPath);
+                      gitlabCIYamlData.addIncludedYaml(sanitizedYamlPath);
                     });
           }
           if (STAGE.equals(keyText)) {

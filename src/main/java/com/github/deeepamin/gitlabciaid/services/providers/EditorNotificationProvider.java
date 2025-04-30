@@ -50,6 +50,7 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
     EditorNotificationPanel panel = new EditorNotificationPanel();
     panel.setText("Do you want to mark this file as a GitLab CI YAML file?");
     panel.createActionLabel("Mark as GitLab CI", () -> {
+      file.putUserData(GITLAB_CI_YAML_MARKED_KEY, true);
       projectService.readGitlabCIYamlData(project, file);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {
@@ -61,7 +62,11 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
       });
     });
     //TODO ignore into excluded mappings so user can later remove from excluded if they marked by mistake / change mind
-    panel.createActionLabel("Ignore", () -> file.putUserData(GITLAB_CI_YAML_MARKED_KEY, false));
+    panel.createActionLabel("Ignore", () -> {
+      file.putUserData(GITLAB_CI_YAML_MARKED_KEY, false);
+      EditorNotifications.getInstance(project).updateNotifications(file);
+      }
+    );
     return panel;
   }
 
