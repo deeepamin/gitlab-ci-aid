@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-04-30
+
+### Changed
+
+- Updated Gitlab CI schema for inputs and other elements support
+
+### Fixed
+
+- Script element resolves to wrong path in project
+- Ignore action doesn't remove the Editor notification panel
+- Windows path separator handling and in general Path not found exceptions
+- Shell plugin not found exception
+- Quoted text in include path prohibits included files to not provide autosuggestions and highlighting
+
 ## [1.1.0] - 2025-04-16
 
 ### Added
@@ -75,7 +89,8 @@
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.3...v1.0.4
