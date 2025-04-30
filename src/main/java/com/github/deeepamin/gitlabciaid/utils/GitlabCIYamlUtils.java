@@ -9,9 +9,10 @@ import com.intellij.psi.PsiFile;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class GitlabCIYamlUtils {
   // TODO Gitlab allows changing default file name, config for that?
@@ -19,7 +20,7 @@ public class GitlabCIYamlUtils {
   public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
   public static final List<String> GITLAB_CI_DEFAULT_YAML_FILES = List.of(GITLAB_CI_DEFAULT_YML_FILE, GITLAB_CI_DEFAULT_YAML_FILE);
 
-  private static final List<String> GITLAB_CI_YAML_FILES = new ArrayList<>(GITLAB_CI_DEFAULT_YAML_FILES);
+  private static final Set<String> GITLAB_CI_YAML_FILES = new HashSet<>(GITLAB_CI_DEFAULT_YAML_FILES);
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlUtils.class);
 
   public static void addYamlFile(final String yamlFilePath) {
