@@ -50,6 +50,7 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
     EditorNotificationPanel panel = new EditorNotificationPanel();
     panel.setText("Do you want to mark this file as a GitLab CI YAML file?");
     panel.createActionLabel("Mark as GitLab CI", () -> {
+      file.putUserData(GITLAB_CI_YAML_MARKED_KEY, true);
       projectService.readGitlabCIYamlData(project, file);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {

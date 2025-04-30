@@ -7,6 +7,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +37,18 @@ public class GitlabCIYamlUtils {
   }
 
   public static Optional<Path> getGitlabCIYamlFile(final PsiElement psiElement) {
-    return Optional.ofNullable(psiElement)
-            .map(PsiElement::getContainingFile)
-            .map(PsiFile::getOriginalFile)
-            .map(PsiFile::getViewProvider)
-            .map(FileViewProvider::getVirtualFile)
-            .map(VirtualFile::getPath)
-            .map(Path::of)
-            .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
+    try {
+      return Optional.ofNullable(psiElement)
+              .map(PsiElement::getContainingFile)
+              .map(PsiFile::getOriginalFile)
+              .map(PsiFile::getViewProvider)
+              .map(FileViewProvider::getVirtualFile)
+              .map(VirtualFile::getPath)
+              .map(Path::of)
+              .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
+    } catch (InvalidPathException ipX) {
+      return Optional.empty();
+    }
   }
 
   public static GitlabCIYamlProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {

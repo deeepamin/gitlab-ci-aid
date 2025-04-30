@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -37,7 +38,18 @@ public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
     if (virtualFile instanceof LightVirtualFile) {
       LOG.debug("LightVirtualFile" + virtualFile.getPath());
     }
-    return virtualFile.isValid() && virtualFile.exists() && GitlabCIYamlUtils.isGitlabCIYamlFile(Path.of(virtualFile.getPath()));
+
+    if (virtualFile.isValid() && virtualFile.exists()) {
+      Path virtualFilePath;
+      try {
+        virtualFilePath = Path.of(virtualFile.getPath());
+      } catch (InvalidPathException ipX) {
+        LOG.error("Error while JSON schema availability check for path " + virtualFile.getPath() , ipX);
+        return false;
+      }
+      return GitlabCIYamlUtils.isGitlabCIYamlFile(virtualFilePath);
+    }
+    return false;
   }
 
   @Override
