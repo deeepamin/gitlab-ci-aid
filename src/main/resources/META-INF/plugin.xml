@@ -8,6 +8,7 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.json</depends>
     <depends>org.jetbrains.plugins.terminal</depends>
+    <depends>com.jetbrains.sh</depends>
     <resource-bundle>messages.GitlabCIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
