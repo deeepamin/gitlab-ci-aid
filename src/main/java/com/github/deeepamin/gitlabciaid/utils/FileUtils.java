@@ -45,17 +45,18 @@ public class FileUtils {
       fileName = fileName.substring(2);
     }
     if (filePath.contains(File.separator)) {
-      fileName = fileName.substring(filePath.lastIndexOf(File.separator) + 1);
+      fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
     }
     return FilenameIndex.getVirtualFilesByName(fileName, GlobalSearchScope.projectScope(project))
             .stream()
             .filter(virtualFile -> {
+              var absolutePath = virtualFile.getPath();
               var filePathToCheck = filePath;
+              filePathToCheck = FileUtils.sanitizeFilePath(filePathToCheck);
               if (filePathToCheck.startsWith("./")) {
                 filePathToCheck = filePathToCheck.substring(2);
               }
-              filePathToCheck = FileUtils.sanitizeFilePath(filePathToCheck);
-              return filePath.contains(filePathToCheck);
+              return absolutePath.contains(filePathToCheck);
             })
             .findFirst();
   }
