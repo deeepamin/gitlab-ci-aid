@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-05-02
+
+Name of the plugin is changed to "CI Aid for GitLab" to comply with GitLab official trademark guidelines.
+All the good features (and bugs) offered by plugin stay the same as before.
+
 ## [1.2.0] - 2025-04-30
 
 ### Changed

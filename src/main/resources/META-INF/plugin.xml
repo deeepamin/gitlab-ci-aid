@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin require-restart="false">
-    <id>com.github.deeepamin.ciaid</id>
+    <id>com.github.deeepamin.gitlabciaid</id>
     <name>CI Aid for GitLab</name>
     <vendor email="deeeepamin@gmail.com" url="https://github.com/deeepamin">Deep Amin</vendor>
 
