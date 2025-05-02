@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# Gitlab CI Aid Changelog
+# CI Aid for GitLab Changelog
 
 ## [Unreleased]
 
@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Updated Gitlab CI schema for inputs and other elements support
+- Updated GitLab CI schema for inputs and other elements support
 
 ### Fixed
 
@@ -49,7 +49,7 @@
 
 - Improved caching for yaml parsing
 - Script and include files don’t require absolute path for navigation
-- Updated Gitlab CI schema json
+- Updated GitLab CI schema json
 
 ### Fixed
 
@@ -64,7 +64,7 @@
 
 ### Fixed
 
-- Non Gitlab CI Yaml files are annotated/highlighted
+- Non GitLab CI Yaml files are annotated/highlighted
 - Some python script paths weren't highlighted correctly
 
 ## [1.0.2] - 2024-11-18
@@ -87,7 +87,7 @@
 - Local navigation support for stages, jobs, script files and include files
 - Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
-- Schema Support: Auto detection of Gitlab CI YAML and auto schema configuration, with descriptions, errors and suggestions for Gitlab known keywords
+- Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
 [Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...HEAD
 [1.2.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.1.0...v1.2.0
