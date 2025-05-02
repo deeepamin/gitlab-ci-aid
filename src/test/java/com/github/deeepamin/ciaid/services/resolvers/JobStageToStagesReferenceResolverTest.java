@@ -35,4 +35,8 @@ public class JobStageToStagesReferenceResolverTest extends BaseTest {
     assertNotNull(resolve);
     assertEquals("build", resolve.getText());
   }
+
+  public void testDummy() {
+    assertTrue(true);
+  }
 }
