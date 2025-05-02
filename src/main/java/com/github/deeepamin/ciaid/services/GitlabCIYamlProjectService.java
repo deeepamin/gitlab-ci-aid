@@ -93,6 +93,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
 
 
   public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final GitlabCIYamlData gitlabCIYamlData) {
+    GitlabCIYamlUtils.markAsCIYamlFile(file);
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -128,18 +129,11 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             plainTextChildren.stream()
                     .map(YAMLBlockScalarImpl::getText)
                     .distinct()
-                    .forEach(yamlFile -> {
-                      GitlabCIYamlUtils.addYamlFile(yamlFile);
-                      gitlabCIYamlData.addIncludedYaml(yamlFile);
-                    });
+                    .forEach(gitlabCIYamlData::addIncludedYaml);
             quotedTextChildren.stream()
                     .map(YAMLQuotedText::getText)
                     .distinct()
-                    .forEach(yamlFile -> {
-                      var sanitizedYamlPath = FileUtils.sanitizeFilePath(yamlFile);
-                      GitlabCIYamlUtils.addYamlFile(sanitizedYamlPath);
-                      gitlabCIYamlData.addIncludedYaml(sanitizedYamlPath);
-                    });
+                    .forEach(gitlabCIYamlData::addIncludedYaml);
           }
           if (STAGE.equals(keyText)) {
             gitlabCIYamlData.addStage(keyValue);
@@ -188,7 +182,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
              .orElse(null);
     var basePath = project.getBasePath();
     if (filePath != null && basePath != null) {
-      return filePath.replaceFirst("^" + basePath + "/", "");
+      return filePath.replaceFirst("^" + basePath + File.separator, "");
     }
     return "";
   }

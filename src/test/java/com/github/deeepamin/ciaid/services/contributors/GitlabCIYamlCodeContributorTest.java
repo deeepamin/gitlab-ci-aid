@@ -3,18 +3,19 @@ package com.github.deeepamin.ciaid.services.contributors;
 import com.github.deeepamin.ciaid.BaseTest;
 import com.intellij.codeInsight.lookup.LookupElement;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 public class GitlabCIYamlCodeContributorTest extends BaseTest {
-  private static final String TEST_DIR_PATH = "/CodeCompletionTest";
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("/CodeCompletionTest");
   private List<String> completions;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     var yamlPath = getTestDirectoryName();
-    completions = myFixture.getCompletionVariants(TEST_DIR_PATH + "/" + yamlPath + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
+    completions = myFixture.getCompletionVariants(TEST_DIR_PATH + File.separator + yamlPath + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
     assertNotNull(completions);
   }
 

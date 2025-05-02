@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReferenceUtilsTest extends BaseTest {
-  private static final String TEST_DIR_PATH = "/UtilsTest";
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
   private PsiElement psiYaml;
 
   @Override

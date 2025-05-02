@@ -1,7 +1,6 @@
 package com.github.deeepamin.ciaid;
 
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
@@ -13,13 +12,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class BaseTest extends BasePlatformTestCase {
-  protected static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yml";
-  protected static final String PIPELINE_YML = "/pipeline.yml";
+  protected static final String GITLAB_CI_DEFAULT_YAML_FILE = getOsAgnosticPath(".gitlab-ci.yml");
+  protected static final String PIPELINE_YML = getOsAgnosticPath("/pipeline.yml");
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    GitlabCIYamlUtils.addYamlFile(PIPELINE_YML.replace("/", File.separator));
+//    GitlabCIYamlUtils.addYamlFile(PIPELINE_YML);
   }
 
   @Override
@@ -29,7 +28,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
 
   @Override
   protected String getTestDataPath() {
-    return "src/test/resources/testdata";
+    return getOsAgnosticPath("src/test/resources/testdata");
   }
 
   protected VirtualFile getGitlabCIYamlFile(VirtualFile rootDir) {
@@ -123,6 +122,18 @@ public abstract class BaseTest extends BasePlatformTestCase {
     if (pipelineYamlFile != null) {
       projectService.readGitlabCIYamlData(project, pipelineYamlFile);
     }
+  }
+
+  public static String getOsAgnosticPath(String path) {
+    if (path == null) {
+      return null;
+    }
+    if (path.contains("/")) {
+      path = path.replaceAll("/", File.separator);
+    } else if (path.contains("\\")) {
+      path = path.replaceAll("\\\\", File.separator);
+    }
+    return path;
   }
 
 }
