@@ -18,7 +18,6 @@ public abstract class BaseTest extends BasePlatformTestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-//    GitlabCIYamlUtils.addYamlFile(PIPELINE_YML);
   }
 
   @Override

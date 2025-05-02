@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 
 import java.io.File;
 
@@ -25,6 +26,8 @@ public class JobStageToStagesReferenceResolverTest extends BaseTest {
 
   public void testSameFile() {
     var testDir = getTestDirectoryName();
+    var gitlabCIYamlPsi = myFixture.configureByFile(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    GitlabCIYamlUtils.markAsCIYamlFile(gitlabCIYamlPsi.getVirtualFile());
     var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
     assertNotNull(reference);
     assertTrue(reference instanceof JobStageToStagesReferenceResolver);
