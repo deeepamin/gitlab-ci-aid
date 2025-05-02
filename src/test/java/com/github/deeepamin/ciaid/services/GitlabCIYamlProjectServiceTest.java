@@ -4,10 +4,11 @@ import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import java.io.File;
 import java.util.List;
 
 public class GitlabCIYamlProjectServiceTest extends BaseTest {
-  private static final String TEST_DIR_PATH = "/UtilsTest";
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
   private static boolean dataRead = false;
   private static VirtualFile rootDir;
 
@@ -106,7 +107,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
     var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStages().containsKey(stage));
-    var gitlabCIYamlPath = "/" + GITLAB_CI_DEFAULT_YAML_FILE;
+    var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }
 }

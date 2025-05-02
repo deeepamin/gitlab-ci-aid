@@ -9,7 +9,7 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 import java.util.List;
 
 public class PsiUtilsTest extends BaseTest {
-  private static final String TEST_DIR_PATH = "/UtilsTest";
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
   private VirtualFile rootDir;
 
   @Override

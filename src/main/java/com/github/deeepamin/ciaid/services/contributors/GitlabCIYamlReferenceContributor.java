@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.contributors;
 
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
@@ -14,7 +15,6 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlFile;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
@@ -28,9 +28,9 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
             new PsiReferenceProvider() {
               @Override
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
-                return getGitlabCIYamlFile(psiElement).isEmpty() ? PsiReference.EMPTY_ARRAY : Optional.of(psiElement)
-                        .flatMap(ReferenceUtils::getReferences)
-                        .orElse(PsiReference.EMPTY_ARRAY);
+                return !GitlabCIYamlUtils.hasGitlabYamlFile(psiElement)
+                        ? PsiReference.EMPTY_ARRAY
+                        : Optional.of(psiElement).flatMap(ReferenceUtils::getReferences).orElse(PsiReference.EMPTY_ARRAY);
               }
             }, PsiReferenceRegistrar.DEFAULT_PRIORITY
     );

@@ -3,23 +3,8 @@ package com.github.deeepamin.ciaid.utils;
 import com.github.deeepamin.ciaid.BaseTest;
 import com.intellij.testFramework.LightVirtualFile;
 
-import java.nio.file.Path;
-
 public class GitlabCIYamlUtilsTest extends BaseTest {
-  private static final String TEST_DIR_PATH = "/UtilsTest";
-
-  public void testIsGitlabCIYamlFile() {
-    var ciYamlPath = Path.of(GITLAB_CI_DEFAULT_YAML_FILE);
-    var result = GitlabCIYamlUtils.isGitlabCIYamlFile(ciYamlPath);
-    assertTrue(result);
-    var ciPipelineYamlPath = Path.of(PIPELINE_YML);
-    var resultCI = GitlabCIYamlUtils.isGitlabCIYamlFile(ciPipelineYamlPath);
-    assertTrue(resultCI);
-  }
-
-  public void testIsNotGitlabCIYamlFileWhenPathIsNull() {
-    assertFalse(GitlabCIYamlUtils.isGitlabCIYamlFile(null));
-  }
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
 
   public void testValidGitlabCIYamlFiles() {
     var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, TEST_DIR_PATH);
@@ -30,6 +15,7 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
 
     var pipelineYml = getCIPipelineYamlFile(rootDir);
     assertNotNull(pipelineYml);
+    GitlabCIYamlUtils.markAsCIYamlFile(pipelineYml);
     assertTrue(GitlabCIYamlUtils.isValidGitlabCIYamlFile(pipelineYml));
   }
 
@@ -43,17 +29,30 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
     var psiYaml = getPsiManager().findFile(gitlabCIYaml);
     assertNotNull(psiYaml);
-    var path = GitlabCIYamlUtils.getGitlabCIYamlFile(psiYaml);
-    assertTrue(path.isPresent());
-    var expectedPath = "/src/UtilsTest/.gitlab-ci.yml";
-    assertEquals(expectedPath, path.get().toString());
+    assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
+    var virtualFile = GitlabCIYamlUtils.getGitlabCIYamlFile(psiYaml);
+    assertTrue(virtualFile.isPresent());
+    var expectedPath = getOsAgnosticPath("/src/UtilsTest/.gitlab-ci.yml");
+    assertEquals(expectedPath, virtualFile.get().getPath());
 
     var pipelineYml = getCIPipelineYamlFile(rootDir);
     var pipelinePsiYml = getPsiManager().findFile(pipelineYml);
     assertNotNull(pipelinePsiYml);
-    var pipelineYmlPath = GitlabCIYamlUtils.getGitlabCIYamlFile(pipelinePsiYml);
-    assertTrue(pipelineYmlPath.isPresent());
-    var expectedPipelinePath = "/src/UtilsTest/pipeline.yml";
-    assertEquals(expectedPipelinePath, pipelineYmlPath.get().toString());
+    GitlabCIYamlUtils.markAsCIYamlFile(pipelineYml);
+
+    assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(pipelinePsiYml));
+    var pipelineYmlVirtualFile = GitlabCIYamlUtils.getGitlabCIYamlFile(pipelinePsiYml);
+    assertTrue(pipelineYmlVirtualFile.isPresent());
+    var expectedPipelinePath = getOsAgnosticPath("/src/UtilsTest/pipeline.yml");
+    assertEquals(expectedPipelinePath, pipelineYmlVirtualFile.get().getPath());
+  }
+
+  public void testHasGitlabYamlFiles() {
+    var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, TEST_DIR_PATH);
+    var nonGitlabYamlFile = getYamlFile(rootDir, "other.yml");
+    var psiYaml = getPsiManager().findFile(nonGitlabYamlFile);
+    assertFalse(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
+    GitlabCIYamlUtils.markAsUserCIYamlFile(nonGitlabYamlFile);
+    assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
   }
 }
