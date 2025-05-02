@@ -24,7 +24,7 @@ public class GitlabCIYamlScriptInjector implements MultiHostInjector {
 
   @Override
   public void getLanguagesToInject(@NotNull MultiHostRegistrar registrar, @NotNull PsiElement context) {
-    if (GitlabCIYamlUtils.getGitlabCIYamlFile(context).isEmpty()) {
+    if (!GitlabCIYamlUtils.hasGitlabYamlFile(context)) {
       LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", context.getText()));
       return;
     }

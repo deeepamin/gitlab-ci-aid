@@ -49,7 +49,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (GitlabCIYamlUtils.getGitlabCIYamlFile(element).isEmpty()) {
+    if (!GitlabCIYamlUtils.hasGitlabYamlFile(element)) {
       LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", element.getText()));
       return;
     }

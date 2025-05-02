@@ -8,6 +8,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    GitlabCIYamlUtils.addYamlFile(PIPELINE_YML);
+    GitlabCIYamlUtils.addYamlFile(PIPELINE_YML.replace("/", File.separator));
   }
 
   @Override

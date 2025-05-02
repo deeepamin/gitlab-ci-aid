@@ -1,11 +1,13 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.providers.EditorNotificationProvider;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -37,19 +39,31 @@ public class GitlabCIYamlUtils {
     return file != null && file.isValid() && file.exists() && GITLAB_CI_YAML_FILES.stream().anyMatch(yamlFile -> file.getPath().endsWith(yamlFile));
   }
 
+  public static boolean isGitlabYamlFile(final VirtualFile file) {
+    return file != null && (isValidGitlabCIYamlFile(file) || EditorNotificationProvider.isMarkedAsGitLabYamlFile(file));
+  }
+
+  public static boolean hasGitlabYamlFile(final PsiElement psiElement) {
+    return getVirtualFile(psiElement).filter(GitlabCIYamlUtils::isGitlabYamlFile).isPresent();
+  }
+
   public static Optional<Path> getGitlabCIYamlFile(final PsiElement psiElement) {
     try {
-      return Optional.ofNullable(psiElement)
-              .map(PsiElement::getContainingFile)
-              .map(PsiFile::getOriginalFile)
-              .map(PsiFile::getViewProvider)
-              .map(FileViewProvider::getVirtualFile)
+      return getVirtualFile(psiElement)
               .map(VirtualFile::getPath)
               .map(Path::of)
               .filter(GitlabCIYamlUtils::isGitlabCIYamlFile);
     } catch (InvalidPathException ipX) {
       return Optional.empty();
     }
+  }
+
+  private static @NotNull Optional<VirtualFile> getVirtualFile(PsiElement psiElement) {
+    return Optional.ofNullable(psiElement)
+            .map(PsiElement::getContainingFile)
+            .map(PsiFile::getOriginalFile)
+            .map(PsiFile::getViewProvider)
+            .map(FileViewProvider::getVirtualFile);
   }
 
   public static GitlabCIYamlProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
