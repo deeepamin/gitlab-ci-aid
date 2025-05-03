@@ -1,8 +1,10 @@
 package com.github.deeepamin.ciaid.model;
 
+import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,43 +14,44 @@ import java.util.Map;
 public class GitlabCIYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files
   private final VirtualFile file;
-  private final Map<String, List<PsiElement>> stages;
-  private final Map<String, YAMLKeyValue> jobs;
+  private final Map<String, List<PsiElement>> stageNameToStageElements;
+  private final Map<String, YAMLKeyValue> jobNameToJobElement;
   private final List<String> includedYamls;
   private final long modificationStamp;
-  private YAMLKeyValue stagesElement;
+  private final Map<String, YAMLPsiElement> stagesItemNameToStagesElement;
 
   public GitlabCIYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
     this.modificationStamp = modificationStamp;
-    this.stages = new HashMap<>();
-    this.jobs = new HashMap<>();
+    this.stageNameToStageElements = new HashMap<>();
+    this.jobNameToJobElement = new HashMap<>();
     this.includedYamls = new ArrayList<>();
+    this.stagesItemNameToStagesElement = new HashMap<>();
   }
 
   public VirtualFile getFile() {
     return file;
   }
 
-  public Map<String, List<PsiElement>> getStages() {
-    return stages;
+  public Map<String, List<PsiElement>> getStageNameToStageElements() {
+    return stageNameToStageElements;
   }
 
-  public void addStage(PsiElement stage) {
+  public void addStage(YAMLPsiElement stage) {
     if (stage instanceof YAMLKeyValue yamlKeyValueStage) {
       var stageName = yamlKeyValueStage.getValueText();
-      var stageNameRefs = stages.getOrDefault(stageName, new ArrayList<>());
+      var stageNameRefs = stageNameToStageElements.getOrDefault(stageName, new ArrayList<>());
       stageNameRefs.add(stage);
-      stages.put(stageName, stageNameRefs);
+      stageNameToStageElements.put(stageName, stageNameRefs);
     }
   }
 
-  public Map<String, YAMLKeyValue> getJobs() {
-    return jobs;
+  public Map<String, YAMLKeyValue> getJobNameToJobElement() {
+    return jobNameToJobElement;
   }
 
   public void addJob(YAMLKeyValue job) {
-    jobs.put(job.getKeyText(), job);
+    jobNameToJobElement.put(job.getKeyText(), job);
   }
 
   public void addIncludedYaml(String yaml) {
@@ -59,12 +62,16 @@ public class GitlabCIYamlData {
     return includedYamls;
   }
 
-  public YAMLKeyValue getStagesElement() {
-    return stagesElement;
+  public Map<String, YAMLPsiElement> getStagesItemNameToStagesElement() {
+    return stagesItemNameToStagesElement;
   }
 
-  public void setStagesElement(YAMLKeyValue stagesElement) {
-    this.stagesElement = stagesElement;
+  public void addStagesItem(YAMLPsiElement stagesItemElement) {
+    var stagesItemName = ReferenceUtils.handleQuotedText(stagesItemElement.getText());
+    if (stagesItemNameToStagesElement.containsKey(stagesItemName)) {
+      return;
+    }
+    stagesItemNameToStagesElement.put(stagesItemElement.getText(), stagesItemElement);
   }
 
   private long getModificationStamp() {

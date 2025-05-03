@@ -20,12 +20,12 @@ import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
+import org.jetbrains.yaml.psi.YAMLValue;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
 import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +119,26 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
         }
 
         @Override
+        public void visitQuotedText(@NotNull YAMLQuotedText quotedText) {
+          var isChildOfStagesElement = PsiUtils.findParent(quotedText, List.of(STAGES)).isPresent();
+          if (isChildOfStagesElement) {
+            gitlabCIYamlData.addStagesItem(quotedText);
+          }
+          super.visitQuotedText(quotedText);
+        }
+
+        @Override
+        public void visitValue(@NotNull YAMLValue value) {
+          if (value instanceof YAMLPlainTextImpl) {
+            var isChildOfStagesElement = PsiUtils.findParent(value, List.of(STAGES)).isPresent();
+            if (isChildOfStagesElement) {
+              gitlabCIYamlData.addStagesItem(value);
+            }
+          }
+          super.visitValue(value);
+        }
+
+        @Override
         public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
           var keyText = keyValue.getKeyText();
           if (INCLUDE.equals(keyText)) {
@@ -138,9 +158,6 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
           if (STAGE.equals(keyText)) {
             gitlabCIYamlData.addStage(keyValue);
           }
-          if (STAGES.equals(keyText)) {
-            gitlabCIYamlData.setStagesElement(keyValue);
-          }
           super.visitKeyValue(keyValue);
         }
       });
@@ -149,27 +166,19 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
 
   public List<String> getJobNames() {
     return pluginData.values().stream()
-            .flatMap(yamlData -> yamlData.getJobs().keySet().stream())
+            .flatMap(yamlData -> yamlData.getJobNameToJobElement().keySet().stream())
             .toList();
   }
 
   public List<String> getStageNamesDefinedAtStagesLevel() {
-    var stagesElements = pluginData.values().stream()
-            .map(GitlabCIYamlData::getStagesElement)
+    return pluginData.values().stream()
+            .flatMap(yamlData -> yamlData.getStagesItemNameToStagesElement().keySet().stream())
             .toList();
-
-    List<String> definedStages = new ArrayList<>();
-    for (var stageElement : stagesElements) {
-      PsiUtils.findChildren(stageElement, YAMLPlainTextImpl.class).stream()
-              .map(YAMLPlainTextImpl::getText)
-              .forEach(definedStages::add);
-    }
-    return definedStages;
   }
 
   public List<String> getStageNamesDefinedAtJobLevel () {
     return pluginData.values().stream()
-            .flatMap(yamlData -> yamlData.getStages().keySet().stream())
+            .flatMap(yamlData -> yamlData.getStageNameToStageElements().keySet().stream())
             .toList();
   }
 

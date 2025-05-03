@@ -1,6 +1,5 @@
 package com.github.deeepamin.ciaid.utils;
 
-import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
@@ -10,12 +9,10 @@ import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceRe
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 public class ReferenceUtils {
@@ -52,7 +49,7 @@ public class ReferenceUtils {
 
   private static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
     if (PsiUtils.isYamlTextElement(element)) {
-      return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element)});
+      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
@@ -65,12 +62,12 @@ public class ReferenceUtils {
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
       var targetJob = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .flatMap(yamlData -> yamlData.getJobs().entrySet().stream())
+              .flatMap(yamlData -> yamlData.getJobNameToJobElement().entrySet().stream())
               .filter(entry -> entry.getKey().equals(need))
               .map(Map.Entry::getValue)
               .findFirst()
               .orElse(null);
-      return Optional.of(new PsiReference[]{new NeedsOrExtendsToJobReferenceResolver(element, targetJob)});
+      return Optional.of(new PsiReference[]{ new NeedsOrExtendsToJobReferenceResolver(element, targetJob) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
@@ -82,7 +79,7 @@ public class ReferenceUtils {
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
       var targetStages = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .flatMap(yamlData -> yamlData.getStages().entrySet().stream())
+              .flatMap(yamlData -> yamlData.getStageNameToStageElements().entrySet().stream())
               .filter(entry -> entry.getKey().equals(stageName))
               .map(Map.Entry::getValue)
               .flatMap(List::stream)
@@ -97,18 +94,16 @@ public class ReferenceUtils {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
-      var parent = gitlabCIYamlProjectService.getPluginData().values()
+
+      var target = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .map(GitlabCIYamlData::getStagesElement)
-              .filter(Objects::nonNull)
-              .findFirst().orElse(null);
-      var children = PsiUtils.findChildren(parent, YAMLPlainTextImpl.class);
-      var targetChild = children.stream()
-              .filter(child -> child.getText().equals(stageName))
+              .flatMap(yamlData -> yamlData.getStagesItemNameToStagesElement().entrySet().stream())
+              .filter(entry -> entry.getKey().equals(stageName))
+              .map(Map.Entry::getValue)
               .findFirst()
               .orElse(null);
-      if (targetChild != null) {
-        return Optional.of(new PsiReference[]{new JobStageToStagesReferenceResolver(element, targetChild)});
+      if (target != null) {
+        return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
       }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
