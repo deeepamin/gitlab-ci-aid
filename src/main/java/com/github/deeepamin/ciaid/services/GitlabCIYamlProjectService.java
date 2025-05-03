@@ -120,8 +120,8 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
 
         @Override
         public void visitQuotedText(@NotNull YAMLQuotedText quotedText) {
-          var isStagesElementParent = PsiUtils.findParent(quotedText, List.of(STAGES)).isPresent();
-          if (isStagesElementParent) {
+          var isChildOfStagesElement = PsiUtils.findParent(quotedText, List.of(STAGES)).isPresent();
+          if (isChildOfStagesElement) {
             gitlabCIYamlData.addStagesItem(quotedText);
           }
           super.visitQuotedText(quotedText);
@@ -130,8 +130,8 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
         @Override
         public void visitValue(@NotNull YAMLValue value) {
           if (value instanceof YAMLPlainTextImpl) {
-            var isStagesElementParent = PsiUtils.findParent(value, List.of(STAGES)).isPresent();
-            if (isStagesElementParent) {
+            var isChildOfStagesElement = PsiUtils.findParent(value, List.of(STAGES)).isPresent();
+            if (isChildOfStagesElement) {
               gitlabCIYamlData.addStagesItem(value);
             }
           }
