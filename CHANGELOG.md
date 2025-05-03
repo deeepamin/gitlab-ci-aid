@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-05-03
+
+### Changed
+
+- Under the hood YAML handling 
+
+### Fixed
+
+- Non included and user marked YAML files are not highlighted (Thanks @gtaylor1981 for the contribution)
+- Stages to job reference couldn't be resolved sometimes
+- ConcurrentModificationException raised when multiple files are processed
+
 ## [1.3.0] - 2025-05-02
 
 Name of the plugin is changed to "CI Aid for GitLab" to comply with GitLab official trademark guidelines.
@@ -94,7 +106,9 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.4...v1.0.5
