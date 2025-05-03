@@ -42,16 +42,16 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
 
     assertNotNull(yamlData);
     assertEquals(1, yamlData.getIncludedYamls().size());
-    assertEquals(5, yamlData.getJobs().size());
-    assertEquals(3, yamlData.getStages().size());
-    assertNotNull(yamlData.getStagesElement());
+    assertEquals(5, yamlData.getJobNameToJobElement().size());
+    assertEquals(3, yamlData.getStageNameToStageElements().size());
+    assertNotNull(yamlData.getStagesItemNameToStagesElement());
 
     var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
     assertNotNull(pipelineCIYamlData);
     assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
-    assertEquals(1, pipelineCIYamlData.getJobs().size());
-    assertEquals(1, pipelineCIYamlData.getStages().size());
-    assertNull(pipelineCIYamlData.getStagesElement());
+    assertEquals(1, pipelineCIYamlData.getJobNameToJobElement().size());
+    assertEquals(1, pipelineCIYamlData.getStageNameToStageElements().size());
+    assertTrue(pipelineCIYamlData.getStagesItemNameToStagesElement().isEmpty());
   }
 
   public void testParseGitlabCIYamlDataValidFiles() {
@@ -64,19 +64,19 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     assertEquals(1, includedYamls.size());
     assertEquals(PIPELINE_YML, includedYamls.getFirst());
     var expectedStages = List.of("build", "test", "deploy");
-    var stageNames = gitlabCIYamlData.getStages().keySet().stream().toList();
+    var stageNames = gitlabCIYamlData.getStageNameToStageElements().keySet().stream().toList();
     assertEquals(3, stageNames.size());
     assertTrue(expectedStages.containsAll(stageNames));
-    assertEquals(3, gitlabCIYamlData.getStages().get("build").size());
-    assertEquals(1, gitlabCIYamlData.getStages().get("test").size());
-    assertEquals(1, gitlabCIYamlData.getStages().get("deploy").size());
+    assertEquals(3, gitlabCIYamlData.getStageNameToStageElements().get("build").size());
+    assertEquals(1, gitlabCIYamlData.getStageNameToStageElements().get("test").size());
+    assertEquals(1, gitlabCIYamlData.getStageNameToStageElements().get("deploy").size());
 
     var expectedJobNames = List.of(".extend-test","build-dev", "build-sit", "test-job", "deploy-job");
-    var jobNames = gitlabCIYamlData.getJobs().keySet().stream().toList();
+    var jobNames = gitlabCIYamlData.getJobNameToJobElement().keySet().stream().toList();
     assertEquals(5, jobNames.size());
     assertTrue(expectedJobNames.containsAll(jobNames));
     assertNotNull(gitlabCIYamlData.getFile());
-    assertNotNull(gitlabCIYamlData.getStagesElement());
+    assertNotNull(gitlabCIYamlData.getStagesItemNameToStagesElement());
   }
 
   public void testGetJobNames() {
@@ -103,10 +103,10 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
   public void testGetFileName() {
     var job = "checkstyle";
     var projectService = getProject().getService(GitlabCIYamlProjectService.class);
-    var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobs().containsKey(job));
+    var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobNameToJobElement().containsKey(job));
     assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
-    var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStages().containsKey(stage));
+    var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage));
     var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }

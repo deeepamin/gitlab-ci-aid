@@ -43,7 +43,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                     List<String> filteredJobs = new ArrayList<>(allJobs);
                     parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
                     BiPredicate<Map.Entry<VirtualFile, GitlabCIYamlData>, String> jobFilterPredicate = (entry, job) -> {
-                      boolean isKnownJob = entry.getValue().getJobs().containsKey(job);
+                      boolean isKnownJob = entry.getValue().getJobNameToJobElement().containsKey(job);
                       if (isNeedsElement) {
                         isKnownJob = isKnownJob && !job.startsWith(".");
                       }
@@ -65,7 +65,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage))))
                             .toList());
 //                    return;
                   }
@@ -77,7 +77,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor {
                             .map(stage -> LookupElementBuilder.create(stage)
                                     .bold()
                                     .withIcon(Icons.ICON_STAGE.getIcon())
-                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStages().containsKey(stage))))
+                                    .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage))))
                             .toList());
                   }
                 });
