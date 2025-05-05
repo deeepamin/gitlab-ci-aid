@@ -3,6 +3,8 @@ package com.github.deeepamin.ciaid.model;
 import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.SmartPointerManager;
+import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 
@@ -14,11 +16,12 @@ import java.util.Map;
 public class GitlabCIYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files
   private final VirtualFile file;
-  private final Map<String, List<PsiElement>> stageNameToStageElements;
-  private final Map<String, YAMLKeyValue> jobNameToJobElement;
+  private final Map<String, List<SmartPsiElementPointer<PsiElement>>> stageNameToStageElements;
+  private final Map<String, SmartPsiElementPointer<YAMLKeyValue>> jobNameToJobElement;
   private final List<String> includedYamls;
   private final long modificationStamp;
-  private final Map<String, YAMLPsiElement> stagesItemNameToStagesElement;
+  private final Map<String, SmartPsiElementPointer<YAMLPsiElement>> stagesItemNameToStagesElement;
+
 
   public GitlabCIYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
@@ -33,7 +36,7 @@ public class GitlabCIYamlData {
     return file;
   }
 
-  public Map<String, List<PsiElement>> getStageNameToStageElements() {
+  public Map<String, List<SmartPsiElementPointer<PsiElement>>> getStageNameToStageElements() {
     return stageNameToStageElements;
   }
 
@@ -41,17 +44,21 @@ public class GitlabCIYamlData {
     if (stage instanceof YAMLKeyValue yamlKeyValueStage) {
       var stageName = yamlKeyValueStage.getValueText();
       var stageNameRefs = stageNameToStageElements.getOrDefault(stageName, new ArrayList<>());
-      stageNameRefs.add(stage);
+      SmartPointerManager pointerManager = SmartPointerManager.getInstance(stage.getProject());
+      SmartPsiElementPointer<PsiElement> stagePointer = pointerManager.createSmartPsiElementPointer(stage);
+      stageNameRefs.add(stagePointer);
       stageNameToStageElements.put(stageName, stageNameRefs);
     }
   }
 
-  public Map<String, YAMLKeyValue> getJobNameToJobElement() {
+  public Map<String, SmartPsiElementPointer<YAMLKeyValue>> getJobNameToJobElement() {
     return jobNameToJobElement;
   }
 
   public void addJob(YAMLKeyValue job) {
-    jobNameToJobElement.put(job.getKeyText(), job);
+    SmartPointerManager pointerManager = SmartPointerManager.getInstance(job.getProject());
+    SmartPsiElementPointer<YAMLKeyValue> jobPointer = pointerManager.createSmartPsiElementPointer(job);
+    jobNameToJobElement.put(job.getKeyText(), jobPointer);
   }
 
   public void addIncludedYaml(String yaml) {
@@ -62,7 +69,7 @@ public class GitlabCIYamlData {
     return includedYamls;
   }
 
-  public Map<String, YAMLPsiElement> getStagesItemNameToStagesElement() {
+  public Map<String, SmartPsiElementPointer<YAMLPsiElement>> getStagesItemNameToStagesElement() {
     return stagesItemNameToStagesElement;
   }
 
@@ -71,7 +78,9 @@ public class GitlabCIYamlData {
     if (stagesItemNameToStagesElement.containsKey(stagesItemName)) {
       return;
     }
-    stagesItemNameToStagesElement.put(stagesItemElement.getText(), stagesItemElement);
+    SmartPointerManager pointerManager = SmartPointerManager.getInstance(stagesItemElement.getProject());
+    SmartPsiElementPointer<YAMLPsiElement> stagesItemPointer = pointerManager.createSmartPsiElementPointer(stagesItemElement);
+    stagesItemNameToStagesElement.put(stagesItemElement.getText(), stagesItemPointer);
   }
 
   private long getModificationStamp() {

@@ -9,6 +9,7 @@ import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceRe
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.SmartPsiElementPointer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,8 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getJobNameToJobElement().entrySet().stream())
               .filter(entry -> entry.getKey().equals(need))
               .map(Map.Entry::getValue)
+              .filter(pointer -> pointer.getElement() != null)
+              .map(SmartPsiElementPointer::getElement)
               .findFirst()
               .orElse(null);
       return Optional.of(new PsiReference[]{ new NeedsOrExtendsToJobReferenceResolver(element, targetJob) });
@@ -83,6 +86,8 @@ public class ReferenceUtils {
               .filter(entry -> entry.getKey().equals(stageName))
               .map(Map.Entry::getValue)
               .flatMap(List::stream)
+              .filter(pointer -> pointer.getElement() != null)
+              .map(SmartPsiElementPointer::getElement)
               .toList();
       return Optional.of(new PsiReference[]{ new StagesToJobStageReferenceResolver(element, targetStages) });
     }
@@ -100,6 +105,8 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getStagesItemNameToStagesElement().entrySet().stream())
               .filter(entry -> entry.getKey().equals(stageName))
               .map(Map.Entry::getValue)
+              .filter(pointer -> pointer.getElement() != null)
+              .map(SmartPsiElementPointer::getElement)
               .findFirst()
               .orElse(null);
       if (target != null) {
