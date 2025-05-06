@@ -1,6 +1,7 @@
 name: Sync schema JSON from GitLab
 
 on:
+  pull_request:
   schedule:
     - cron: '0 3 * * 1'
   workflow_dispatch:
@@ -15,12 +16,12 @@ jobs:
 
       - name: Fetch schema JSON from GitLab
         run: |
-          curl -sSL https://github.com/deeepamin/gitlab-ci-aid/blob/main/src/main/resources/schemas/gitlab-ci-yml.json -o gitlab-ci-yml.json
+          curl -sSL https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json -o gitlab-ci-yml.json
 
       - name: Compare with existing JSON
         run: |
-          if ! cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
-            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
+          if ! cmp -s gitlab-ci-yml.json gitlab-ci-aid/gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json; then
+            mv gitlab-ci-yml.json gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json
             echo "CHANGED=true" >> $GITHUB_ENV
           else
             echo "No changes detected."
@@ -33,7 +34,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
-          git add src/main/resources/schemas/gitlab-ci-yml.json
+          git add gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json
           git commit -m "Sync schema JSON from GitLab"
           git push origin $BRANCH_NAME
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
