@@ -30,7 +30,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     if: |
-      !(github.actor == 'github-actions[bot]' && contains(github.event.pull_request.title, 'Changelog'))
+      github.actor != 'github-actions[bot]' || !startsWith(github.head_ref, 'changelog-')
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
@@ -100,7 +100,7 @@ jobs:
     needs: [ build ]
     runs-on: ubuntu-latest
     if: |
-      !(github.actor == 'github-actions[bot]' && contains(github.event.pull_request.title, 'Changelog'))
+      github.actor != 'github-actions[bot]' || !startsWith(github.head_ref, 'changelog-')
     steps:
 
       # Check out the current repository
