@@ -30,6 +30,7 @@ jobs:
           fi
 
       - name: Create branch and commit changes
+        id: commit_changes
         if: steps.check_changes.outputs.CHANGED == 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -39,14 +40,14 @@ jobs:
           git add src/main/resources/schemas/gitlab-ci-yml.json
           git commit -m "Sync schema JSON from GitLab"
           git push origin $BRANCH_NAME
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Create pull request
         if: steps.check_changes.outputs.CHANGED == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.BRANCH_NAME }}
+          branch: ${{ steps.commit_changes.outputs.BRANCH_NAME }}
           base: main
           title: "Sync schema JSON from GitLab"
           body: "Automated sync schema of JSON file from GitLab."
