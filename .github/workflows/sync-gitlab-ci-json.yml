@@ -1,0 +1,53 @@
+name: Sync GitLab JSON
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  sync-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch schema JSON from GitLab
+        run: |
+          curl -sSL https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json -o src/main/resources/schemas/gitlab-ci-yml.json
+
+      - name: Compare with existing JSON
+        id: check_changes
+        run: |
+          if git diff --quiet src/main/resources/schemas/gitlab-ci-yml.json; then
+            echo "CHANGED=false" >> $GITHUB_OUTPUT
+            echo "No changes detected."
+          else
+            echo "Changes detected, PR will be created."
+            echo "CHANGED=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create branch and commit changes
+        id: commit_changes
+        if: steps.check_changes.outputs.CHANGED == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+          git add src/main/resources/schemas/gitlab-ci-yml.json
+          git commit -m "Sync schema JSON from GitLab"
+          git push origin "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create pull request
+        if: steps.check_changes.outputs.CHANGED == 'true'
+        run: |
+          gh pr create \
+            --title "Sync Gitlab Schema JSON" \
+            --body "Automated sync of schema JSON file from GitLab." \
+            --head "${{ steps.commit_changes.outputs.BRANCH_NAME }}" \
+            --base main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

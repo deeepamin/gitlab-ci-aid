@@ -8,9 +8,6 @@ variables:
   TEST_VAR1: TEST_VALUE1
   TEST_VAR2: TEST_VALUE2
 
-include:
-  - /ci/pipeline.yml
-
 stages:
   - validate
   - build
@@ -25,8 +22,6 @@ build-dev:
     - build-dev-tag
   variables:
     ENV: dev
-  needs:
-    - checkstyle
 
 build-sit:
   stage: build
@@ -37,7 +32,6 @@ build-sit:
   variables:
     ENV: sit
   needs:
-    - checkstyle
     - build-dev
 
 test-job:
@@ -46,7 +40,7 @@ test-job:
   script: ./build.sh
   tags:
     - test
-  needs: ["checkstyle", "build-dev", "build-sit"]
+  needs: ["build-dev", "build-sit"]
 
 deploy-job:
   stage: deploy

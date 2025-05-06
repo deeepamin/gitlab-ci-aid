@@ -9,16 +9,13 @@ variables:
   TEST_VAR2: TEST_VALUE2
 
 include:
-  - /pipeline.yml
+  - /ci/pipeline.yml
 
 stages:
   - validate
   - build
   - test
   - deploy
-
-.extend-test:
-  stage: build
 
 build-dev:
   stage: build
@@ -30,6 +27,7 @@ build-dev:
     ENV: dev
   needs:
     - checkstyle
+  extends: <caret>.extend-another-job
 
 build-sit:
   stage: build
@@ -42,20 +40,3 @@ build-sit:
   needs:
     - checkstyle
     - build-dev
-
-test-job:
-  stage: test
-  image: test:latest
-  script: ./build.sh
-  tags:
-    - test
-  needs: ["checkstyle", "build-dev", "build-sit"]
-  extends: .extend-test
-
-deploy-job:
-  stage: deploy
-  image: deploy:latest
-  script: ./deploy.sh
-  tags:
-    - deploy
-  needs: ["test-job"]

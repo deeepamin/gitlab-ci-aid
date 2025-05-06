@@ -1,0 +1,20 @@
+.extend-job:
+  stage: checkstyle
+
+.extend-another-job:
+  stage: checkstyle
+
+checkstyle:
+  stage: validate
+  image: checkstyle:latest
+  script: ./validate.sh
+  tags:
+    - test
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - ci/**/*
+  needs:
+    - deploy-job
+  extends: <caret>.extend-job
+
