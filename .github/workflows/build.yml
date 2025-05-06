@@ -133,7 +133,7 @@ jobs:
         uses: cicirello/jacoco-badge-generator@v2.11.0
         with:
           generate-branches-badge: true
-          jacoco-csv-file: build/reports/jacoco/jacocoTestReport.csv
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
 
       - name: Update Jacoco Badge
         uses: test-room-7/action-update-file@v1.8.0
