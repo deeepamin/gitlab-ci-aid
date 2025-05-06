@@ -19,17 +19,18 @@ jobs:
           curl -sSL https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json -o gitlab-ci-yml.json
 
       - name: Compare with existing JSON
+        id: check_changes
         run: |
-          ls -a
           if ! cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
             mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
-            echo "CHANGED=true" >> $GITHUB_ENV
+            echo "CHANGED=true" >> $GITHUB_OUTPUT
           else
+            echo "CHANGED=false" >> $GITHUB_OUTPUT
             echo "No changes detected."
           fi
 
       - name: Create branch and commit changes
-        if: env.CHANGED == 'true'
+        if: steps.check_changes.outputs.CHANGED == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -41,7 +42,7 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Create pull request
-        if: env.CHANGED == 'true'
+        if: steps.check_changes.outputs.CHANGED == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
