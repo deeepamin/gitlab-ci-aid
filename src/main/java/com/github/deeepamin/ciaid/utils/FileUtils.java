@@ -97,7 +97,7 @@ public class FileUtils {
   }
 
   public static List<FilePathIndex> getFilePathAndIndexes(String elementText) {
-    String regex = "(?:^|\\s)(\\./|/|[\\w\\-./]+)+\\.\\w+(?=\\s|$)";
+    String regex = "(?<!\\w)(\\./|/)?[\\w\\-./]+?\\.\\w+(?!\\w)";
     Pattern pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(elementText);
     List<FilePathIndex> result = new ArrayList<>();

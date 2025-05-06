@@ -33,7 +33,7 @@ public class ReferenceUtils {
   }
 
   private static Optional<PsiReference[]> referencesScripts(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element)) {
+    if (PsiUtils.isYamlTextElement(element) || PsiUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
       var scriptText = handleQuotedText(element.getText());
       var scriptPathIndexes = FileUtils.getFilePathAndIndexes(scriptText);
       if (scriptPathIndexes.isEmpty()) {
