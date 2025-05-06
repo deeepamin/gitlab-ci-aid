@@ -29,8 +29,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: |
-      github.actor != 'github-actions[bot]' || !startsWith(github.head_ref, 'changelog-')
+    if: ${{
+        github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changelog-update-')
+      }}
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
@@ -99,8 +100,9 @@ jobs:
     name: Test
     needs: [ build ]
     runs-on: ubuntu-latest
-    if: |
-      github.actor != 'github-actions[bot]' || !startsWith(github.head_ref, 'changelog-')
+    if: ${{
+        github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changelog-update-')
+      }}
     steps:
 
       # Check out the current repository
