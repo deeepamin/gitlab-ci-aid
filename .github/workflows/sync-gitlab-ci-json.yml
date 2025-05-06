@@ -20,7 +20,8 @@ jobs:
 
       - name: Compare with existing JSON
         run: |
-          if ! cmp -s gitlab-ci-yml.json gitlab-ci-aid/gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json; then
+          ls -a
+          if ! cmp -s gitlab-ci-yml.json gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json; then
             mv gitlab-ci-yml.json gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json
             echo "CHANGED=true" >> $GITHUB_ENV
           else
