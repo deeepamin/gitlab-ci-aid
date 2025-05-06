@@ -1,4 +1,4 @@
-name: Sync schema JSON from GitLab
+name: Sync GitLab JSON
 
 on:
   pull_request:
@@ -21,12 +21,12 @@ jobs:
       - name: Compare with existing JSON
         id: check_changes
         run: |
-          if ! cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
-            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
-            echo "CHANGED=true" >> $GITHUB_OUTPUT
-          else
+          if cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
             echo "CHANGED=false" >> $GITHUB_OUTPUT
             echo "No changes detected."
+          else
+            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
+            echo "CHANGED=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Create branch and commit changes
