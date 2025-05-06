@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <multiHostInjector
+                implementation="com.github.deeepamin.ciaid.services.injectors.BashSupportProGitlabCIYamlScriptInjector"/>
+    </extensions>
+</idea-plugin>
