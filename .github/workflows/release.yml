@@ -93,7 +93,7 @@ jobs:
           git config user.name "GitHub Action"
 
           git checkout -b $BRANCH
-          git commit -am "[skip ci] Changelog update - $VERSION"
+          git commit -am "Changelog update - $VERSION"
           git push --set-upstream origin $BRANCH
           
           gh label create "$LABEL" \

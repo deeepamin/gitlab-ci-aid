@@ -1,0 +1,38 @@
+name: Automated PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-json:
+    if: |
+      startsWith(github.head_ref, 'sync-json-') &&
+      github.actor == 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON
+        run: jq empty src/main/resources/schemas/gitlab-ci-yml.json
+
+  validate-changelog:
+    if: |
+      startsWith(github.head_ref, 'changelog-update-') &&
+      github.actor == 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Changelog format
+        run: |
+          test -f CHANGELOG.md || exit 1
+          grep -q "## \[.*\]" CHANGELOG.md
+
+  skip-checks:
+    if: |
+      github.actor != 'github-actions[bot]' || 
+      !(startsWith(github.head_ref, 'sync-json-') || startsWith(github.head_ref, 'changelog-update-'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip automation checks
+        run: echo "No automation checks needed for this PR."

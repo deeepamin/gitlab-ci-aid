@@ -37,7 +37,7 @@ jobs:
           BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
           git checkout -b "$BRANCH_NAME"
           git add src/main/resources/schemas/gitlab-ci-yml.json
-          git commit -m "[skip ci] Sync schema JSON from GitLab"
+          git commit -m "Sync schema JSON from GitLab"
           git push origin "$BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
