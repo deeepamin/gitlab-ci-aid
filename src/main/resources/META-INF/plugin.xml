@@ -8,10 +8,10 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.json</depends>
     <depends>org.jetbrains.plugins.terminal</depends>
-    <resource-bundle>messages.GitlabCIAid</resource-bundle>
-
     <depends optional="true" config-file="plugin-shell.xml">com.jetbrains.sh</depends>
     <depends optional="true" config-file="plugin-bashsupport-pro.xml">pro.bashsupport</depends>
+
+    <resource-bundle>messages.GitlabCIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
