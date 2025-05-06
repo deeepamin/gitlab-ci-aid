@@ -1,0 +1,49 @@
+name: Sync schema JSON from GitLab
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  sync-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch schema JSON from GitLab
+        run: |
+          curl -sSL https://github.com/deeepamin/gitlab-ci-aid/blob/main/src/main/resources/schemas/gitlab-ci-yml.json
+
+      - name: Compare with existing JSON
+        run: |
+          if ! cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
+            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
+            echo "CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "No changes detected."
+          fi
+
+      - name: Create branch and commit changes
+        if: env.CHANGED == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          git add src/main/resources/schemas/gitlab-ci-yml.json
+          git commit -m "Sync schema JSON from GitLab"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create pull request
+        if: env.CHANGED == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH_NAME }}
+          base: main
+          title: "Sync schema JSON from GitLab"
+          body: "Automated sync schema of JSON file from GitLab."
