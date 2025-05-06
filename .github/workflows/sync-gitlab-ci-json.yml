@@ -15,7 +15,7 @@ jobs:
 
       - name: Fetch schema JSON from GitLab
         run: |
-          curl -sSL https://github.com/deeepamin/gitlab-ci-aid/blob/main/src/main/resources/schemas/gitlab-ci-yml.json
+          curl -sSL https://github.com/deeepamin/gitlab-ci-aid/blob/main/src/main/resources/schemas/gitlab-ci-yml.json -o gitlab-ci-yml.json
 
       - name: Compare with existing JSON
         run: |
