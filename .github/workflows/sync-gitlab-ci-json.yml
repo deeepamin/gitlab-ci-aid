@@ -21,8 +21,8 @@ jobs:
       - name: Compare with existing JSON
         run: |
           ls -a
-          if ! cmp -s gitlab-ci-yml.json gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json; then
-            mv gitlab-ci-yml.json gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json
+          if ! cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
+            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
             echo "CHANGED=true" >> $GITHUB_ENV
           else
             echo "No changes detected."
@@ -35,7 +35,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
-          git add gitlab-ci-aid/src/main/resources/schemas/gitlab-ci-yml.json
+          git add src/main/resources/schemas/gitlab-ci-yml.json
           git commit -m "Sync schema JSON from GitLab"
           git push origin $BRANCH_NAME
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
