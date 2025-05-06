@@ -36,10 +36,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="sync-json-$(date +%Y%m%d%H%M%S)"
-          git checkout -b $BRANCH_NAME
+          git checkout -b "$BRANCH_NAME"
           git add src/main/resources/schemas/gitlab-ci-yml.json
+          
+          git status
+          git diff --cached
+          
           git commit -m "Sync schema JSON from GitLab"
-          git push origin $BRANCH_NAME
+          git push origin "$BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Create pull request
@@ -50,4 +54,4 @@ jobs:
           branch: ${{ steps.commit_changes.outputs.BRANCH_NAME }}
           base: main
           title: "Sync schema JSON from GitLab"
-          body: "Automated sync schema of JSON file from GitLab."
+          body: "Automated sync schema JSON file from GitLab."
