@@ -48,10 +48,11 @@ jobs:
 
       - name: Create pull request
         if: steps.check_changes.outputs.CHANGED == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.commit_changes.outputs.BRANCH_NAME }}
-          base: main
-          title: "Sync schema JSON from GitLab"
-          body: "Automated sync schema JSON file from GitLab."
+        run: |
+          gh pr create \
+            --title "Sync Gitlab Schema JSON" \
+            --body "Automated sync of schema JSON file from GitLab." \
+            --head "${{ steps.commit_changes.outputs.BRANCH_NAME }}" \
+            --base main
+          env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
