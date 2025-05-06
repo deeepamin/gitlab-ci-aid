@@ -16,16 +16,16 @@ jobs:
 
       - name: Fetch schema JSON from GitLab
         run: |
-          curl -sSL https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json -o gitlab-ci-yml.json
+          curl -sSL https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json -o src/main/resources/schemas/gitlab-ci-yml.json
 
       - name: Compare with existing JSON
         id: check_changes
         run: |
-          if cmp -s gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json; then
+          if git diff --quiet src/main/resources/schemas/gitlab-ci-yml.json; then
             echo "CHANGED=false" >> $GITHUB_OUTPUT
             echo "No changes detected."
           else
-            mv gitlab-ci-yml.json src/main/resources/schemas/gitlab-ci-yml.json
+            echo "Changes detected, PR will be created."
             echo "CHANGED=true" >> $GITHUB_OUTPUT
           fi
 
