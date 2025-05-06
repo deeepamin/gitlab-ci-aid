@@ -18,6 +18,9 @@ on:
     branches: [ main ]
   # Trigger the workflow on any pull request
   pull_request:
+    branches-ignore:
+      - 'changelog-update-*'
+      - 'sync-json-*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -29,9 +32,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: ${{
-        github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changelog-update-')
-      }}
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
@@ -100,9 +100,6 @@ jobs:
     name: Test
     needs: [ build ]
     runs-on: ubuntu-latest
-    if: ${{
-        github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changelog-update-')
-      }}
     steps:
 
       # Check out the current repository
