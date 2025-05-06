@@ -9,6 +9,10 @@
 - Support shell script highlighting with BashSupport Pro in addition to the existing support for the JetBrains Shell plugin.
   CI Aid for GitLab can be installed without the JetBrains Shell or BashSupport Pro plugins. Highlighting of shell scripts
   will be available as soon as one of the plugins is enabled.
+- 
+### Fixed
+
+- Stages to job reference wouldn't resolve due to cached element
 
 ## [1.4.0] - 2025-05-03
 
