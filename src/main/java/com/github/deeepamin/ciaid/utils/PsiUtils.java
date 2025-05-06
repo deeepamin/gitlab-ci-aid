@@ -3,6 +3,8 @@ package com.github.deeepamin.ciaid.utils;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
+import org.jetbrains.yaml.psi.YAMLScalarList;
+import org.jetbrains.yaml.psi.YAMLScalarText;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.ArrayList;
@@ -80,6 +82,10 @@ public class PsiUtils {
 
   public static boolean isYamlTextElement(PsiElement element) {
     return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
+  }
+
+  public static boolean isYamlScalarListOrYamlScalarTextElement(PsiElement element) {
+    return element instanceof YAMLScalarText || element instanceof YAMLScalarList;
   }
 
   public static boolean hasChild(PsiElement element, String childKey) {

@@ -59,8 +59,10 @@ public class GitlabCIYamlAnnotator implements Annotator {
       annotateHighlightNeedsJob(element, holder);
       annotateHighlightStage(element, holder);
       annotateStages(element, holder);
-      annotateHighlightScript(element, holder);
       annotateHighlightIncludeFile(element, holder);
+      annotateHighlightScript(element, holder);
+    } else if (PsiUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
+      annotateHighlightScript(element, holder);
     }
   }
 
@@ -130,7 +132,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
                 var project = scriptElement.getProject();
                 var scriptPath = scriptPathIndex.path();
                 var virtualScriptFile = FileUtils.findVirtualFile(scriptPath, project).orElse(null);
-                var isNotScriptBlock = scriptElement.getParent() instanceof YAMLKeyValue;
+                var isNotScriptBlock = PsiUtils.isYamlTextElement(scriptElement) && scriptElement.getParent() instanceof YAMLKeyValue;
                 if (virtualScriptFile == null) {
                   // in block any command can be quoted/plain text, and then we don't want to show path related error
                   if (isNotScriptBlock) {

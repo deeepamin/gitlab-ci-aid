@@ -15,7 +15,8 @@ public class FileUtilsTest extends BaseTest {
             "python3 /ci/test.py", "/ci/test.py",
             "python3 ./test.py", "./test.py",
             "python3 ci/test.py", "ci/test.py",
-            "pip install -r requirements.txt", "requirements.txt");
+            "pip install -r requirements.txt", "requirements.txt",
+            "CUR_VERSION=$(cat ./version.txt)", "./version.txt");
     scriptPathAndExpectedValues.forEach((actual, expected) -> {
       var scriptPaths = FileUtils.getFilePathAndIndexes(actual);
       assertNotNull(scriptPaths);

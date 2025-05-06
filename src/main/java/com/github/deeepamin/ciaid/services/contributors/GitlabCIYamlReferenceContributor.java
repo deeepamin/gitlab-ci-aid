@@ -10,8 +10,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLQuotedText;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.Optional;
 
@@ -22,8 +21,7 @@ public class GitlabCIYamlReferenceContributor extends PsiReferenceContributor {
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
             PlatformPatterns.or(
-                    psiElement(YAMLPlainTextImpl.class),
-                    psiElement(YAMLQuotedText.class)
+                    psiElement(YAMLScalar.class)
             ),
             new PsiReferenceProvider() {
               @Override
