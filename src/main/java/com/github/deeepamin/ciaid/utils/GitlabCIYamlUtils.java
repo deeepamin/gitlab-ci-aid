@@ -68,4 +68,13 @@ public class GitlabCIYamlUtils {
   public static boolean isMarkedAsCIYamlFile(VirtualFile file) {
     return Boolean.TRUE.equals(file.getUserData(GITLAB_CI_YAML_MARKED_KEY));
   }
+
+  public static boolean isAnInputsString(String input) {
+    if (input == null) {
+      return false;
+    }
+    String regex = "\\$\\[\\[\\s*inputs\\.[^]]+\\s*]]";
+    String trimmedInput = input.trim();
+    return trimmedInput.matches(regex);
+  }
 }

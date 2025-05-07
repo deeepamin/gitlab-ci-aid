@@ -72,6 +72,18 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .ifPresent(stage -> {
               var allStages = getGitlabCIYamlProjectService(psiElement).getStageNamesDefinedAtStagesLevel();
               var stageName = ReferenceUtils.handleQuotedText(psiElement.getText());
+              var isInputsStageString = GitlabCIYamlUtils.isAnInputsString(stageName);
+              if (isInputsStageString) {
+                return;
+              }
+              boolean isStageInJobElement = false;
+              var elementParent = stage.getParent();
+              if (elementParent instanceof YAMLKeyValue keyValue) {
+                isStageInJobElement = keyValue.getKeyText().equals(STAGE);
+              }
+              if (!isStageInJobElement) {
+                return;
+              }
               if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
                         .highlightType(LIKE_UNKNOWN_SYMBOL)
@@ -110,6 +122,10 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .ifPresent(job -> {
               var allJobs = getGitlabCIYamlProjectService(psiElement).getJobNames();
               var jobName = ReferenceUtils.handleQuotedText(psiElement.getText());
+              var isInputsJobString = GitlabCIYamlUtils.isAnInputsString(jobName);
+              if (isInputsJobString) {
+                return;
+              }
               if (!allJobs.contains(jobName)) {
                 holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
                         .highlightType(LIKE_UNKNOWN_SYMBOL)
@@ -171,6 +187,10 @@ public class GitlabCIYamlAnnotator implements Annotator {
             .filter(element -> !PsiUtils.isChild(element, INCLUDE_POSSIBLE_CHILD_KEYWORDS)) // component, project, etc. currently not supported
             .ifPresent(includeElement -> {
               var filePath = ReferenceUtils.handleQuotedText(includeElement.getText());
+              var isInputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
+              if (isInputsFilePathString) {
+                return;
+              }
               var project = includeElement.getProject();
               var virtualScriptFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               if (virtualScriptFile == null) {
