@@ -5,6 +5,7 @@ import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.ReferenceUtils;
+import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
@@ -55,13 +56,13 @@ public class GitlabCIYamlAnnotator implements Annotator {
     }
     if (element instanceof LeafPsiElement) {
       highlightJobs(element, holder);
-    } else if (PsiUtils.isYamlTextElement(element)) {
+    } else if (YamlUtils.isYamlTextElement(element)) {
       annotateHighlightNeedsJob(element, holder);
       annotateHighlightStage(element, holder);
       annotateStages(element, holder);
       annotateHighlightIncludeFile(element, holder);
       annotateHighlightScript(element, holder);
-    } else if (PsiUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
+    } else if (YamlUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
       annotateHighlightScript(element, holder);
     }
   }
@@ -148,7 +149,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
                 var project = scriptElement.getProject();
                 var scriptPath = scriptPathIndex.path();
                 var virtualScriptFile = FileUtils.findVirtualFile(scriptPath, project).orElse(null);
-                var isNotScriptBlock = PsiUtils.isYamlTextElement(scriptElement) && scriptElement.getParent() instanceof YAMLKeyValue;
+                var isNotScriptBlock = YamlUtils.isYamlTextElement(scriptElement) && scriptElement.getParent() instanceof YAMLKeyValue;
                 if (virtualScriptFile == null) {
                   // in block any command can be quoted/plain text, and then we don't want to show path related error
                   if (isNotScriptBlock) {

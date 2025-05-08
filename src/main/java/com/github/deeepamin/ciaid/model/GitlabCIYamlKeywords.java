@@ -28,10 +28,16 @@ public class GitlabCIYamlKeywords {
   public static final String FILE = "file";
   public static final String REMOTE = "remote";
   public static final String TEMPLATE = "template";
-  public static final String INPUTS = "inputs";
   public static final String RULES = "rules";
   public static final String EXTENDS = "extends";
   public static final String SPEC = "spec";
+  public static final String INPUTS = "inputs";
+  public static final String TYPE = "type";
+  public static final String DESCRIPTION = "description";
+  public static final String STRING = "string";
+  public static final String BOOLEAN = "boolean";
+  public static final String NUMBER = "number";
+  public static final String ARRAY = "array";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,

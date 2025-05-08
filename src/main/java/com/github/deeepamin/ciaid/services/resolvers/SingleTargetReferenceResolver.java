@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiPolyVariantReference;
@@ -13,6 +14,11 @@ public class SingleTargetReferenceResolver  extends PsiReferenceBase<PsiElement>
 
   public SingleTargetReferenceResolver(@NotNull PsiElement element, PsiElement target) {
     super(element);
+    this.target = target;
+  }
+
+  public SingleTargetReferenceResolver(@NotNull PsiElement element, PsiElement target, TextRange textRange) {
+    super(element, textRange);
     this.target = target;
   }
 

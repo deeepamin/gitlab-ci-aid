@@ -9,6 +9,7 @@ import com.intellij.psi.PsiFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class GitlabCIYamlUtils {
   // TODO Gitlab allows changing default file name, config for that?
@@ -49,10 +50,6 @@ public class GitlabCIYamlUtils {
     return service;
   }
 
-  public static boolean isYamlFile(VirtualFile file) {
-    return file != null && file.isValid() && !file.isDirectory() && (file.getPath().endsWith(".yml") || file.getPath().endsWith(".yaml"));
-  }
-
   public static void markAsUserCIYamlFile(VirtualFile file) {
     file.putUserData(GITLAB_CI_YAML_USER_MARKED_KEY, true);
   }
@@ -76,5 +73,18 @@ public class GitlabCIYamlUtils {
     String regex = "\\$\\[\\[\\s*inputs\\.[^]]+\\s*]]";
     String trimmedInput = input.trim();
     return trimmedInput.matches(regex);
+  }
+
+  public static FileUtils.StringWithStartEndRange getInputNameFromInputsString(String input) {
+    if (input == null) {
+      return null;
+    }
+    var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.(\\w+)");
+    var matcher = pattern.matcher(input);
+    if (!matcher.find()) {
+      return null;
+    }
+
+    return new FileUtils.StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
   }
 }

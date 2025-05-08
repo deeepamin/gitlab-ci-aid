@@ -32,7 +32,7 @@ public class FileUtilsTest extends BaseTest {
     );
 
     multipleScriptPathAndExpectedValues.forEach((actual, expected) -> {
-      var scriptPaths = FileUtils.getFilePathAndIndexes(actual).stream().map(FileUtils.FilePathIndex::path).toList();
+      var scriptPaths = FileUtils.getFilePathAndIndexes(actual).stream().map(FileUtils.StringWithStartEndRange::path).toList();
       assertNotNull(scriptPaths);
       assertEquals(expected, scriptPaths);
     });

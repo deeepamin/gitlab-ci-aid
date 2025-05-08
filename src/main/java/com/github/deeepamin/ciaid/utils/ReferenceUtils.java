@@ -1,7 +1,9 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
@@ -10,6 +12,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.SmartPsiElementPointer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +36,12 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
+  public static @NotNull Optional<PsiReference[]> getInputReferences(@NotNull PsiElement psiElement) {
+      return referencesInputToInputs(psiElement);
+  }
+
   private static Optional<PsiReference[]> referencesScripts(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element) || PsiUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
+    if (YamlUtils.isYamlTextElement(element) || YamlUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
       var scriptText = handleQuotedText(element.getText());
       var scriptPathIndexes = FileUtils.getFilePathAndIndexes(scriptText);
       if (scriptPathIndexes.isEmpty()) {
@@ -49,14 +57,14 @@ public class ReferenceUtils {
   }
 
   private static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element)) {
+    if (YamlUtils.isYamlTextElement(element)) {
       return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
   private static Optional<PsiReference[]> referencesNeedsOrExtendsToJob(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element)) {
+    if (YamlUtils.isYamlTextElement(element)) {
       // for cases: needs: ["some_job"] / needs: ["some_job] / needs: [some_job"]
       var need = handleQuotedText(element.getText());
       var project = element.getProject();
@@ -76,7 +84,7 @@ public class ReferenceUtils {
   }
 
   private static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element)) {
+    if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
@@ -95,7 +103,7 @@ public class ReferenceUtils {
   }
 
   private static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
-    if (PsiUtils.isYamlTextElement(element)) {
+    if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
@@ -116,6 +124,33 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
+  private static Optional<PsiReference[]> referencesInputToInputs(PsiElement element) {
+    if (element instanceof YAMLPsiElement) {
+      var inputString = element.getText();
+      var inputNameWithStartEndRange = GitlabCIYamlUtils.getInputNameFromInputsString(inputString);
+      if (inputNameWithStartEndRange == null) {
+        return Optional.of(PsiReference.EMPTY_ARRAY);
+      }
+
+      var inputName = inputNameWithStartEndRange.path();
+      var startOffset = inputNameWithStartEndRange.start();
+      var endOffset = inputNameWithStartEndRange.end();
+      var project = element.getProject();
+      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var targetInput = gitlabCIYamlProjectService.getPluginData().values()
+              .stream()
+              .flatMap(yamlData -> yamlData.getInputs().stream())
+              .filter(input -> input.name().equals(inputName))
+              .map(Input::inputElement)
+              .filter(pointer -> pointer.getElement() != null)
+              .map(SmartPsiElementPointer::getElement)
+              .findFirst()
+              .orElse(null);
+      return Optional.of(new PsiReference[]{ new InputsReferenceResolver(element, targetInput, TextRange.create(startOffset, endOffset)) });
+    }
+    return Optional.of(PsiReference.EMPTY_ARRAY);
+  }
+
   public static String handleQuotedText(String text) {
     if (text.startsWith("\"") && text.endsWith("\"")) {
       text = text.replaceAll("\"", "");
@@ -124,4 +159,5 @@ public class ReferenceUtils {
     }
     return text;
   }
+
 }

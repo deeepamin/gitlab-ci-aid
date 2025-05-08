@@ -31,7 +31,7 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.WORKFLOW;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_USER_MARKED_KEY;
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.isYamlFile;
+import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class EditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
   private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, INPUTS, COMPONENT, EXTENDS);

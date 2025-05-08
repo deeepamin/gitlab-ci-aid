@@ -2,10 +2,6 @@ package com.github.deeepamin.ciaid.utils;
 
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLQuotedText;
-import org.jetbrains.yaml.psi.YAMLScalarList;
-import org.jetbrains.yaml.psi.YAMLScalarText;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +9,10 @@ import java.util.Optional;
 
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 
@@ -28,19 +26,23 @@ public class PsiUtils {
   }
 
   public static boolean isNeedsElement(PsiElement element) {
-    return isChild(element, List.of(NEEDS));
+    return isChild(element, List.of(NEEDS)) && isNotSpecInputsElement(element);
   }
 
   public static boolean isStagesElement(PsiElement element) {
-    return isChild(element, List.of(STAGES));
+    return isChild(element, List.of(STAGES)) && isNotSpecInputsElement(element);
   }
 
   public static boolean isStageElement(PsiElement element) {
-    return isChild(element, List.of(STAGE));
+    return isChild(element, List.of(STAGE)) && isNotSpecInputsElement(element);
   }
 
   public static boolean isExtendsElement(PsiElement element) {
     return isChild(element, List.of(EXTENDS));
+  }
+
+  public static boolean isNotSpecInputsElement(PsiElement element) {
+    return !isChild(element, List.of(SPEC, INPUTS));
   }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
@@ -78,14 +80,6 @@ public class PsiUtils {
     for (PsiElement child : element.getChildren()) {
       findChildren(child, clazz, children);
     }
-  }
-
-  public static boolean isYamlTextElement(PsiElement element) {
-    return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
-  }
-
-  public static boolean isYamlScalarListOrYamlScalarTextElement(PsiElement element) {
-    return element instanceof YAMLScalarText || element instanceof YAMLScalarList;
   }
 
   public static boolean hasChild(PsiElement element, String childKey) {

@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.utils;
 import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
@@ -113,6 +114,17 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals(1, stageToStagesReference.get().length);
     assertTrue(stageToStagesReference.get()[0] instanceof JobStageToStagesReferenceResolver);
     assertEquals(stageElementOnJobLevel, stageToStagesReference.get()[0].getElement());
+  }
+
+  public void testGetInputReferences() {
+    var inputElement = findChildWithKey(psiYaml, "$[[ inputs.context ]]");
+    assertNotNull(inputElement);
+    var inputReference = ReferenceUtils.getInputReferences(inputElement);
+    assertNotNull(inputReference);
+    assertTrue(inputReference.isPresent());
+    assertEquals(1, inputReference.get().length);
+    assertTrue(inputReference.get()[0] instanceof InputsReferenceResolver);
+    assertEquals(inputElement, inputReference.get()[0].getElement());
   }
 
   public void testHandleQuotedText() {
