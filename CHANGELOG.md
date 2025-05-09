@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.0] - 2025-05-09
+
 ### Added
 
 - Support for [CI/CD Inputs](https://docs.gitlab.com/ci/inputs) 
@@ -133,7 +135,8 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...v1.3.0
