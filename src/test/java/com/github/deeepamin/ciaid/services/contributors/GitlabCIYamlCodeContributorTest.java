@@ -62,4 +62,9 @@ public class GitlabCIYamlCodeContributorTest extends BaseTest {
     assertTrue(completions.containsAll(expectedCompletions));
     assertFalse(completions.containsAll(unexpectedCompletions));
   }
+
+  public void testInputsCompletion() {
+    var expectedCompletions = List.of("name", "stage", "context", "tag");
+    assertTrue(completions.containsAll(expectedCompletions));
+  }
 }

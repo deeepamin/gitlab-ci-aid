@@ -75,5 +75,14 @@ public class GitlabCIYamlAnnotatorTest extends BaseTest {
   public void testNonGitlabCIYamlFile() {
     myFixture.testHighlighting(true, true, true, nonGitlabYamlFile);
   }
-  //TODO write test for include file annotator and quick fix
+
+  public void testCreateIncludeFileQuickFix() {
+    List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    assertEquals(1, allQuickFixes.size());
+    assertEquals("Create include file", allQuickFixes.getFirst().getText());
+  }
+
+  public void testIncludeFileHighlighting() {
+    myFixture.testHighlighting(true, false, true, ciYamlFile);
+  }
 }
