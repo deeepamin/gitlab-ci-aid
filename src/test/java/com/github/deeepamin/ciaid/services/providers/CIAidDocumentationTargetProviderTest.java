@@ -7,20 +7,20 @@ import com.intellij.platform.backend.documentation.PsiDocumentationTargetProvide
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
-@SuppressWarnings({"UnstableApiUsage", "Overrides"})
+@SuppressWarnings("UnstableApiUsage")
 public class CIAidDocumentationTargetProviderTest extends BaseTest {
   public void testInputElementShowsDocumentation() {
     myFixture.configureByText(".gitlab-ci.yml", """
             spec:
               inputs:
-                stage:
+                stageInput:
                   description: The stage the job will run in.
                   type: string
                   default: build
             ---
             build-dev:
               needs:
-                - $[[ inputs.stage<caret> ]]
+                - $[[ inputs.stageInput<caret> ]]
           """);
     PsiFile file = myFixture.getFile();
     int offset = myFixture.getCaretOffset();
@@ -42,12 +42,12 @@ public class CIAidDocumentationTargetProviderTest extends BaseTest {
 
     var presentation = inputDocumentationTarget.computePresentation();
     assertNotNull(presentation);
-    assertEquals("stage Documentation", presentation.getPresentableText());
+    assertEquals("stageInput Documentation", presentation.getPresentableText());
     assertEquals("/src/.gitlab-ci.yml", presentation.getLocationText());
     assertNotNull(presentation.getLocationIcon());
 
     var documentationResult = inputDocumentationTarget.computeDocumentation();
-    var expectedHtml = "<div style=\"font-family: JetBrains Mono; font-weight: bold; margin-bottom: 5px;\">stage: string</div>" +
+    var expectedHtml = "<div style=\"font-family: JetBrains Mono; font-weight: bold; margin-bottom: 5px;\">stageInput: string</div>" +
                        "<hr/>" +
                        "<div style=\"margin-top: 5px; margin-bottom: 5px;\">The stage the job will run in.</div>" +
                        "<span style=\"color: gray; margin-bottom: 8px;\">default: build</span>";
