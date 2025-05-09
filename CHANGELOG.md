@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for [CI/CD Inputs](https://docs.gitlab.com/ci/inputs) 
+- Inputs are autocompleted and navigable
+- Quick documentation for inputs 
+
+### Fixed
+
+- Default keywords e.g., stage, stages in inputs generates unexpected errors
+
 ## [1.5.0] - 2025-05-06
 
 ### Added
