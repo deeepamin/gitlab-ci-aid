@@ -52,7 +52,6 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
-        instrumentationTools()
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
@@ -144,10 +143,16 @@ tasks {
             csv.required.set(true)
         }
     }
-}
 
-tasks.withType<Test> {
-    finalizedBy(tasks.jacocoTestReport)
+    test {
+        useJUnit()
+        extensions.configure(JacocoTaskExtension::class) {
+            isIncludeNoLocationClasses = true
+            excludes = listOf("jdk.internal.reflect.*")
+        }
+        finalizedBy(jacocoTestReport)
+    }
+
 }
 
 intellijPlatformTesting {
