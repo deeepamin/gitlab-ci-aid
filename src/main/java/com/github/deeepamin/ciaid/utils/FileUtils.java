@@ -96,13 +96,13 @@ public class FileUtils {
     return Path.of(pathBuilder.toString());
   }
 
-  public static List<FilePathIndex> getFilePathAndIndexes(String elementText) {
+  public static List<StringWithStartEndRange> getFilePathAndIndexes(String elementText) {
     String regex = "(?<!\\w)(\\./|/)?[\\w\\-./]+?\\.\\w+(?!\\w)";
     Pattern pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(elementText);
-    List<FilePathIndex> result = new ArrayList<>();
+    List<StringWithStartEndRange> result = new ArrayList<>();
     while (matcher.find()) {
-      result.add(new FilePathIndex(matcher.group().trim(), matcher.start(), matcher.end()));
+      result.add(new StringWithStartEndRange(matcher.group().trim(), matcher.start(), matcher.end()));
     }
     return result;
   }
@@ -119,7 +119,7 @@ public class FileUtils {
     return filePath.trim();
   }
 
-  public record FilePathIndex(String path, int start, int end) {
+  public record StringWithStartEndRange(String path, int start, int end) {
 
   }
 }

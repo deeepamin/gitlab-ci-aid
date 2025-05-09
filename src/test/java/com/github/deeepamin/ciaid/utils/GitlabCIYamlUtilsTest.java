@@ -55,4 +55,16 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     GitlabCIYamlUtils.markAsUserCIYamlFile(nonGitlabYamlFile);
     assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
   }
+
+  public void testIsAnInputsString() {
+    assertTrue(GitlabCIYamlUtils.isAnInputsString("$[[inputs.test]]"));
+    assertTrue(GitlabCIYamlUtils.isAnInputsString("$[[ inputs.test ]]"));
+    assertTrue(GitlabCIYamlUtils.isAnInputsString("$[[inputs.test ]]"));
+    assertTrue(GitlabCIYamlUtils.isAnInputsString("$[[ inputs.test]]"));
+    assertTrue(GitlabCIYamlUtils.isAnInputsString("   $[[ inputs.test ]]  "));
+
+    assertFalse(GitlabCIYamlUtils.isAnInputsString("$[[ input.test ]]"));
+    assertFalse(GitlabCIYamlUtils.isAnInputsString("[[inputs.test ]]"));
+    assertFalse(GitlabCIYamlUtils.isAnInputsString("$[ inputs.test ]]"));
+  }
 }

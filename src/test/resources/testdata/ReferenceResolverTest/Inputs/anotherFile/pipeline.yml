@@ -19,20 +19,6 @@ spec:
 
 ---
 
-$[[ inputs.name ]]:
-  stage: $[[ inputs.stage ]]
-  dependencies: []
-  needs: []
-  variables:
-    DOCKER_TAG: $[[ inputs.name ]]
-    DOCKER_CONTEXT: $[[ inputs.context ]]
-    TEST: $[[ inputs.stage ]]
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
-  script:
-    - docker build -t "$DOCKER_TAG" "$DOCKER_CONTEXT"
-    - docker push "$DOCKER_TAG"
-
 checkstyle:
   stage: validate
   image: checkstyle:latest
@@ -43,3 +29,5 @@ checkstyle:
     - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - ci/**/*
+  needs:
+    - deploy-job

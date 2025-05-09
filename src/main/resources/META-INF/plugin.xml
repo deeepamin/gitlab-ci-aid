@@ -15,6 +15,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlInputsReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.ciaid.services.GitlabCIYamlPostStartup"/>
         <completion.contributor language="yaml" implementationClass="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlCodeContributor"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.GitlabCIYamlAnnotator"/>
@@ -22,6 +23,7 @@
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.GitlabCIYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.EditorNotificationProvider"/>
+        <platform.backend.documentation.psiTargetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>

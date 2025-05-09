@@ -28,6 +28,7 @@ build-dev:
     - build-dev-tag
   variables:
     ENV: dev
+    CONTEXT: $[[ inputs.context ]]
   needs:
     - checkstyle
 

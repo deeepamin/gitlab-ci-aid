@@ -1,0 +1,26 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+include:
+  - /pipeline.yml
+
+stages:
+  - validate
+  - build
+
+build-dev:
+  stage: build
+  image: java:latest
+  script: ./build.sh
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+    TAG: $[[ inputs.<caret>tag ]]

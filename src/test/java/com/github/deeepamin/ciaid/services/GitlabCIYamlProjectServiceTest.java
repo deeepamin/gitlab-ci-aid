@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     assertEquals(1, yamlData.getIncludedYamls().size());
     assertEquals(5, yamlData.getJobNameToJobElement().size());
     assertEquals(3, yamlData.getStageNameToStageElements().size());
+    assertEquals(0, yamlData.getInputs().size());
     assertNotNull(yamlData.getStagesItemNameToStagesElement());
 
     var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
@@ -51,6 +53,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
     assertEquals(1, pipelineCIYamlData.getJobNameToJobElement().size());
     assertEquals(1, pipelineCIYamlData.getStageNameToStageElements().size());
+    assertEquals(4, pipelineCIYamlData.getInputs().size());
     assertTrue(pipelineCIYamlData.getStagesItemNameToStagesElement().isEmpty());
   }
 
@@ -82,7 +85,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
   public void testGetJobNames() {
     var projectService = getProject().getService(GitlabCIYamlProjectService.class);
     var jobNames = projectService.getJobNames();
-    var expectedJobNames = List.of("build-dev", "build-sit", "test-job", "deploy-job", "checkstyle");
+    var expectedJobNames = List.of("build-dev", ".extend-test", "build-sit", "test-job", "deploy-job", "checkstyle");
     assertTrue(jobNames.containsAll(expectedJobNames));
   }
 
@@ -109,5 +112,15 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage));
     var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
+  }
+
+  public void testGetInputs() {
+    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var inputNames = projectService.getInputs()
+            .stream()
+            .map(Input::name)
+            .toList();
+    var expectedInputNames = List.of("name", "stage", "context", "tag");
+    assertTrue(inputNames.containsAll(expectedInputNames));
   }
 }
