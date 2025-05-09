@@ -39,6 +39,7 @@ import java.util.function.Predicate;
 
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.ARRAY;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BOOLEAN;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.DEFAULT;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.DESCRIPTION;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
@@ -56,7 +57,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
   private final Map<VirtualFile, GitlabCIYamlData> pluginData;
 
-  public GitlabCIYamlProjectService(Project project) {
+  public GitlabCIYamlProjectService() {
     pluginData = new ConcurrentHashMap<>();
   }
 
@@ -190,6 +191,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
                             var inputName = inputsKeyValue.getKeyText();
                             var inputValue = inputsKeyValue.getValue();
                             String inputDescription = "";
+                            String defaultValue = "";
                             var inputType = InputType.STRING;
                             if (inputValue instanceof YAMLBlockMappingImpl blockMappingInput) {
                               for (YAMLKeyValue inputKeyValue : blockMappingInput.getKeyValues()) {
@@ -204,13 +206,14 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
                                       default -> inputType;
                                     };
                                   }
+                                  case DEFAULT -> defaultValue = inputKeyValue.getValueText();
                                   case DESCRIPTION -> inputDescription = inputKeyValue.getValueText();
                                 }
                               }
                             }
                             SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
                             SmartPsiElementPointer<YAMLKeyValue> inputElementPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
-                            return new Input(inputName, inputDescription, inputType, inputElementPointer);
+                            return new Input(inputName, inputDescription, defaultValue, inputType, inputElementPointer);
                           })
                           .forEach(gitlabCIYamlData::addInput);
                 }

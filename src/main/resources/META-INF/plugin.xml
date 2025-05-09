@@ -23,6 +23,7 @@
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.GitlabCIYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.EditorNotificationProvider"/>
+        <platform.backend.documentation.psiTargetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>

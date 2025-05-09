@@ -8,6 +8,7 @@ import javax.swing.*;
 public enum Icons {
   ICON_NEEDS(AllIcons.Nodes.Related),
   ICON_STAGE(AllIcons.Debugger.VariablesTab),
+  ICON_YAML(AllIcons.FileTypes.Yaml),
   ICON_BOOLEAN(AllIcons.Actions.Checked),
   ICON_NUMBER(AllIcons.FileTypes.JavaClass),
   ICON_STRING(AllIcons.FileTypes.Font),
