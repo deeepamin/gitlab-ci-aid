@@ -24,8 +24,8 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BEFORE_SCRIP
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.COMPONENT;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
@@ -34,7 +34,7 @@ import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class EditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
-  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, INPUTS, COMPONENT, EXTENDS);
+  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, SPEC, COMPONENT, EXTENDS);
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
