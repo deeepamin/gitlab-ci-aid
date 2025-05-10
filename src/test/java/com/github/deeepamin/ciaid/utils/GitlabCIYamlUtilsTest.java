@@ -52,7 +52,7 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     var nonGitlabYamlFile = getYamlFile(rootDir, "other.yml");
     var psiYaml = getPsiManager().findFile(nonGitlabYamlFile);
     assertFalse(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
-    GitlabCIYamlUtils.markAsUserCIYamlFile(nonGitlabYamlFile);
+    GitlabCIYamlUtils.markAsUserCIYamlFile(nonGitlabYamlFile, getProject());
     assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
   }
 
