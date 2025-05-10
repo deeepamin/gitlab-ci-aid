@@ -12,16 +12,6 @@ plugins {
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 
-val pluginGroup = providers.gradleProperty("pluginGroup").get()
-val pluginName = providers.gradleProperty("pluginName").get()
-val pluginDescription = providers.gradleProperty("pluginDescription").get()
-val pluginVersion = providers.gradleProperty("pluginVersion").get()
-val pluginSinceBuild = providers.gradleProperty("pluginSinceBuild").get()
-val vendorName = providers.gradleProperty("vendorName").get()
-val vendorEmail = providers.gradleProperty("vendorEmail").get()
-val pluginRepositoryUrl = providers.gradleProperty("pluginRepositoryUrl").get()
-val platformVersion = providers.gradleProperty("platformVersion").get()
-
 // Configure project's dependencies
 repositories {
     mavenCentral()

@@ -55,7 +55,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   private JBCheckBox ignoreUndefinedIncludeCheckBox;
   private JBTable userMarkedFilesTable;
   private JPanel userMarkedFilesPanel;
-  private List<String> removedFiles = new ArrayList<>();
+  private final List<String> removedFiles = new ArrayList<>();
 
   @Override
   public @NlsContexts.ConfigurableName String getDisplayName() {
@@ -167,9 +167,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     userMarkedFilesTable.getColumnModel().getColumn(1).setCellRenderer(userMarkedFilesTable.getDefaultRenderer(Boolean.class));
 
     userMarkedFilesPanel = ToolbarDecorator.createDecorator(userMarkedFilesTable)
-            .setAddAction(button -> {
-              tableModel.addRow(new Object[]{"", false});
-            })
+            .setAddAction(button -> tableModel.addRow(new Object[]{"", false}))
             .setRemoveAction(button -> {
               int selectedRow = userMarkedFilesTable.getSelectedRow();
               if (selectedRow != -1) {
