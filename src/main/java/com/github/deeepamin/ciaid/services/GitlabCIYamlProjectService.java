@@ -88,13 +88,13 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   }
 
   private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData, boolean userMarked) {
-    parseGitlabCIYamlData(project, file, gitlabCIYamlData);
-    pluginData.put(file, gitlabCIYamlData);
     if (userMarked) {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
     } else {
       GitlabCIYamlUtils.markAsCIYamlFile(file);
     }
+    parseGitlabCIYamlData(project, file, gitlabCIYamlData);
+    pluginData.put(file, gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
       var sanitizedYamlPath = FileUtils.sanitizeFilePath(yaml);
       var yamlVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
