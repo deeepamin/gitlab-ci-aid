@@ -45,7 +45,6 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Limitations / Future Improvements
-* Only works with default GitLab CI file name (.gitlab-ci.yml/yaml), GitLab supports name change but no API for getting the name
 * Only works with local files currently, no components, remote files or templates
 
 ## Known Issues

@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- CI Aid for Gitlab Settings page under Tools for configuring the plugin
+- Default Gitlab CI Yaml path can be configured in the settings
+- Errors about undefined stage, job can be ignored
+- User marked yaml files are configurable and plugin remembers them across restarts
+
 ## [1.6.0] - 2025-05-09
 
 ### Added
