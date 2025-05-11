@@ -1,6 +1,8 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
@@ -50,8 +52,18 @@ public class GitlabCIYamlUtils {
     return service;
   }
 
-  public static void markAsUserCIYamlFile(VirtualFile file) {
+  public static void markAsUserCIYamlFile(VirtualFile file, Project project) {
     file.putUserData(GITLAB_CI_YAML_USER_MARKED_KEY, true);
+    CIAidSettingsState.getInstance(project).addYamlToUserMarking(file, false);
+  }
+
+  public static void ignoreCIYamlFile(VirtualFile file, Project project) {
+    file.putUserData(GITLAB_CI_YAML_USER_MARKED_KEY, false);
+    CIAidSettingsState.getInstance(project).addYamlToUserMarking(file, true);
+  }
+
+  public static void removeMarkingOfUserCIYamlFile(VirtualFile file) {
+    file.putUserData(GITLAB_CI_YAML_USER_MARKED_KEY, null);
   }
 
   public static boolean isMarkedAsUserCIYamlFile(VirtualFile file) {

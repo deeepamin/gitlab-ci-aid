@@ -115,11 +115,11 @@ public abstract class BaseTest extends BasePlatformTestCase {
     var project = getProject();
     var projectService = GitlabCIYamlProjectService.getInstance(project);
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
-    projectService.readGitlabCIYamlData(project, ciYamlFile);
+    projectService.readGitlabCIYamlData(project, ciYamlFile, false);
     // included file should get read with read code, but the base path in test isn't allowing that even after copying at beginning of test
     var pipelineYamlFile = getCIPipelineYamlFile(rootDir);
     if (pipelineYamlFile != null) {
-      projectService.readGitlabCIYamlData(project, pipelineYamlFile);
+      projectService.readGitlabCIYamlData(project, pipelineYamlFile, false);
     }
   }
 

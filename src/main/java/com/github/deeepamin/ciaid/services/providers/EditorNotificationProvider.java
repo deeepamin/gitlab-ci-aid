@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLFile;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,8 +24,8 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BEFORE_SCRIP
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.COMPONENT;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
@@ -34,7 +34,7 @@ import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class EditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
-  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, INPUTS, COMPONENT, EXTENDS);
+  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, SPEC, COMPONENT, EXTENDS);
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
@@ -55,8 +55,8 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
     EditorNotificationPanel panel = new EditorNotificationPanel();
     panel.setText("Do you want to mark this file as a GitLab CI YAML file?");
     panel.createActionLabel("Mark as GitLab CI", () -> {
-      GitlabCIYamlUtils.markAsUserCIYamlFile(file);
-      projectService.readGitlabCIYamlData(project, file);
+      GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
+      projectService.readGitlabCIYamlData(project, file, true);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {
         var document = FileDocumentManager.getInstance().getDocument(file);
@@ -66,9 +66,8 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
         }
       });
     });
-    //TODO ignore into excluded mappings so user can later remove from excluded if they marked by mistake / change mind
     panel.createActionLabel("Ignore", () -> {
-      file.putUserData(GITLAB_CI_YAML_USER_MARKED_KEY, false);
+      GitlabCIYamlUtils.ignoreCIYamlFile(file, project);
       EditorNotifications.getInstance(project).updateNotifications(file);
       }
     );

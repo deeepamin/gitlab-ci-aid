@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.services;
 import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.github.deeepamin.ciaid.model.gitlab.InputType;
+import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -11,7 +12,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -31,7 +31,6 @@ import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,18 +76,23 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
     if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
       return;
     }
-    readGitlabCIYamlData(project, file);
+    readGitlabCIYamlData(project, file, GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file));
   }
 
-  public void readGitlabCIYamlData(Project project, VirtualFile file) {
+  public void readGitlabCIYamlData(Project project, VirtualFile file, boolean userMarked) {
     if (pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
       return;
     }
     var gitlabCIYamlData = new GitlabCIYamlData(file, file.getModificationStamp());
-    getGitlabCIYamlData(project, file, gitlabCIYamlData);
+    getGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
   }
 
-  private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData) {
+  private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData, boolean userMarked) {
+    if (userMarked) {
+      GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
+    } else {
+      GitlabCIYamlUtils.markAsCIYamlFile(file);
+    }
     parseGitlabCIYamlData(project, file, gitlabCIYamlData);
     pluginData.put(file, gitlabCIYamlData);
     gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
@@ -100,14 +104,13 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
       }
       if (!pluginData.containsKey(yamlVirtualFile)) {
         var includedYamlData = new GitlabCIYamlData(yamlVirtualFile, yamlVirtualFile.getModificationStamp());
-        getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData);
+        getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData, userMarked);
       }
     });
   }
 
 
   public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final GitlabCIYamlData gitlabCIYamlData) {
-    GitlabCIYamlUtils.markAsCIYamlFile(file);
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -265,22 +268,45 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
   }
 
   public void afterStartup(@NotNull Project project) {
+    readDefaultGitlabCIYaml(project);
+    readUserMarkedYamls(project);
+  }
+
+  private void readDefaultGitlabCIYaml(@NotNull Project project) {
+    final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
+    if (!ciAidSettingsState.defaultGitlabCIYamlPath.isBlank()) {
+      final var defaultGitlabCIYamlPath = ciAidSettingsState.defaultGitlabCIYamlPath;
+      final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(defaultGitlabCIYamlPath);
+      if (gitlabCIYamlFile != null) {
+        readGitlabCIYamlData(project, gitlabCIYamlFile, false);
+        return;
+      }
+    }
+    // if default yaml path is not set, check for default gitlab ci yaml files
     final var basePath = project.getBasePath();
-    var foundDefaultGitlabCIYaml = false;
     for (var yamlFile : GITLAB_CI_DEFAULT_YAML_FILES) {
       final var gitlabCIYamlPath = basePath + File.separator + yamlFile;
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(gitlabCIYamlPath);
       if (gitlabCIYamlFile != null) {
         LOG.info("Found " + yamlFile + " in " + gitlabCIYamlPath);
-        readGitlabCIYamlData(project, gitlabCIYamlFile);
-        foundDefaultGitlabCIYaml = true;
+        readGitlabCIYamlData(project, gitlabCIYamlFile, false);
         break;
       }
     }
-    if (!foundDefaultGitlabCIYaml) {
-      final FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-      Arrays.stream(fileEditorManager.getOpenFiles()).forEach(openedFile -> processOpenedFile(project, openedFile));
-    }
+  }
+
+  private void readUserMarkedYamls(@NotNull Project project) {
+    final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
+    ciAidSettingsState.yamlToUserMarkings.forEach((path, ignore) -> {
+      final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(path);
+      if (gitlabCIYamlFile != null) {
+        if (ignore) {
+          GitlabCIYamlUtils.ignoreCIYamlFile(gitlabCIYamlFile, project);
+          return;
+        }
+        readGitlabCIYamlData(project, gitlabCIYamlFile, true);
+      }
+    });
   }
 
   @Override
