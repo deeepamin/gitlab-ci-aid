@@ -92,21 +92,26 @@ public class CIAidSettingsConfigurable implements Configurable {
   private void configureDefaultYamlPathTextField() {
     defaultGitlabCIYamlPathField = new JBTextField();
     defaultGitlabCIYamlPathField.getEmptyText().setText(".gitlab-ci.yml");
-    defaultGitlabCIYamlPathCommentLabel = getCommentLabel("If project root directory doesn't contain .gitlab-ci.yml or .gitlab-ci.yaml, specify the path to default GitLab CI yaml relative to project root");
+    defaultGitlabCIYamlPathCommentLabel = getCommentLabel("If project root directory doesn't contain .gitlab-ci.yml or .gitlab-ci.yaml, specify the default GitLab CI yaml absolute path or path relative to project root");
     ComponentValidator validator = new ComponentValidator(() -> {})
             .withValidator(() -> {
               String path = defaultGitlabCIYamlPathField.getText();
+              var projectBasePath = project.getBasePath();
               if (path.isBlank()) {
                 return null;
               }
-              String basePath = project.getBasePath();
-              if (path.startsWith(basePath + File.separator)) {
-                path = path.replace(basePath + File.separator, "");
-              }
-
-              File file = new File(basePath, path);
-              if (!file.exists() || !(path.endsWith(".yml") || path.endsWith(".yaml"))) {
-                return new ValidationInfo("File must be in opened project and end with .yml or .yaml", defaultGitlabCIYamlPathField);
+              var file = new File(path);
+              if (!file.exists()) {
+                file = new File(projectBasePath, path);
+                if (!file.exists() || !(path.endsWith(".yml") || path.endsWith(".yaml"))) {
+                  return new ValidationInfo("File doesn't exist or not a .yml or .yaml file", defaultGitlabCIYamlPathField);
+                }
+              } else {
+                // file exists, check if it is in project
+                assert projectBasePath != null;
+                if (!path.contains(projectBasePath) || !(path.endsWith(".yml") || path.endsWith(".yaml"))) {
+                  return new ValidationInfo("File is not in current project or not a .yml or .yaml file", defaultGitlabCIYamlPathField);
+                }
               }
               return null;
             })
