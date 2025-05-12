@@ -17,6 +17,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.JBFont;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
@@ -32,7 +33,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -188,7 +188,7 @@ public class CIAidSettingsConfigurable implements Configurable {
 
   private JLabel getCommentLabel(String comment) {
     JLabel commentLabel = new JLabel(comment);
-    commentLabel.setFont(commentLabel.getFont().deriveFont(Font.PLAIN, 11f));
+    commentLabel.setFont(JBFont.medium());
     commentLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
     commentLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
     return commentLabel;

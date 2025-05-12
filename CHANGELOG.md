@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Comments in settings has small fonts
+
 ## [1.7.0] - 2025-05-11
 
 ### Added
