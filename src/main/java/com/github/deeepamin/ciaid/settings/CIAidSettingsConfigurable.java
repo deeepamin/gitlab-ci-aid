@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.settings;
 
-import com.github.deeepamin.ciaid.GitlabCIAidBundle;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.CIAidBundle;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
@@ -59,7 +59,7 @@ public class CIAidSettingsConfigurable implements Configurable {
 
   @Override
   public @NlsContexts.ConfigurableName String getDisplayName() {
-    return GitlabCIAidBundle.message("configurable.ciaid.gitlab.display.name");
+    return CIAidBundle.message("settings.display.name");
   }
 
   @Override
@@ -69,12 +69,12 @@ public class CIAidSettingsConfigurable implements Configurable {
     configureUserMarkedFilesTable();
 
     return FormBuilder.createFormBuilder()
-            .addComponent(new TitledSeparator("General Settings"))
+            .addComponent(new TitledSeparator(CIAidBundle.message("settings.general.separator")))
             .setFormLeftIndent(20)
-            .addLabeledComponent(new JLabel("GitLab CI Yaml Path:"), defaultGitlabCIYamlPathField)
+            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.general.ci.yaml.path") + ":"), defaultGitlabCIYamlPathField)
             .addComponent(defaultGitlabCIYamlPathCommentLabel)
             .setFormLeftIndent(0)
-            .addComponent(new TitledSeparator("Inspections"))
+            .addComponent(new TitledSeparator(CIAidBundle.message("settings.inspections.separator")))
             .setFormLeftIndent(20)
             .addComponent(ignoreUndefinedJobCheckBox)
             .addComponent(ignoreUndefinedStageCheckBox)
@@ -82,7 +82,7 @@ public class CIAidSettingsConfigurable implements Configurable {
             .addComponent(ignoreUndefinedScriptCheckBox)
             .addComponent(ignoreUndefinedIncludeCheckBox)
             .setFormLeftIndent(0)
-            .addComponent(new TitledSeparator("User Marked Yamls"), 6)
+            .addComponent(new TitledSeparator(CIAidBundle.message("settings.user.yamls.separator")), 6)
             .setFormLeftIndent(20)
             .addComponent(userMarkedFilesPanel)
             .addComponentFillVertically(new JPanel(), 0)
@@ -91,8 +91,8 @@ public class CIAidSettingsConfigurable implements Configurable {
 
   private void configureDefaultYamlPathTextField() {
     defaultGitlabCIYamlPathField = new JBTextField();
-    defaultGitlabCIYamlPathField.getEmptyText().setText(".gitlab-ci.yml");
-    defaultGitlabCIYamlPathCommentLabel = getCommentLabel("If project root directory doesn't contain .gitlab-ci.yml or .gitlab-ci.yaml, specify the default GitLab CI yaml absolute path or path relative to project root");
+    defaultGitlabCIYamlPathField.getEmptyText().setText(CIAidBundle.message("settings.general.ci.yaml.path.empty-text"));
+    defaultGitlabCIYamlPathCommentLabel = getCommentLabel(CIAidBundle.message("settings.general.ci.yaml.path.comment-text"));
     ComponentValidator validator = new ComponentValidator(() -> {})
             .withValidator(() -> {
               String path = defaultGitlabCIYamlPathField.getText();
@@ -104,13 +104,13 @@ public class CIAidSettingsConfigurable implements Configurable {
               if (!file.exists()) {
                 file = new File(projectBasePath, path);
                 if (!file.exists() || !(path.endsWith(".yml") || path.endsWith(".yaml"))) {
-                  return new ValidationInfo("File doesn't exist or not a .yml or .yaml file", defaultGitlabCIYamlPathField);
+                  return new ValidationInfo(CIAidBundle.message("settings.general.ci.yaml.path.non-existing-file"), defaultGitlabCIYamlPathField);
                 }
               } else {
                 // file exists, check if it is in project
                 assert projectBasePath != null;
                 if (!path.contains(projectBasePath) || !(path.endsWith(".yml") || path.endsWith(".yaml"))) {
-                  return new ValidationInfo("File is not in current project or not a .yml or .yaml file", defaultGitlabCIYamlPathField);
+                  return new ValidationInfo(CIAidBundle.message("settings.general.ci.yaml.path.not-in-current-project"), defaultGitlabCIYamlPathField);
                 }
               }
               return null;
@@ -136,26 +136,26 @@ public class CIAidSettingsConfigurable implements Configurable {
   }
 
   private void configureInspectionCheckboxes() {
-    ignoreUndefinedJobCheckBox = new JBCheckBox("Ignore \"Undefined Job\" errors");
-    ignoreUndefinedStageCheckBox = new JBCheckBox("Ignore \"Undefined Stage\" errors");
-    ignoreUndefinedScriptCheckBox = new JBCheckBox("Ignore \"Script not available on path\" errors");
-    ignoreUndefinedIncludeCheckBox = new JBCheckBox("Ignore \"Include file not available on path\" errors");
+    ignoreUndefinedJobCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-undefined-job"));
+    ignoreUndefinedStageCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-undefined-stage"));
+    ignoreUndefinedScriptCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-script-unavailable"));
+    ignoreUndefinedIncludeCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-include-unavailable"));
 
     ignoreUndefinedJobCheckBox.setSelected(CIAidSettingsState.getInstance(project).ignoreUndefinedJob);
     ignoreUndefinedStageCheckBox.setSelected(CIAidSettingsState.getInstance(project).ignoreUndefinedStage);
-    ignoreUndefinedJobOrStageCommentLabel = getCommentLabel("If components, remote files or templates are used and not defined in the current file, ignore job and stage errors");
+    ignoreUndefinedJobOrStageCommentLabel = getCommentLabel(CIAidBundle.message("settings.inspections.ignore-undefined-job-stage-comment"));
     ignoreUndefinedScriptCheckBox.setSelected(CIAidSettingsState.getInstance(project).ignoreUndefinedScript);
     ignoreUndefinedIncludeCheckBox.setSelected(CIAidSettingsState.getInstance(project).ignoreUndefinedInclude);
   }
 
   private void configureUserMarkedFilesTable() {
-    DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Path", "Ignore"}, 0) {
+    DefaultTableModel tableModel = new DefaultTableModel(new Object[]{CIAidBundle.message("settings.user.yamls.table.path-column"), CIAidBundle.message("settings.user.yamls.table.ignore-column")}, 0) {
     };
 
     userMarkedFilesTable = new JBTable(tableModel);
     userMarkedFilesTable.setRowHeight(28);
     userMarkedFilesTable.setPreferredScrollableViewportSize(new Dimension(500, 200));
-    userMarkedFilesTable.getEmptyText().setText("No files added. Click '+' to add a file path.");
+    userMarkedFilesTable.getEmptyText().setText(CIAidBundle.message("settings.user.yamls.table.empty-text"));
     userMarkedFilesTable.getColumnModel().getColumn(0).setCellEditor(new CIAidUserMarkedFilesTablePathEditor(project));
     userMarkedFilesTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
       @Override
@@ -231,7 +231,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     removedFiles.forEach(path -> {
       var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
       if (virtualFile != null) {
-        var projectService = GitlabCIYamlProjectService.getInstance(project);
+        var projectService = CIAidProjectService.getInstance(project);
         GitlabCIYamlUtils.removeMarkingOfUserCIYamlFile(virtualFile);
         projectService.getPluginData().remove(virtualFile);
         refreshVirtualFile(virtualFile);
@@ -258,7 +258,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   }
 
   private void handleFile(VirtualFile virtualFile, boolean ignore) {
-    var projectService = GitlabCIYamlProjectService.getInstance(project);
+    var projectService = CIAidProjectService.getInstance(project);
     if (ignore) {
       GitlabCIYamlUtils.ignoreCIYamlFile(virtualFile, project);
       projectService.getPluginData().remove(virtualFile);

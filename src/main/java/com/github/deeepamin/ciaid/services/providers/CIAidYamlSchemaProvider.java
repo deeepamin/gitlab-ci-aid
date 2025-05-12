@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class GitlabCIYamlSchemaProvider implements JsonSchemaFileProvider {
-  private static final Logger LOG = Logger.getInstance(GitlabCIYamlSchemaProvider.class);
+public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
+  private static final Logger LOG = Logger.getInstance(CIAidYamlSchemaProvider.class);
   private static final String SCHEMA_NAME = "Gitlab CI [Auto]";
   private static final String SCHEMA_PATH = "/schemas/gitlab-ci-yml.json";
   private final VirtualFile schemaFile;
 
-  public GitlabCIYamlSchemaProvider() {
+  public CIAidYamlSchemaProvider() {
     this.schemaFile = Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
             .map(VfsUtil::findFileByURL)
             .orElse(null);

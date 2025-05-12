@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.model;
 
 import com.github.deeepamin.ciaid.model.gitlab.Input;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.model.Pointer;
 import com.intellij.openapi.util.text.HtmlChunk;
@@ -49,7 +49,7 @@ public class InputDocumentationTarget implements DocumentationTarget {
       var originalElementTextAndOffsets = GitlabCIYamlUtils.getInputNameFromInputsString(originalElement.getText());
       if (originalElementTextAndOffsets != null) {
         var originalElementText = originalElementTextAndOffsets.path();
-        var input = GitlabCIYamlProjectService.getInstance(originalElement.getProject())
+        var input = CIAidProjectService.getInstance(originalElement.getProject())
                 .getInputs().stream()
                 .filter(inputInner -> inputInner.name().equals(originalElementText)).findFirst().orElse(null);
 
@@ -79,7 +79,7 @@ public class InputDocumentationTarget implements DocumentationTarget {
       var originalElementTextAndOffsets = GitlabCIYamlUtils.getInputNameFromInputsString(originalElement.getText());
       if (originalElementTextAndOffsets != null) {
         var originalElementText = originalElementTextAndOffsets.path();
-        var input = GitlabCIYamlProjectService.getInstance(originalElement.getProject())
+        var input = CIAidProjectService.getInstance(originalElement.getProject())
                 .getInputs().stream()
                 .filter(inputInner -> inputInner.name().equals(originalElementText)).findFirst().orElse(null);
         if (input != null) {

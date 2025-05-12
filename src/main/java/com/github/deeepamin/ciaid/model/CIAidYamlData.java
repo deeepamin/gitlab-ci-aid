@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GitlabCIYamlData {
+public class CIAidYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files
   private final VirtualFile file;
   private final Map<String, List<SmartPsiElementPointer<PsiElement>>> stageNameToStageElements;
@@ -25,7 +25,7 @@ public class GitlabCIYamlData {
   private final Map<String, SmartPsiElementPointer<YAMLPsiElement>> stagesItemNameToStagesElement;
   private final List<Input> inputs;
 
-  public GitlabCIYamlData(VirtualFile file, long modificationStamp) {
+  public CIAidYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
     this.modificationStamp = modificationStamp;
     this.stageNameToStageElements = new HashMap<>();

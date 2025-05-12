@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
@@ -26,7 +26,7 @@ public class ReferenceUtilsTest extends BaseTest {
     var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "");
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
     var project = getProject();
-    project.getService(GitlabCIYamlProjectService.class).readGitlabCIYamlData(project, ciYamlFile, false);
+    project.getService(CIAidProjectService.class).readGitlabCIYamlData(project, ciYamlFile, false);
     psiYaml = getPsiGitlabCiYaml(rootDir);
   }
 

@@ -24,11 +24,11 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWO
  * Base class to allow injecting a shell script language into GitLab YAML elements.
  * To avoid a compile-time dependency on the language, the ID is passed as a string.
  */
-abstract class AbstractGitlabCIYamlScriptInjector implements MultiHostInjector {
-  private static final Logger LOG = Logger.getInstance(AbstractGitlabCIYamlScriptInjector.class);
+abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
+  private static final Logger LOG = Logger.getInstance(AbstractCIAidYamlScriptInjector.class);
   private final @Nullable Language language;
 
-  protected AbstractGitlabCIYamlScriptInjector(@NotNull String languageId) {
+  protected AbstractCIAidYamlScriptInjector(@NotNull String languageId) {
     this.language = Language.findLanguageByID(languageId);
   }
 

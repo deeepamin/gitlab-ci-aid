@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.services;
 
-import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.github.deeepamin.ciaid.model.gitlab.InputType;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
@@ -52,19 +52,19 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TYPE;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
 
 @Service(Service.Level.PROJECT)
-public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
-  private static final Logger LOG = Logger.getInstance(GitlabCIYamlProjectService.class);
-  private final Map<VirtualFile, GitlabCIYamlData> pluginData;
+public final class CIAidProjectService implements DumbAware, Disposable {
+  private static final Logger LOG = Logger.getInstance(CIAidProjectService.class);
+  private final Map<VirtualFile, CIAidYamlData> pluginData;
 
-  public GitlabCIYamlProjectService() {
+  public CIAidProjectService() {
     pluginData = new ConcurrentHashMap<>();
   }
 
-  public static GitlabCIYamlProjectService getInstance(Project project) {
-    return project.getService(GitlabCIYamlProjectService.class);
+  public static CIAidProjectService getInstance(Project project) {
+    return project.getService(CIAidProjectService.class);
   }
 
-  public Map<VirtualFile, GitlabCIYamlData> getPluginData() {
+  public Map<VirtualFile, CIAidYamlData> getPluginData() {
     return pluginData;
   }
 
@@ -83,19 +83,19 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
     if (pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
       return;
     }
-    var gitlabCIYamlData = new GitlabCIYamlData(file, file.getModificationStamp());
+    var gitlabCIYamlData = new CIAidYamlData(file, file.getModificationStamp());
     getGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
   }
 
-  private void getGitlabCIYamlData(Project project, VirtualFile file, GitlabCIYamlData gitlabCIYamlData, boolean userMarked) {
+  private void getGitlabCIYamlData(Project project, VirtualFile file, CIAidYamlData CIAidYamlData, boolean userMarked) {
     if (userMarked) {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
     } else {
       GitlabCIYamlUtils.markAsCIYamlFile(file);
     }
-    parseGitlabCIYamlData(project, file, gitlabCIYamlData);
-    pluginData.put(file, gitlabCIYamlData);
-    gitlabCIYamlData.getIncludedYamls().forEach(yaml -> {
+    parseGitlabCIYamlData(project, file, CIAidYamlData);
+    pluginData.put(file, CIAidYamlData);
+    CIAidYamlData.getIncludedYamls().forEach(yaml -> {
       var sanitizedYamlPath = FileUtils.sanitizeFilePath(yaml);
       var yamlVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
       if (yamlVirtualFile == null) {
@@ -103,14 +103,14 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
         return;
       }
       if (!pluginData.containsKey(yamlVirtualFile)) {
-        var includedYamlData = new GitlabCIYamlData(yamlVirtualFile, yamlVirtualFile.getModificationStamp());
+        var includedYamlData = new CIAidYamlData(yamlVirtualFile, yamlVirtualFile.getModificationStamp());
         getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData, userMarked);
       }
     });
   }
 
 
-  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final GitlabCIYamlData gitlabCIYamlData) {
+  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData CIAidYamlData) {
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -128,7 +128,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             topLevelKeys.forEach(topLevelKey -> {
               if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
                 // this means it's a job
-                gitlabCIYamlData.addJob(topLevelKey);
+                CIAidYamlData.addJob(topLevelKey);
               }
             });
             super.visitFile(file);
@@ -140,7 +140,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
           if (PsiUtils.isNotSpecInputsElement(quotedText)) {
             var isChildOfStagesElement = PsiUtils.findParent(quotedText, List.of(STAGES)).isPresent();
             if (isChildOfStagesElement) {
-              gitlabCIYamlData.addStagesItem(quotedText);
+              CIAidYamlData.addStagesItem(quotedText);
             }
           }
           super.visitQuotedText(quotedText);
@@ -152,7 +152,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             if (value instanceof YAMLPlainTextImpl) {
               var isChildOfStagesElement = PsiUtils.findParent(value, List.of(STAGES)).isPresent();
               if (isChildOfStagesElement) {
-                gitlabCIYamlData.addStagesItem(value);
+                CIAidYamlData.addStagesItem(value);
               }
             }
           }
@@ -172,16 +172,16 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
                 plainTextChildren.stream()
                         .map(YAMLBlockScalarImpl::getText)
                         .distinct()
-                        .forEach(gitlabCIYamlData::addIncludedYaml);
+                        .forEach(CIAidYamlData::addIncludedYaml);
                 quotedTextChildren.stream()
                         .map(YAMLQuotedText::getText)
                         .distinct()
-                        .forEach(gitlabCIYamlData::addIncludedYaml);
+                        .forEach(CIAidYamlData::addIncludedYaml);
               }
             }
             case STAGE -> {
               if (PsiUtils.isNotSpecInputsElement(keyValue)) {
-                gitlabCIYamlData.addStage(keyValue);
+                CIAidYamlData.addStage(keyValue);
               }
             }
             case INPUTS -> {
@@ -218,7 +218,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
                             SmartPsiElementPointer<YAMLKeyValue> inputElementPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
                             return new Input(inputName, inputDescription, defaultValue, inputType, inputElementPointer);
                           })
-                          .forEach(gitlabCIYamlData::addInput);
+                          .forEach(CIAidYamlData::addInput);
                 }
               }
             }
@@ -253,7 +253,7 @@ public final class GitlabCIYamlProjectService implements DumbAware, Disposable {
             .toList();
   }
 
-  public String getFileName(Project project, Predicate<Map.Entry<VirtualFile, GitlabCIYamlData>> predicate) {
+  public String getFileName(Project project, Predicate<Map.Entry<VirtualFile, CIAidYamlData>> predicate) {
      String filePath = pluginData.entrySet().stream()
              .filter(predicate)
              .map(Map.Entry::getKey)

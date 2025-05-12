@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
-import com.github.deeepamin.ciaid.GitlabCIAidBundle;
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -36,8 +36,8 @@ import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTA
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.NUMBER;
 
-public class GitlabCIYamlAnnotator implements Annotator {
-  private static final Logger LOG = Logger.getInstance(GitlabCIYamlAnnotator.class);
+public class CIAidYamlAnnotator implements Annotator {
+  private static final Logger LOG = Logger.getInstance(CIAidYamlAnnotator.class);
   private static final String STAGE_ATTRIBUTE = "STAGE";
   private static final String JOB_ATTRIBUTE = "JOB";
   private static final String SCRIPT_ATTRIBUTE = "SCRIPT";
@@ -88,7 +88,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
                 var ignoreUndefinedStageErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedStage;
                 if (!ignoreUndefinedStageErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
+                  holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.stage-undefined", stage.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
                           .create();
                 }
@@ -133,7 +133,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (!allJobs.contains(jobName)) {
                 var ignoreUndefinedJobErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedJob;
                 if (!ignoreUndefinedJobErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
+                  holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.need-job-undefined", job.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
                           .create();
                 }
@@ -161,7 +161,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
                   if (isNotScriptBlock) {
                     var ignoreUndefinedScriptErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedScript;
                     if (!ignoreUndefinedScriptErrors) {
-                      var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
+                      var errorText = CIAidBundle.message("annotator.error.script-not-found", scriptElement.getText());
                       var quickFix = new CreateScriptQuickFix();
                       var problemDescriptor = InspectionManager.getInstance(project)
                               .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
@@ -206,7 +206,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (virtualScriptFile == null) {
                 var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedInclude;
                 if (!ignoreUndefinedIncludeErrors) {
-                  var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.include-not-found", includeElement.getText());
+                  var errorText = CIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
                   var quickFix = new CreateIncludeFileQuickFix();
                   var problemDescriptor = InspectionManager.getInstance(project)
                           .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);

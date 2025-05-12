@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class GitlabCIYamlInputsReferenceContributor extends PsiReferenceContributor {
+public class CIAidYamlInputsReferenceContributor extends PsiReferenceContributor {
   @Override
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
