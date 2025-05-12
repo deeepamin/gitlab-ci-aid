@@ -88,7 +88,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
                 var ignoreUndefinedStageErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedStage;
                 if (!ignoreUndefinedStageErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.stage-undefined", stage.getText()))
+                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.error.stage-undefined", stage.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
                           .create();
                 }
@@ -133,7 +133,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (!allJobs.contains(jobName)) {
                 var ignoreUndefinedJobErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedJob;
                 if (!ignoreUndefinedJobErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.gitlabciaid.error.need-job-undefined", job.getText()))
+                  holder.newAnnotation(HighlightSeverity.WARNING, GitlabCIAidBundle.message("annotator.error.need-job-undefined", job.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
                           .create();
                 }
@@ -161,7 +161,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
                   if (isNotScriptBlock) {
                     var ignoreUndefinedScriptErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedScript;
                     if (!ignoreUndefinedScriptErrors) {
-                      var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.script-not-found", scriptElement.getText());
+                      var errorText = GitlabCIAidBundle.message("annotator.error.script-not-found", scriptElement.getText());
                       var quickFix = new CreateScriptQuickFix();
                       var problemDescriptor = InspectionManager.getInstance(project)
                               .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
@@ -206,7 +206,7 @@ public class GitlabCIYamlAnnotator implements Annotator {
               if (virtualScriptFile == null) {
                 var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedInclude;
                 if (!ignoreUndefinedIncludeErrors) {
-                  var errorText = GitlabCIAidBundle.message("annotator.gitlabciaid.error.include-not-found", includeElement.getText());
+                  var errorText = GitlabCIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
                   var quickFix = new CreateIncludeFileQuickFix();
                   var problemDescriptor = InspectionManager.getInstance(project)
                           .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);

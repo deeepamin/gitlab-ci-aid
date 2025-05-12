@@ -24,7 +24,7 @@
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.GitlabCIYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.EditorNotificationProvider"/>
         <platform.backend.documentation.psiTargetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
-        <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.GitlabCIAid" key="configurable.ciaid.gitlab.display.name" nonDefaultProject="true"/>
+        <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.GitlabCIAid" key="settings.display.name" nonDefaultProject="true"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>

@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class GitlabCIYamlUtils {
-  // TODO Gitlab allows changing default file name, config for that?
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
   public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
   public static final List<String> GITLAB_CI_DEFAULT_YAML_FILES = List.of(GITLAB_CI_DEFAULT_YML_FILE, GITLAB_CI_DEFAULT_YAML_FILE);

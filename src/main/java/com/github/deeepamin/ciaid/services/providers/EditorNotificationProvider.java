@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.providers;
 
+import com.github.deeepamin.ciaid.GitlabCIAidBundle;
 import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -53,8 +54,8 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
 
   private static @NotNull EditorNotificationPanel getEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, GitlabCIYamlProjectService projectService) {
     EditorNotificationPanel panel = new EditorNotificationPanel();
-    panel.setText("Do you want to mark this file as a GitLab CI YAML file?");
-    panel.createActionLabel("Mark as GitLab CI", () -> {
+    panel.setText(GitlabCIAidBundle.message("editor.notification.mark-as-gitlab-yaml-question"));
+    panel.createActionLabel(GitlabCIAidBundle.message("editor.notification.mark-as-gitlab-yaml"), () -> {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
       projectService.readGitlabCIYamlData(project, file, true);
       EditorNotifications.getInstance(project).updateNotifications(file);
@@ -66,7 +67,7 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
         }
       });
     });
-    panel.createActionLabel("Ignore", () -> {
+    panel.createActionLabel(GitlabCIAidBundle.message("editor.notification.ignore"), () -> {
       GitlabCIYamlUtils.ignoreCIYamlFile(file, project);
       EditorNotifications.getInstance(project).updateNotifications(file);
       }
