@@ -11,22 +11,22 @@
     <depends optional="true" config-file="plugin-shell.xml">com.jetbrains.sh</depends>
     <depends optional="true" config-file="plugin-bashsupport-pro.xml">pro.bashsupport</depends>
 
-    <resource-bundle>messages.GitlabCIAid</resource-bundle>
+    <resource-bundle>messages.CIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlReferenceContributor"/>
-        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlInputsReferenceContributor"/>
-        <postStartupActivity implementation="com.github.deeepamin.ciaid.services.GitlabCIYamlPostStartup"/>
-        <completion.contributor language="yaml" implementationClass="com.github.deeepamin.ciaid.services.contributors.GitlabCIYamlCodeContributor"/>
-        <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.GitlabCIYamlAnnotator"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlInputsReferenceContributor"/>
+        <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
+        <completion.contributor language="yaml" implementationClass="com.github.deeepamin.ciaid.services.contributors.CIAidYamlCodeContributor"/>
+        <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.CIAidYamlAnnotator"/>
         <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
-        <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.GitlabCIYamlAsyncListener"/>
-        <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.EditorNotificationProvider"/>
+        <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.CIAidYamlAsyncListener"/>
+        <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidEditorNotificationProvider"/>
         <platform.backend.documentation.psiTargetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
-        <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.GitlabCIAid" key="configurable.ciaid.gitlab.display.name" nonDefaultProject="true"/>
+        <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.CIAid" key="settings.display.name" nonDefaultProject="true"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
-        <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.GitlabCIYamlSchemaProviderFactory"/>
+        <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.CIAidYamlSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>

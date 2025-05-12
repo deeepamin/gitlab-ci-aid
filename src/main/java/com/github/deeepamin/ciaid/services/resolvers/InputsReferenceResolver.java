@@ -2,7 +2,7 @@ package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.model.gitlab.Input;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
@@ -22,7 +22,7 @@ public class InputsReferenceResolver extends SingleTargetReferenceResolver {
 
   @Override
   public Object @NotNull [] getVariants() {
-    return GitlabCIYamlProjectService.getInstance(myElement.getProject())
+    return CIAidProjectService.getInstance(myElement.getProject())
             .getInputs()
             .stream()
             .map(input -> LookupElementBuilder.create(input.name())

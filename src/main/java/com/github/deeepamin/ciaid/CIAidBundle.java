@@ -5,12 +5,12 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
-public class GitlabCIAidBundle extends DynamicBundle {
+public class CIAidBundle extends DynamicBundle {
   @NonNls
-  private static final String BUNDLE_PATH = "messages.GitlabCIAid";
-  private static final GitlabCIAidBundle INSTANCE = new GitlabCIAidBundle();
+  private static final String BUNDLE_PATH = "messages.CIAid";
+  private static final CIAidBundle INSTANCE = new CIAidBundle();
 
-  protected GitlabCIAidBundle() {
+  protected CIAidBundle() {
     super(BUNDLE_PATH);
   }
 

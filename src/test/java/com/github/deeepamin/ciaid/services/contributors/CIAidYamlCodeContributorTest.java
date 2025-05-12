@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-public class GitlabCIYamlCodeContributorTest extends BaseTest {
+public class CIAidYamlCodeContributorTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/CodeCompletionTest");
   private List<String> completions;
 

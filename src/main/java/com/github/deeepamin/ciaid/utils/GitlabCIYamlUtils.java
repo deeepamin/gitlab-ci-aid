@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class GitlabCIYamlUtils {
-  // TODO Gitlab allows changing default file name, config for that?
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
   public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
   public static final List<String> GITLAB_CI_DEFAULT_YAML_FILES = List.of(GITLAB_CI_DEFAULT_YML_FILE, GITLAB_CI_DEFAULT_YAML_FILE);
@@ -44,8 +43,8 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isValidGitlabCIYamlFile);
   }
 
-  public static GitlabCIYamlProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
-    var service = GitlabCIYamlProjectService.getInstance(psiElement.getProject());
+  public static CIAidProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
+    var service = CIAidProjectService.getInstance(psiElement.getProject());
     if (service == null) {
       throw new IllegalStateException("Cannot find gitlab CI yaml project service: " + psiElement.getProject().getName());
     }

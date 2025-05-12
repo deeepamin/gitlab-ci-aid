@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.services.contributors;
 
-import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -24,8 +24,8 @@ import java.util.function.BiPredicate;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlProjectService;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class GitlabCIYamlCodeContributor extends CompletionContributor implements DumbAware {
-  public GitlabCIYamlCodeContributor() {
+public class CIAidYamlCodeContributor extends CompletionContributor implements DumbAware {
+  public CIAidYamlCodeContributor() {
     extend(CompletionType.BASIC, psiElement(), completionProvider());
   }
 
@@ -46,7 +46,7 @@ public class GitlabCIYamlCodeContributor extends CompletionContributor implement
                     var parentJob = PsiUtils.findParent(psiElement, allJobs);
                     List<String> filteredJobs = new ArrayList<>(allJobs);
                     parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
-                    BiPredicate<Map.Entry<VirtualFile, GitlabCIYamlData>, String> jobFilterPredicate = (entry, job) -> {
+                    BiPredicate<Map.Entry<VirtualFile, CIAidYamlData>, String> jobFilterPredicate = (entry, job) -> {
                       boolean isKnownJob = entry.getValue().getJobNameToJobElement().containsKey(job);
                       if (isNeedsElement) {
                         isKnownJob = isKnownJob && !job.startsWith(".");

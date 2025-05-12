@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.services.listeners;
 
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.ProjectLocator;
@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class GitlabCIYamlAsyncListener implements AsyncFileListener {
-  private static final Logger LOG = Logger.getInstance(GitlabCIYamlAsyncListener.class);
+public class CIAidYamlAsyncListener implements AsyncFileListener {
+  private static final Logger LOG = Logger.getInstance(CIAidYamlAsyncListener.class);
   @Override
   public @Nullable ChangeApplier prepareChange(@NotNull List<? extends @NotNull VFileEvent> events) {
     for (VFileEvent event : events) {
@@ -28,7 +28,7 @@ public class GitlabCIYamlAsyncListener implements AsyncFileListener {
         LOG.debug("Couldn't find project for changed file " + file.getPath());
         return null;
       }
-      var projectService = GitlabCIYamlProjectService.getInstance(project);
+      var projectService = CIAidProjectService.getInstance(project);
       if (event instanceof VFileContentChangeEvent) {
         return new ChangeApplier() {
           @Override

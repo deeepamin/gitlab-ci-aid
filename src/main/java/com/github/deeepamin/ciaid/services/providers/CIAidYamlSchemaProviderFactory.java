@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class GitlabCIYamlSchemaProviderFactory implements JsonSchemaProviderFactory {
-  private static final List<JsonSchemaFileProvider> SCHEMA_FILE_PROVIDERS = List.of(new GitlabCIYamlSchemaProvider());
+public class CIAidYamlSchemaProviderFactory implements JsonSchemaProviderFactory {
+  private static final List<JsonSchemaFileProvider> SCHEMA_FILE_PROVIDERS = List.of(new CIAidYamlSchemaProvider());
 
   @Override
   public @NotNull List<JsonSchemaFileProvider> getProviders(@NotNull Project project) {

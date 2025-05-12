@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.model.gitlab.Input;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
@@ -68,7 +68,7 @@ public class ReferenceUtils {
       // for cases: needs: ["some_job"] / needs: ["some_job] / needs: [some_job"]
       var need = handleQuotedText(element.getText());
       var project = element.getProject();
-      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
       var targetJob = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getJobNameToJobElement().entrySet().stream())
@@ -87,7 +87,7 @@ public class ReferenceUtils {
     if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
-      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
       var targetStages = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getStageNameToStageElements().entrySet().stream())
@@ -106,7 +106,7 @@ public class ReferenceUtils {
     if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
-      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
 
       var target = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
@@ -136,7 +136,7 @@ public class ReferenceUtils {
       var startOffset = inputNameWithStartEndRange.start();
       var endOffset = inputNameWithStartEndRange.end();
       var project = element.getProject();
-      var gitlabCIYamlProjectService = GitlabCIYamlProjectService.getInstance(project);
+      var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
       var targetInput = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getInputs().stream())

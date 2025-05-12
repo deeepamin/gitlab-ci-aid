@@ -1,14 +1,14 @@
 package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.model.GitlabCIYamlData;
+import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
 import java.util.List;
 
-public class GitlabCIYamlProjectServiceTest extends BaseTest {
+public class CIAidProjectServiceTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
   private static boolean dataRead = false;
   private static VirtualFile rootDir;
@@ -18,7 +18,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
     super.setUp();
     if (!dataRead) {
       rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "../");
-      var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+      var projectService = getProject().getService(CIAidProjectService.class);
       projectService.clearPluginData();
       readCIYamls(rootDir);
       dataRead = true;
@@ -31,7 +31,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
   }
 
   public void testReadGitlabCIYamlData() {
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var pluginData = projectService.getPluginData();
     assertNotNull(pluginData);
     assertEquals(2, pluginData.size());
@@ -59,8 +59,8 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
 
   public void testParseGitlabCIYamlDataValidFiles() {
     var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
-    var gitlabCIYamlData = new GitlabCIYamlData(gitlabCIYaml, gitlabCIYaml.getModificationStamp());
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var gitlabCIYamlData = new CIAidYamlData(gitlabCIYaml, gitlabCIYaml.getModificationStamp());
+    var projectService = getProject().getService(CIAidProjectService.class);
     projectService.parseGitlabCIYamlData(getProject(), gitlabCIYaml, gitlabCIYamlData);
 
     var includedYamls = gitlabCIYamlData.getIncludedYamls();
@@ -83,21 +83,21 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
   }
 
   public void testGetJobNames() {
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var jobNames = projectService.getJobNames();
     var expectedJobNames = List.of("build-dev", ".extend-test", "build-sit", "test-job", "deploy-job", "checkstyle");
     assertTrue(jobNames.containsAll(expectedJobNames));
   }
 
   public void testGetStageNamesDefinedAtStagesLevel() {
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var stages = projectService.getStageNamesDefinedAtStagesLevel();
     var expectedStages = List.of("validate", "build", "test", "deploy");
     assertTrue(stages.containsAll(expectedStages));
   }
 
   public void testGetStageNamesDefinedAtJobLevel() {
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var stages = projectService.getStageNamesDefinedAtJobLevel();
     var expectedStages = List.of("validate", "build", "test", "deploy");
     assertTrue(stages.containsAll(expectedStages));
@@ -105,7 +105,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
 
   public void testGetFileName() {
     var job = "checkstyle";
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobNameToJobElement().containsKey(job));
     assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
@@ -115,7 +115,7 @@ public class GitlabCIYamlProjectServiceTest extends BaseTest {
   }
 
   public void testGetInputs() {
-    var projectService = getProject().getService(GitlabCIYamlProjectService.class);
+    var projectService = getProject().getService(CIAidProjectService.class);
     var inputNames = projectService.getInputs()
             .stream()
             .map(Input::name)
