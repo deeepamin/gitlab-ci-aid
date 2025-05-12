@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.io.File;
 import java.util.List;
 
-public class GitlabCIYamlAnnotatorTest extends BaseTest {
+public class CIAidYamlAnnotatorTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/AnnotatorTest");
   private VirtualFile ciYamlFile;
   private VirtualFile nonGitlabYamlFile;

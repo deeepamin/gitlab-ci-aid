@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid;
 
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
@@ -113,7 +113,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
 
   public void readCIYamls(VirtualFile rootDir) {
     var project = getProject();
-    var projectService = GitlabCIYamlProjectService.getInstance(project);
+    var projectService = CIAidProjectService.getInstance(project);
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
     projectService.readGitlabCIYamlData(project, ciYamlFile, false);
     // included file should get read with read code, but the base path in test isn't allowing that even after copying at beginning of test

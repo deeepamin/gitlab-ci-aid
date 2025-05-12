@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.services.providers;
 
-import com.github.deeepamin.ciaid.GitlabCIAidBundle;
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.CIAidBundle;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
@@ -34,13 +34,13 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.WORKFLOW;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_USER_MARKED_KEY;
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
-public class EditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
+public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
   private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, SPEC, COMPONENT, EXTENDS);
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
     return fileEditor -> {
-      var projectService = GitlabCIYamlProjectService.getInstance(project);
+      var projectService = CIAidProjectService.getInstance(project);
       if (file.getUserData(GITLAB_CI_YAML_USER_MARKED_KEY) != null || projectService.getPluginData().containsKey(file)) {
         // already read/marked file: true/false
         return null;
@@ -52,10 +52,10 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
     };
   }
 
-  private static @NotNull EditorNotificationPanel getEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, GitlabCIYamlProjectService projectService) {
+  private static @NotNull EditorNotificationPanel getEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, CIAidProjectService projectService) {
     EditorNotificationPanel panel = new EditorNotificationPanel();
-    panel.setText(GitlabCIAidBundle.message("editor.notification.mark-as-gitlab-yaml-question"));
-    panel.createActionLabel(GitlabCIAidBundle.message("editor.notification.mark-as-gitlab-yaml"), () -> {
+    panel.setText(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml-question"));
+    panel.createActionLabel(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml"), () -> {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
       projectService.readGitlabCIYamlData(project, file, true);
       EditorNotifications.getInstance(project).updateNotifications(file);
@@ -67,7 +67,7 @@ public class EditorNotificationProvider implements com.intellij.ui.EditorNotific
         }
       });
     });
-    panel.createActionLabel(GitlabCIAidBundle.message("editor.notification.ignore"), () -> {
+    panel.createActionLabel(CIAidBundle.message("editor.notification.ignore"), () -> {
       GitlabCIYamlUtils.ignoreCIYamlFile(file, project);
       EditorNotifications.getInstance(project).updateNotifications(file);
       }

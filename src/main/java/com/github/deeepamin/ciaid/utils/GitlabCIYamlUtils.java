@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -43,8 +43,8 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isValidGitlabCIYamlFile);
   }
 
-  public static GitlabCIYamlProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
-    var service = GitlabCIYamlProjectService.getInstance(psiElement.getProject());
+  public static CIAidProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
+    var service = CIAidProjectService.getInstance(psiElement.getProject());
     if (service == null) {
       throw new IllegalStateException("Cannot find gitlab CI yaml project service: " + psiElement.getProject().getName());
     }

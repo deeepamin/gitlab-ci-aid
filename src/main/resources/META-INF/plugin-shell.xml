@@ -1,6 +1,6 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <multiHostInjector order="first"
-                           implementation="com.github.deeepamin.ciaid.services.injectors.JetBrainsShellGitlabCIYamlScriptInjector"/>
+                           implementation="com.github.deeepamin.ciaid.services.injectors.JetBrainsShellCIAidYamlScriptInjector"/>
     </extensions>
 </idea-plugin>

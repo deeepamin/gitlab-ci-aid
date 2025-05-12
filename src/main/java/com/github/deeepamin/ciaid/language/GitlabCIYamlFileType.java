@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.language;
 
-import com.github.deeepamin.ciaid.GitlabCIAidBundle;
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.util.NlsContexts;
@@ -18,12 +18,12 @@ public class GitlabCIYamlFileType extends LanguageFileType {
 
   @Override
   public @NonNls @NotNull String getName() {
-    return GitlabCIAidBundle.message("file.type.ci.yaml.name");
+    return CIAidBundle.message("file.type.ci.yaml.name");
   }
 
   @Override
   public @NlsContexts.Label @NotNull String getDescription() {
-    return GitlabCIAidBundle.message("file.type.ci.yaml.description");
+    return CIAidBundle.message("file.type.ci.yaml.description");
   }
 
   @Override

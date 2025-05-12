@@ -13,10 +13,10 @@ import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GitlabCIYamlPostStartup implements ProjectActivity {
+public class CIAidPostStartup implements ProjectActivity {
   @Override
   public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
-    final var projectService = GitlabCIYamlProjectService.getInstance(project);
+    final var projectService = CIAidProjectService.getInstance(project);
     executeOnThreadPool(() -> projectService.afterStartup(project));
 
     final MessageBusConnection connection = project.getMessageBus().connect();
