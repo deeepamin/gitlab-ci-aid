@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Uses latest version of compatible bash support pro plugin from marketplace
+
 ### Fixed
 
 - Comments in settings has small fonts
