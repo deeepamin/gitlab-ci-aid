@@ -60,6 +60,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 ## License
 
 Please see [LICENSE](LICENSE) for details.
+
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
