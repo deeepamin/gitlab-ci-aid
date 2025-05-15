@@ -47,12 +47,19 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 ## Limitations / Future Improvements
 * Only works with local files currently, no components, remote files or templates
 
-## Known Issues
+## Support
+
+* Star the repository
+* [Rate and Share the plugin](https://plugins.jetbrains.com/plugin/25859-ci-aid-for-gitlab)
+* [Buy me a coffee](https://ko-fi.com/deeepamin)
 
 ## Notes
 * Some features may not work while IntelliJ is indexing the project
 * If there's an issue with some feature, reopening the file should help 
 
+## License
+
+Please see [LICENSE](LICENSE) for details.
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
