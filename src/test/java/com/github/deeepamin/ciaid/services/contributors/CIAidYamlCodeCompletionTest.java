@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-public class CIAidYamlCodeContributorTest extends BaseTest {
+public class CIAidYamlCodeCompletionTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/CodeCompletionTest");
   private List<String> completions;
 
@@ -24,19 +24,19 @@ public class CIAidYamlCodeContributorTest extends BaseTest {
     // there are other completions from schema as well
     assertTrue(completions.containsAll(expectedCompletions));
 
-    myFixture.type("bui");
+    myFixture.type("job");
     var completionsAfterTypingElements = myFixture.completeBasic();
+    assertNotNull(completionsAfterTypingElements);
     var completionsAfterTyping = Arrays.stream(completionsAfterTypingElements).map(LookupElement::getLookupString).toList();
     assertNotNull(completionsAfterTyping);
-    var expectedCompletionsAfterTyping = List.of("build-dev");
-    var unexpectedCompletionsAfterTyping = List.of("test-job", "deploy-job");
+    var expectedCompletionsAfterTyping = List.of("deploy-job", "test-job");
+    var unexpectedCompletionsAfterTyping = List.of("build-dev", "build-sit");
     assertTrue(completionsAfterTyping.containsAll(expectedCompletionsAfterTyping));
     assertFalse(completionsAfterTyping.containsAll(unexpectedCompletionsAfterTyping));
   }
 
   public void testExtendsJobCompletion() {
     var expectedCompletions = List.of(".test-job", ".deploy-job");
-    // there are other completions from schema as well
     assertTrue(completions.containsAll(expectedCompletions));
 
     myFixture.type("tes");

@@ -112,9 +112,7 @@ public class ReferenceUtils {
               .filter(stage -> stage.getText().equals(stageName))
               .findFirst()
               .orElse(null);
-      if (target != null) {
-        return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
-      }
+      return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
