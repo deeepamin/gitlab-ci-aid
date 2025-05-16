@@ -62,9 +62,24 @@ public class CIAidYamlAnnotator implements Annotator {
       annotateStages(element, holder);
       annotateHighlightIncludeFile(element, holder);
       annotateHighlightScript(element, holder);
+      highlightInputs(element, holder);
     } else if (YamlUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
       annotateHighlightScript(element, holder);
     }
+  }
+
+  private void highlightInputs(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+    var elementText = element.getText();
+    var inputsStringWithStartEndRange = GitlabCIYamlUtils.getInputsString(elementText);
+    if (inputsStringWithStartEndRange == null || inputsStringWithStartEndRange.path() == null) {
+      return;
+    }
+
+    var highlightRange = getHighlightTextRange(element, inputsStringWithStartEndRange.start(), inputsStringWithStartEndRange.end());
+    holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+            .textAttributes(STAGE_HIGHLIGHTER)
+            .range(highlightRange)
+            .create();
   }
 
   private void annotateHighlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
@@ -73,8 +88,8 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(stage -> {
               var allStages = getGitlabCIYamlProjectService(psiElement).getStageNamesDefinedAtStagesLevel();
               var stageName = ReferenceUtils.handleQuotedText(psiElement.getText());
-              var isInputsStageString = GitlabCIYamlUtils.isAnInputsString(stageName);
-              if (isInputsStageString) {
+              var isInputsString = GitlabCIYamlUtils.isAnInputsString(stageName);
+              if (isInputsString) {
                 return;
               }
               boolean isStageInJobElement = false;
@@ -126,8 +141,8 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(job -> {
               var allJobs = getGitlabCIYamlProjectService(psiElement).getJobNames();
               var jobName = ReferenceUtils.handleQuotedText(psiElement.getText());
-              var isInputsJobString = GitlabCIYamlUtils.isAnInputsString(jobName);
-              if (isInputsJobString) {
+              var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
+              if (isInputsString) {
                 return;
               }
               if (!allJobs.contains(jobName)) {
@@ -173,18 +188,10 @@ public class CIAidYamlAnnotator implements Annotator {
                     }
                   }
                 } else {
-                  var scriptElementTextRange = scriptElement.getTextRange();
-                  var highlightStartRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.start();
-                  if (highlightStartRange > scriptElementTextRange.getEndOffset()) {
-                    highlightStartRange = scriptElementTextRange.getStartOffset();
-                  }
-                  var highlightEndRange = scriptElementTextRange.getStartOffset() +  scriptPathIndex.end();
-                  if (highlightEndRange > scriptElementTextRange.getEndOffset()) {
-                    highlightEndRange = scriptElementTextRange.getEndOffset();
-                  }
+                  var highlightRange = getHighlightTextRange(scriptElement, scriptPathIndex.start(), scriptPathIndex.end());
                   holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                           .textAttributes(SCRIPT_HIGHLIGHTER)
-                          .range(new TextRange(highlightStartRange, highlightEndRange))
+                          .range(highlightRange)
                           .create();
                 }
               }
@@ -197,8 +204,8 @@ public class CIAidYamlAnnotator implements Annotator {
             .filter(element -> !PsiUtils.isChild(element, INCLUDE_POSSIBLE_CHILD_KEYWORDS)) // component, project, etc. currently not supported
             .ifPresent(includeElement -> {
               var filePath = ReferenceUtils.handleQuotedText(includeElement.getText());
-              var isInputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
-              if (isInputsFilePathString) {
+              var inputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
+              if (inputsFilePathString) {
                 return;
               }
               var project = includeElement.getProject();
@@ -224,5 +231,17 @@ public class CIAidYamlAnnotator implements Annotator {
             });
   }
 
+  private TextRange getHighlightTextRange(PsiElement element, int start, int end) {
+    var elementTextRange = element.getTextRange();
+    var highlightStartRange = elementTextRange.getStartOffset() + start;
+    if (highlightStartRange > elementTextRange.getEndOffset()) {
+      highlightStartRange = elementTextRange.getStartOffset();
+    }
+    var highlightEndRange = elementTextRange.getStartOffset() + end;
+    if (highlightEndRange > elementTextRange.getEndOffset()) {
+      highlightEndRange = elementTextRange.getEndOffset();
+    }
+    return new TextRange(highlightStartRange, highlightEndRange);
+  }
 
 }

@@ -81,9 +81,21 @@ public class GitlabCIYamlUtils {
     if (input == null) {
       return false;
     }
-    String regex = "\\$\\[\\[\\s*inputs\\.[^]]+\\s*]]";
-    String trimmedInput = input.trim();
-    return trimmedInput.matches(regex);
+    var fileWithStartEndRange = getInputsString(input);
+    return fileWithStartEndRange != null && fileWithStartEndRange.path() != null;
+  }
+
+  public static FileUtils.StringWithStartEndRange getInputsString(String input) {
+    if (input == null) {
+      return null;
+    }
+
+    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
+    var matcher = pattern.matcher(input);
+    if (!matcher.find()) {
+      return null;
+    }
+    return new FileUtils.StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
   }
 
   public static FileUtils.StringWithStartEndRange getInputNameFromInputsString(String input) {
