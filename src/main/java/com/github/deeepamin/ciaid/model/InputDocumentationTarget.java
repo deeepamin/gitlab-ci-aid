@@ -88,7 +88,7 @@ public class InputDocumentationTarget implements DocumentationTarget {
         }
       }
     }
-    return DocumentationResult.documentation("");
+    return null;
   }
 
   private HtmlChunk buildHtmlChunk(Input input) {
