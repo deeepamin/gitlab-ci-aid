@@ -72,7 +72,7 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals(extendsJobElement, referenceExtends.get()[0].getElement());
   }
 
-  public void testGetReferencesStagesToStage() {
+  public void testGetReferencesStagesToJobStage() {
     var buildStageElementsList = getBuildElements();
     var stageElementInStagesBlock = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLSequenceItem)
@@ -81,7 +81,6 @@ public class ReferenceUtilsTest extends BaseTest {
     assertNotNull(stageElementInStagesBlock);
     var stageElementsOnJobLevel = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLKeyValue)
-            .map(stage -> (YAMLKeyValue) stage.getParent())
             .toList();
     assertNotNull(stageElementsOnJobLevel);
     assertEquals(3, stageElementsOnJobLevel.size());
@@ -96,7 +95,7 @@ public class ReferenceUtilsTest extends BaseTest {
     assertTrue(stageOnJobTargets.containsAll(stageElementsOnJobLevel));
   }
 
-  public void testGetReferencesStagesToStages() {
+  public void testGetReferencesJobStageToStages() {
     var buildStageElementsList = getBuildElements();
     var stageElementInStagesBlock = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLSequenceItem)

@@ -47,7 +47,10 @@ public class CIAidYamlCodeContributor extends CompletionContributor implements D
                     List<String> filteredJobs = new ArrayList<>(allJobs);
                     parentJob.ifPresent(job -> filteredJobs.remove(job.getName()));
                     BiPredicate<Map.Entry<VirtualFile, CIAidYamlData>, String> jobFilterPredicate = (entry, job) -> {
-                      boolean isKnownJob = entry.getValue().getJobNameToJobElement().containsKey(job);
+                      boolean isKnownJob = entry.getValue().getJobElements()
+                              .stream()
+                              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                              .anyMatch(pointer -> pointer.getElement().getText().equals(job));
                       if (isNeedsElement) {
                         isKnownJob = isKnownJob && !job.startsWith(".");
                       }
@@ -71,7 +74,11 @@ public class CIAidYamlCodeContributor extends CompletionContributor implements D
                               .map(stage -> LookupElementBuilder.create(stage)
                                       .bold()
                                       .withIcon(Icons.ICON_STAGE.getIcon())
-                                      .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage))))
+                                      .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(),
+                                              (entry) -> entry.getValue().getJobStageElements()
+                                                      .stream()
+                                                      .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                                                      .anyMatch(pointer -> pointer.getElement().getText().equals(stage)))))
                               .toList());
                     }
                   }
@@ -84,7 +91,11 @@ public class CIAidYamlCodeContributor extends CompletionContributor implements D
                               .map(stage -> LookupElementBuilder.create(stage)
                                       .bold()
                                       .withIcon(Icons.ICON_STAGE.getIcon())
-                                      .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage))))
+                                      .withTypeText(getGitlabCIYamlProjectService(psiElement).getFileName(psiElement.getProject(),
+                                              (entry) -> entry.getValue().getJobStageElements()
+                                                      .stream()
+                                                      .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                                                      .anyMatch(pointer -> pointer.getElement().getText().equals(stage)))))
                               .toList());
                     }
                   }

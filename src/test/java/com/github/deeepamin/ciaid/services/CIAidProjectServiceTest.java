@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
 import java.util.List;
+import java.util.function.Function;
 
 public class CIAidProjectServiceTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
@@ -43,18 +44,23 @@ public class CIAidProjectServiceTest extends BaseTest {
 
     assertNotNull(yamlData);
     assertEquals(1, yamlData.getIncludedYamls().size());
-    assertEquals(5, yamlData.getJobNameToJobElement().size());
-    assertEquals(3, yamlData.getStageNameToStageElements().size());
+    assertEquals(5, yamlData.getJobElements().size());
+    var distinctJobStageNames = yamlData.getJobStageElements().stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getText())
+            .distinct()
+            .toList();
+    assertEquals(3, distinctJobStageNames.size());
     assertEquals(0, yamlData.getInputs().size());
-    assertNotNull(yamlData.getStagesItemNameToStagesElement());
+    assertNotNull(yamlData.getStagesItemElements());
 
     var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
     assertNotNull(pipelineCIYamlData);
     assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
-    assertEquals(1, pipelineCIYamlData.getJobNameToJobElement().size());
-    assertEquals(1, pipelineCIYamlData.getStageNameToStageElements().size());
+    assertEquals(1, pipelineCIYamlData.getJobElements().size());
+    assertEquals(1, pipelineCIYamlData.getJobStageElements().size());
     assertEquals(4, pipelineCIYamlData.getInputs().size());
-    assertTrue(pipelineCIYamlData.getStagesItemNameToStagesElement().isEmpty());
+    assertTrue(pipelineCIYamlData.getStagesItemElements().isEmpty());
   }
 
   public void testParseGitlabCIYamlDataValidFiles() {
@@ -67,19 +73,31 @@ public class CIAidProjectServiceTest extends BaseTest {
     assertEquals(1, includedYamls.size());
     assertEquals(PIPELINE_YML, includedYamls.getFirst());
     var expectedStages = List.of("build", "test", "deploy");
-    var stageNames = gitlabCIYamlData.getStageNameToStageElements().keySet().stream().toList();
+    var stageNames = gitlabCIYamlData.getJobStageElements().stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getText())
+            .distinct()
+            .toList();
     assertEquals(3, stageNames.size());
     assertTrue(expectedStages.containsAll(stageNames));
-    assertEquals(3, gitlabCIYamlData.getStageNameToStageElements().get("build").size());
-    assertEquals(1, gitlabCIYamlData.getStageNameToStageElements().get("test").size());
-    assertEquals(1, gitlabCIYamlData.getStageNameToStageElements().get("deploy").size());
+    Function<String, List<String>> jobStageFunction = (String stageName) -> gitlabCIYamlData.getJobStageElements().stream()
+                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                    .map(pointer -> pointer.getElement().getText())
+                    .filter(stage -> stage.equals(stageName))
+                    .toList();
+    assertEquals(3, jobStageFunction.apply("build").size());
+    assertEquals(1, jobStageFunction.apply("test").size());
+    assertEquals(1, jobStageFunction.apply("deploy").size());
 
     var expectedJobNames = List.of(".extend-test","build-dev", "build-sit", "test-job", "deploy-job");
-    var jobNames = gitlabCIYamlData.getJobNameToJobElement().keySet().stream().toList();
+    var jobNames = gitlabCIYamlData.getJobElements().stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getKeyText())
+            .toList();
     assertEquals(5, jobNames.size());
     assertTrue(expectedJobNames.containsAll(jobNames));
     assertNotNull(gitlabCIYamlData.getFile());
-    assertNotNull(gitlabCIYamlData.getStagesItemNameToStagesElement());
+    assertNotNull(gitlabCIYamlData.getStagesItemElements());
   }
 
   public void testGetJobNames() {
@@ -106,10 +124,16 @@ public class CIAidProjectServiceTest extends BaseTest {
   public void testGetFileName() {
     var job = "checkstyle";
     var projectService = getProject().getService(CIAidProjectService.class);
-    var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobNameToJobElement().containsKey(job));
+    var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobElements()
+            .stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
     assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
-    var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getStageNameToStageElements().containsKey(stage));
+    var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobStageElements()
+            .stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .anyMatch(pointer -> pointer.getElement().getText().equals(stage)));
     var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }
