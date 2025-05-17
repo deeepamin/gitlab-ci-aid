@@ -1,0 +1,6 @@
+.is_not_schedule:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: always
+  script:
+    - echo "Not a scheduled pipeline"

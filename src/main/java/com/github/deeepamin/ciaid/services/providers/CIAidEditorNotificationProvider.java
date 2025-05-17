@@ -77,7 +77,7 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
 
   @Override
   public boolean isDumbAware() {
-    return true;
+    return false;
   }
 
   private boolean isPotentialGitlabCIYamlFile(@NotNull VirtualFile file, Project project) {

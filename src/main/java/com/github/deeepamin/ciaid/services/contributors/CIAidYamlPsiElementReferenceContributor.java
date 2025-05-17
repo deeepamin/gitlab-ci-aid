@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class CIAidYamlInputsReferenceContributor extends PsiReferenceContributor {
+public class CIAidYamlPsiElementReferenceContributor extends PsiReferenceContributor {
   @Override
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
@@ -28,7 +28,7 @@ public class CIAidYamlInputsReferenceContributor extends PsiReferenceContributor
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
                 return !GitlabCIYamlUtils.hasGitlabYamlFile(psiElement)
                         ? PsiReference.EMPTY_ARRAY
-                        : Optional.of(psiElement).flatMap(ReferenceUtils::getInputReferences).orElse(PsiReference.EMPTY_ARRAY);
+                        : Optional.of(psiElement).flatMap(ReferenceUtils::getReferencesToInputOrRefTag).orElse(PsiReference.EMPTY_ARRAY);
               }
             }, PsiReferenceRegistrar.DEFAULT_PRIORITY
     );

@@ -2,16 +2,21 @@ package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.github.deeepamin.ciaid.utils.FileUtils.StringWithStartEndRange;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
+import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 public class GitlabCIYamlUtils {
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
@@ -20,6 +25,8 @@ public class GitlabCIYamlUtils {
 
   public static final Key<Boolean> GITLAB_CI_YAML_MARKED_KEY = Key.create("CIAid.Gitlab.YAML");
   public static final Key<Boolean> GITLAB_CI_YAML_USER_MARKED_KEY = Key.create("CIAid.Gitlab.User.YAML");
+
+  public static final String REFERENCE_TAG = "!reference";
 
   public static boolean isValidGitlabCIYamlFile(final VirtualFile file) {
     return file != null && file.isValid() && file.exists()
@@ -81,12 +88,23 @@ public class GitlabCIYamlUtils {
     if (input == null) {
       return false;
     }
-    String regex = "\\$\\[\\[\\s*inputs\\.[^]]+\\s*]]";
-    String trimmedInput = input.trim();
-    return trimmedInput.matches(regex);
+    var fileWithStartEndRange = getInputsString(input);
+    return fileWithStartEndRange != null && fileWithStartEndRange.path() != null;
   }
 
-  public static FileUtils.StringWithStartEndRange getInputNameFromInputsString(String input) {
+  public static StringWithStartEndRange getInputsString(String input) {
+    if (input == null) {
+      return null;
+    }
+    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
+    var matcher = pattern.matcher(input);
+    if (!matcher.find()) {
+      return null;
+    }
+    return new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
+  }
+
+  public static StringWithStartEndRange getInputNameFromInputsString(String input) {
     if (input == null) {
       return null;
     }
@@ -95,7 +113,24 @@ public class GitlabCIYamlUtils {
     if (!matcher.find()) {
       return null;
     }
+    return new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
+  }
 
-    return new FileUtils.StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
+  public static String getReferenceTag(YAMLPsiElement element) {
+    var parent = PsiUtils.findParentOfType(element, YAMLArrayImpl.class);
+    if (parent.isPresent()) {
+      var firstChild = parent.get().getFirstChild();
+      if (firstChild != null && firstChild.getText().equals(REFERENCE_TAG)) {
+        var children = parent.get().getChildren();
+        if (children.length == 2) {
+          var refersToText = handleQuotedText(children[0].getText());
+          var keyToReferToText = handleQuotedText(children[1].getText());
+          if (element.getText() != null && (element.getText().equals(refersToText) || element.getText().equals(keyToReferToText))) {
+            return refersToText;
+          }
+        }
+      }
+    }
+    return null;
   }
 }

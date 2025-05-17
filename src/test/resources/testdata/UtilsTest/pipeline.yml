@@ -43,3 +43,10 @@ checkstyle:
     - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - ci/**/*
+
+.is_not_schedule:
+  conditions:
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+        when: always
+  script:
+      - echo "Not a scheduled pipeline"

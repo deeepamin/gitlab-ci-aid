@@ -4,13 +4,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- __!reference__ tag navigation, autocompletion, renaming and more
+- Inputs highlighting
+
 ### Changed
 
 - Uses latest version of compatible bash support pro plugin from marketplace
+- Code completions are provided using more robust implementation
 
 ### Fixed
 
-- Comments in settings has small fonts
+- Renaming input or needs/extends job doesn't update the references
+- Unknown input renders empty documentation popup
+- Comment text in settings has small font
 
 ## [1.7.0] - 2025-05-11
 

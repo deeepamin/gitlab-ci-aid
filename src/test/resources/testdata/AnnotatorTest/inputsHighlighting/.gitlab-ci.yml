@@ -1,0 +1,24 @@
+spec:
+  inputs:
+    name:
+      type: string
+      default: build
+      description: Name of the job (must be a valid CI job name)
+    stage:
+      type: boolean
+      default: true
+      description: Pipeline stage to run this job in (e.g., "build")
+    context:
+      type: number
+      default: 1
+      description: Pipeline stage to run this job in (e.g., "build")
+    tag:
+      type: array
+      default: []
+      description: Pipeline stage to run this job in (e.g., "build")
+
+---
+
+build-dev:
+  stage: build
+  image: $[[ inputs.name ]]

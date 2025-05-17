@@ -85,4 +85,8 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
   public void testIncludeFileHighlighting() {
     myFixture.testHighlighting(true, false, true, ciYamlFile);
   }
+
+  public void testInputsHighlighting() {
+    myFixture.testHighlighting(true, false, true, ciYamlFile);
+  }
 }
