@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
+import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
 import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
@@ -110,7 +111,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   }
 
 
-  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData CIAidYamlData) {
+  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData ciAidYamlData) {
     ApplicationManager.getApplication().runReadAction(() -> {
       var psiManager = PsiManager.getInstance(project);
       var psiFile = psiManager.findFile(file);
@@ -128,7 +129,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             topLevelKeys.forEach(topLevelKey -> {
               if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
                 // this means it's a job
-                CIAidYamlData.addJob(topLevelKey);
+                ciAidYamlData.addJob(topLevelKey);
               }
             });
             super.visitFile(file);
@@ -136,24 +137,24 @@ public final class CIAidProjectService implements DumbAware, Disposable {
         }
 
         @Override
-        public void visitQuotedText(@NotNull YAMLQuotedText quotedText) {
-          if (PsiUtils.isNotSpecInputsElement(quotedText)) {
-            var isChildOfStagesElement = PsiUtils.findParent(quotedText, List.of(STAGES)).isPresent();
-            if (isChildOfStagesElement) {
-              CIAidYamlData.addStagesItem(quotedText);
+        public void visitScalar(@NotNull YAMLScalar scalar) {
+          if (PsiUtils.isNotSpecInputsElement(scalar)) {
+            if (YamlUtils.isYamlTextElement(scalar)) {
+              var isChildOfStagesElement = PsiUtils.isChild(scalar, List.of(STAGES));
+              if (isChildOfStagesElement) {
+                ciAidYamlData.addStagesItem(scalar);
+              }
             }
           }
-          super.visitQuotedText(quotedText);
+          super.visitScalar(scalar);
         }
 
         @Override
         public void visitValue(@NotNull YAMLValue value) {
           if (PsiUtils.isNotSpecInputsElement(value)) {
-            if (value instanceof YAMLPlainTextImpl) {
-              var isChildOfStagesElement = PsiUtils.findParent(value, List.of(STAGES)).isPresent();
-              if (isChildOfStagesElement) {
-                CIAidYamlData.addStagesItem(value);
-              }
+            var isChildOfStageElement = PsiUtils.isChild(value, List.of(STAGE));
+            if (isChildOfStageElement) {
+              ciAidYamlData.addJobStage(value);
             }
           }
           super.visitValue(value);
@@ -172,16 +173,11 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 plainTextChildren.stream()
                         .map(YAMLBlockScalarImpl::getText)
                         .distinct()
-                        .forEach(CIAidYamlData::addIncludedYaml);
+                        .forEach(ciAidYamlData::addIncludedYaml);
                 quotedTextChildren.stream()
                         .map(YAMLQuotedText::getText)
                         .distinct()
-                        .forEach(CIAidYamlData::addIncludedYaml);
-              }
-            }
-            case STAGE -> {
-              if (PsiUtils.isNotSpecInputsElement(keyValue)) {
-                CIAidYamlData.addStage(keyValue);
+                        .forEach(ciAidYamlData::addIncludedYaml);
               }
             }
             case INPUTS -> {
@@ -189,36 +185,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
               if (isSpecInputsElement) {
                 var value = keyValue.getValue();
                 if (value instanceof YAMLBlockMappingImpl blockMapping) {
-                  blockMapping.getKeyValues().stream()
-                          .map(inputsKeyValue -> {
-                            var inputName = inputsKeyValue.getKeyText();
-                            var inputValue = inputsKeyValue.getValue();
-                            String inputDescription = "";
-                            String defaultValue = "";
-                            var inputType = InputType.STRING;
-                            if (inputValue instanceof YAMLBlockMappingImpl blockMappingInput) {
-                              for (YAMLKeyValue inputKeyValue : blockMappingInput.getKeyValues()) {
-                                switch (inputKeyValue.getKeyText()) {
-                                  case TYPE -> {
-                                    var valueText = inputKeyValue.getValueText();
-                                    inputType = switch (valueText) {
-                                      case STRING -> InputType.STRING;
-                                      case BOOLEAN -> InputType.BOOLEAN;
-                                      case NUMBER -> InputType.NUMBER;
-                                      case ARRAY -> InputType.ARRAY;
-                                      default -> inputType;
-                                    };
-                                  }
-                                  case DEFAULT -> defaultValue = inputKeyValue.getValueText();
-                                  case DESCRIPTION -> inputDescription = inputKeyValue.getValueText();
-                                }
-                              }
-                            }
-                            SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
-                            SmartPsiElementPointer<YAMLKeyValue> inputElementPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
-                            return new Input(inputName, inputDescription, defaultValue, inputType, inputElementPointer);
-                          })
-                          .forEach(CIAidYamlData::addInput);
+                  blockMapping.getKeyValues()
+                          .forEach(ciAidYamlData::addInput);
                 }
               }
             }
@@ -231,25 +199,63 @@ public final class CIAidProjectService implements DumbAware, Disposable {
 
   public List<String> getJobNames() {
     return pluginData.values().stream()
-            .flatMap(yamlData -> yamlData.getJobNameToJobElement().keySet().stream())
+            .flatMap(yamlData -> yamlData.getJobElements().stream())
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getKeyText())
             .toList();
   }
 
   public List<String> getStageNamesDefinedAtStagesLevel() {
     return pluginData.values().stream()
-            .flatMap(yamlData -> yamlData.getStagesItemNameToStagesElement().keySet().stream())
+            .flatMap(yamlData -> yamlData.getStagesItemElements().stream())
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getText())
             .toList();
   }
 
   public List<String> getStageNamesDefinedAtJobLevel () {
     return pluginData.values().stream()
-            .flatMap(yamlData -> yamlData.getStageNameToStageElements().keySet().stream())
+            .flatMap(yamlData -> yamlData.getJobStageElements().stream())
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(pointer -> pointer.getElement().getText())
+            .distinct()
             .toList();
   }
 
   public List<Input> getInputs() {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getInputs().stream())
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .map(inputsKeyValue -> {
+                var inputName = inputsKeyValue.getKeyText();
+                var inputValue = inputsKeyValue.getValue();
+                String inputDescription = "";
+                String defaultValue = "";
+                var inputType = InputType.STRING;
+                if (inputValue instanceof YAMLBlockMappingImpl blockMappingInput) {
+                  for (YAMLKeyValue inputKeyValue : blockMappingInput.getKeyValues()) {
+                    switch (inputKeyValue.getKeyText()) {
+                      case TYPE -> {
+                        var valueText = inputKeyValue.getValueText();
+                        inputType = switch (valueText) {
+                          case STRING -> InputType.STRING;
+                          case BOOLEAN -> InputType.BOOLEAN;
+                          case NUMBER -> InputType.NUMBER;
+                          case ARRAY -> InputType.ARRAY;
+                          default -> inputType;
+                        };
+                      }
+                      case DEFAULT -> defaultValue = inputKeyValue.getValueText();
+                      case DESCRIPTION -> inputDescription = inputKeyValue.getValueText();
+                    }
+                  }
+                  SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
+                  SmartPsiElementPointer<YAMLKeyValue> inputPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
+                  return new Input(inputName, inputDescription, defaultValue, inputType, inputPointer);
+                }
+              return null;
+            })
             .toList();
   }
 

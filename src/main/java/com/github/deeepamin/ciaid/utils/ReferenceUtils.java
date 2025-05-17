@@ -1,11 +1,11 @@
 package com.github.deeepamin.ciaid.utils;
 
-import com.github.deeepamin.ciaid.model.gitlab.Input;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.openapi.util.TextRange;
@@ -17,7 +17,6 @@ import org.jetbrains.yaml.psi.YAMLPsiElement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class ReferenceUtils {
@@ -29,15 +28,15 @@ public class ReferenceUtils {
     } else if (PsiUtils.isNeedsElement(psiElement) || PsiUtils.isExtendsElement(psiElement)) {
       return referencesNeedsOrExtendsToJob(psiElement);
     } else if (PsiUtils.isStagesElement(psiElement)) {
-      return referencesStagesToStage(psiElement);
+      return referencesStagesToJobStage(psiElement);
     } else if (PsiUtils.isStageElement(psiElement)) {
-      return referencesStageToStages(psiElement);
+      return referencesJobStageToStages(psiElement);
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static @NotNull Optional<PsiReference[]> getInputReferences(@NotNull PsiElement psiElement) {
-      return referencesInputToInputs(psiElement);
+  public static @NotNull Optional<PsiReference[]> getReferencesToInputOrRefTag(@NotNull PsiElement psiElement) {
+      return referencesInputsOrRefTag(psiElement);
   }
 
   private static Optional<PsiReference[]> referencesScripts(PsiElement element) {
@@ -71,11 +70,10 @@ public class ReferenceUtils {
       var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
       var targetJob = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .flatMap(yamlData -> yamlData.getJobNameToJobElement().entrySet().stream())
-              .filter(entry -> entry.getKey().equals(need))
-              .map(Map.Entry::getValue)
-              .filter(pointer -> pointer.getElement() != null)
+              .flatMap(yamlData -> yamlData.getJobElements().stream())
+              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
+              .filter(job -> job.getKeyText().equals(need))
               .findFirst()
               .orElse(null);
       return Optional.of(new PsiReference[]{ new NeedsOrExtendsToJobReferenceResolver(element, targetJob) });
@@ -83,26 +81,25 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesStagesToStage(PsiElement element) {
+  private static Optional<PsiReference[]> referencesStagesToJobStage(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
       var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
+
       var targetStages = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .flatMap(yamlData -> yamlData.getStageNameToStageElements().entrySet().stream())
-              .filter(entry -> entry.getKey().equals(stageName))
-              .map(Map.Entry::getValue)
-              .flatMap(List::stream)
-              .filter(pointer -> pointer.getElement() != null)
+              .flatMap(yamlData -> yamlData.getJobStageElements().stream())
+              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
+              .filter(stage -> stage.getText().equals(stageName))
               .toList();
       return Optional.of(new PsiReference[]{ new StagesToJobStageReferenceResolver(element, targetStages) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesStageToStages(PsiElement element) {
+  private static Optional<PsiReference[]> referencesJobStageToStages(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
       var stageName = handleQuotedText(element.getText());
       var project = element.getProject();
@@ -110,43 +107,57 @@ public class ReferenceUtils {
 
       var target = gitlabCIYamlProjectService.getPluginData().values()
               .stream()
-              .flatMap(yamlData -> yamlData.getStagesItemNameToStagesElement().entrySet().stream())
-              .filter(entry -> entry.getKey().equals(stageName))
-              .map(Map.Entry::getValue)
-              .filter(pointer -> pointer.getElement() != null)
+              .flatMap(yamlData -> yamlData.getStagesItemElements().stream())
+              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
+              .filter(stage -> stage.getText().equals(stageName))
               .findFirst()
               .orElse(null);
-      if (target != null) {
-        return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
-      }
+      return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesInputToInputs(PsiElement element) {
-    if (element instanceof YAMLPsiElement) {
-      var inputString = element.getText();
-      var inputNameWithStartEndRange = GitlabCIYamlUtils.getInputNameFromInputsString(inputString);
-      if (inputNameWithStartEndRange == null) {
-        return Optional.of(PsiReference.EMPTY_ARRAY);
-      }
-
-      var inputName = inputNameWithStartEndRange.path();
-      var startOffset = inputNameWithStartEndRange.start();
-      var endOffset = inputNameWithStartEndRange.end();
+  private static Optional<PsiReference[]> referencesInputsOrRefTag(PsiElement element) {
+    if (element instanceof YAMLPsiElement yamlPsiElement) {
+      var elementText = element.getText();
       var project = element.getProject();
       var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
-      var targetInput = gitlabCIYamlProjectService.getPluginData().values()
-              .stream()
-              .flatMap(yamlData -> yamlData.getInputs().stream())
-              .filter(input -> input.name().equals(inputName))
-              .map(Input::inputElement)
-              .filter(pointer -> pointer.getElement() != null)
-              .map(SmartPsiElementPointer::getElement)
-              .findFirst()
-              .orElse(null);
-      return Optional.of(new PsiReference[]{ new InputsReferenceResolver(element, targetInput, TextRange.create(startOffset, endOffset)) });
+      var inputNameWithStartEndRange = GitlabCIYamlUtils.getInputNameFromInputsString(elementText);
+      if (inputNameWithStartEndRange != null) {
+        var inputName = inputNameWithStartEndRange.path();
+        var startOffset = inputNameWithStartEndRange.start();
+        var endOffset = inputNameWithStartEndRange.end();
+
+        var targetInput = gitlabCIYamlProjectService.getPluginData().values()
+                .stream()
+                .flatMap(yamlData -> yamlData.getInputs().stream())
+                .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                .map(SmartPsiElementPointer::getElement)
+                .filter(inputKeyValue -> inputKeyValue.getKeyText().equals(inputName))
+                .findFirst()
+                .orElse(null);
+        return Optional.of(new PsiReference[]{ new InputsReferenceResolver(element, targetInput, TextRange.create(startOffset, endOffset)) });
+      }
+      var refTagText = GitlabCIYamlUtils.getReferenceTag(yamlPsiElement);
+      if (refTagText != null) {
+        // reference tag is like !reference [.some_job, key], and .some_job is a top level element so it is inside jobs
+        var refersTo = gitlabCIYamlProjectService.getPluginData().values()
+                .stream()
+                .flatMap(yamlData -> yamlData.getJobElements().stream())
+                .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                .map(SmartPsiElementPointer::getElement)
+                .filter(job -> job.getKeyText().equals(refTagText))
+                .findFirst()
+                .orElse(null);
+        // !reference [.some_job, key]: the element could be either .some_job or key
+        if (refTagText.equals(elementText)) {
+          return Optional.of(new PsiReference[]{ new RefTagReferenceResolver(element, refersTo) });
+        } else {
+          var keyToReferTo = PsiUtils.findChildWithKey(refersTo, elementText);
+          return Optional.of(new PsiReference[]{ new RefTagReferenceResolver(element, keyToReferTo) });
+        }
+      }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }

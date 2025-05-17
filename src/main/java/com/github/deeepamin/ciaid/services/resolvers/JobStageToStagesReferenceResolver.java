@@ -1,5 +1,10 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
+import com.github.deeepamin.ciaid.model.Icons;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,4 +14,25 @@ public class JobStageToStagesReferenceResolver extends SingleTargetReferenceReso
     super(element, target);
   }
 
+  @Override
+  public Object @NotNull [] getVariants() {
+    var isInputsString = GitlabCIYamlUtils.getInputNameFromInputsString(myElement.getText()) != null;
+    if (isInputsString) {
+      return new LookupElement[0];
+    }
+
+    var projectService = CIAidProjectService.getInstance(myElement.getProject());
+    return projectService
+            .getStageNamesDefinedAtStagesLevel()
+            .stream()
+            .map(stage -> LookupElementBuilder.create(stage)
+                    .bold()
+                    .withIcon(Icons.ICON_STAGE.getIcon())
+                    .withTypeText(projectService.getFileName(myElement.getProject(),
+                            (entry) -> entry.getValue().getStagesItemElements()
+                                    .stream()
+                                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                                    .anyMatch(pointer -> pointer.getElement().getText().equals(stage)))))
+            .toArray(LookupElement[]::new);
+  }
 }

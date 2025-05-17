@@ -6,6 +6,7 @@ import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolve
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.psi.PsiElement;
@@ -72,7 +73,7 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals(extendsJobElement, referenceExtends.get()[0].getElement());
   }
 
-  public void testGetReferencesStagesToStage() {
+  public void testGetReferencesStagesToJobStage() {
     var buildStageElementsList = getBuildElements();
     var stageElementInStagesBlock = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLSequenceItem)
@@ -81,7 +82,6 @@ public class ReferenceUtilsTest extends BaseTest {
     assertNotNull(stageElementInStagesBlock);
     var stageElementsOnJobLevel = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLKeyValue)
-            .map(stage -> (YAMLKeyValue) stage.getParent())
             .toList();
     assertNotNull(stageElementsOnJobLevel);
     assertEquals(3, stageElementsOnJobLevel.size());
@@ -96,7 +96,7 @@ public class ReferenceUtilsTest extends BaseTest {
     assertTrue(stageOnJobTargets.containsAll(stageElementsOnJobLevel));
   }
 
-  public void testGetReferencesStagesToStages() {
+  public void testGetReferencesJobStageToStages() {
     var buildStageElementsList = getBuildElements();
     var stageElementInStagesBlock = buildStageElementsList.stream()
             .filter(stage -> stage.getParent() instanceof YAMLSequenceItem)
@@ -119,13 +119,34 @@ public class ReferenceUtilsTest extends BaseTest {
   public void testGetInputReferences() {
     var inputElement = findChildWithKey(psiYaml, "$[[ inputs.context ]]");
     assertNotNull(inputElement);
-    var inputReference = ReferenceUtils.getInputReferences(inputElement);
+    var inputReference = ReferenceUtils.getReferencesToInputOrRefTag(inputElement);
     assertNotNull(inputReference);
     assertTrue(inputReference.isPresent());
     assertEquals(1, inputReference.get().length);
     assertTrue(inputReference.get()[0] instanceof InputsReferenceResolver);
     assertEquals(inputElement, inputReference.get()[0].getElement());
   }
+
+  public void testGetRefTagReferences() {
+    var refTagElement = findChildWithKey(psiYaml, ".is_not_schedule");
+    assertNotNull(refTagElement);
+    var refTagReference = ReferenceUtils.getReferencesToInputOrRefTag(refTagElement);
+    assertNotNull(refTagReference);
+    assertTrue(refTagReference.isPresent());
+    assertEquals(1, refTagReference.get().length);
+    assertTrue(refTagReference.get()[0] instanceof RefTagReferenceResolver);
+    assertEquals(refTagElement, refTagReference.get()[0].getElement());
+
+    var refTagKeysElement = findChildWithKey(psiYaml, "conditions");
+    assertNotNull(refTagKeysElement);
+    var refTagKeysReference = ReferenceUtils.getReferencesToInputOrRefTag(refTagKeysElement);
+    assertNotNull(refTagKeysReference);
+    assertTrue(refTagKeysReference.isPresent());
+    assertEquals(1, refTagKeysReference.get().length);
+    assertTrue(refTagKeysReference.get()[0] instanceof RefTagReferenceResolver);
+    assertEquals(refTagKeysElement, refTagKeysReference.get()[0].getElement());
+  }
+
 
   public void testHandleQuotedText() {
     assertEquals("test", ReferenceUtils.handleQuotedText("\"test\""));

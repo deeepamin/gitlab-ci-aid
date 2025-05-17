@@ -36,13 +36,13 @@ public class PsiUtilsTest extends BaseTest {
     var quotedTextChildren = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class);
     assertEquals(4, quotedTextChildren.size());
     var plainTextChildren = PsiUtils.findChildren(psiYaml, YAMLPlainTextImpl.class);
-    assertEquals(33, plainTextChildren.size());
+    assertEquals(35, plainTextChildren.size());
 
     var pipelinePsiYml = getPsiCiPipelineYaml(rootDir);
     var quotedTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class);
-    assertEquals(1, quotedTextChildrenCI.size());
+    assertEquals(2, quotedTextChildrenCI.size());
     var plainTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLPlainTextImpl.class);
-    assertEquals(23, plainTextChildrenCI.size());
+    assertEquals(25, plainTextChildrenCI.size());
   }
 
   public void testIsYamlTextElement() {
