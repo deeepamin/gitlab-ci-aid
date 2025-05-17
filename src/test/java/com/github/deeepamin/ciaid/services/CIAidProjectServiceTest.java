@@ -57,7 +57,7 @@ public class CIAidProjectServiceTest extends BaseTest {
     var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
     assertNotNull(pipelineCIYamlData);
     assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
-    assertEquals(1, pipelineCIYamlData.getJobElements().size());
+    assertEquals(2, pipelineCIYamlData.getJobElements().size());
     assertEquals(1, pipelineCIYamlData.getJobStageElements().size());
     assertEquals(4, pipelineCIYamlData.getInputs().size());
     assertTrue(pipelineCIYamlData.getStagesItemElements().isEmpty());
