@@ -74,7 +74,7 @@ public class CIAidYamlCodeCompletionTest extends BaseTest {
   }
 
   public void testRefTagsReferenceKeysCompletion() {
-    var expectedCompletions = List.of("rules", "script");
+    var expectedCompletions = List.of("script", "before_script");
     assertTrue(completions.containsAll(expectedCompletions));
   }
 }

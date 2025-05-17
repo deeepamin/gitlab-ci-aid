@@ -17,6 +17,8 @@ stages:
       when: always
   script:
     - echo "Not a scheduled pipeline"
+  before_script:
+    - echo "Before script"
 
 build-dev:
   stage: build
@@ -26,5 +28,5 @@ build-dev:
   variables:
     ENV: dev
   rules:
-    - !reference [ .is_not_schedule, <caret> ]
+    - !reference [ .is_not_schedule, sc<caret> ]
 

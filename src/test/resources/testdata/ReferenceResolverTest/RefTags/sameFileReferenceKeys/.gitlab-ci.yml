@@ -26,5 +26,5 @@ build-dev:
   variables:
     ENV: dev
   rules:
-    - !reference [ .is_not_schedule, <caret>rules ]
+    - !reference [ .is_not_schedule, scri<caret>pt ]
 
