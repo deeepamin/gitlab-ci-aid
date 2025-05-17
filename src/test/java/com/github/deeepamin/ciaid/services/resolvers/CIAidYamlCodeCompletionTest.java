@@ -1,4 +1,4 @@
-package com.github.deeepamin.ciaid.services.contributors;
+package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.BaseTest;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -65,6 +65,16 @@ public class CIAidYamlCodeCompletionTest extends BaseTest {
 
   public void testInputsCompletion() {
     var expectedCompletions = List.of("name", "stage", "context", "tag");
+    assertTrue(completions.containsAll(expectedCompletions));
+  }
+
+  public void testRefTagsReferenceCompletion() {
+    var expectedCompletions = List.of(".is_not_schedule", ".is_merge_request");
+    assertTrue(completions.containsAll(expectedCompletions));
+  }
+
+  public void testRefTagsReferenceKeysCompletion() {
+    var expectedCompletions = List.of("rules", "script");
     assertTrue(completions.containsAll(expectedCompletions));
   }
 }

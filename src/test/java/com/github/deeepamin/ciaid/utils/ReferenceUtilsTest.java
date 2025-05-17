@@ -6,6 +6,7 @@ import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolve
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.intellij.psi.PsiElement;
@@ -125,6 +126,27 @@ public class ReferenceUtilsTest extends BaseTest {
     assertTrue(inputReference.get()[0] instanceof InputsReferenceResolver);
     assertEquals(inputElement, inputReference.get()[0].getElement());
   }
+
+  public void testGetRefTagReferences() {
+    var refTagElement = findChildWithKey(psiYaml, ".is_not_schedule");
+    assertNotNull(refTagElement);
+    var refTagReference = ReferenceUtils.getReferencesToInputOrRefTag(refTagElement);
+    assertNotNull(refTagReference);
+    assertTrue(refTagReference.isPresent());
+    assertEquals(1, refTagReference.get().length);
+    assertTrue(refTagReference.get()[0] instanceof RefTagReferenceResolver);
+    assertEquals(refTagElement, refTagReference.get()[0].getElement());
+
+    var refTagKeysElement = findChildWithKey(psiYaml, "conditions");
+    assertNotNull(refTagKeysElement);
+    var refTagKeysReference = ReferenceUtils.getReferencesToInputOrRefTag(refTagKeysElement);
+    assertNotNull(refTagKeysReference);
+    assertTrue(refTagKeysReference.isPresent());
+    assertEquals(1, refTagKeysReference.get().length);
+    assertTrue(refTagKeysReference.get()[0] instanceof RefTagReferenceResolver);
+    assertEquals(refTagKeysElement, refTagKeysReference.get()[0].getElement());
+  }
+
 
   public void testHandleQuotedText() {
     assertEquals("test", ReferenceUtils.handleQuotedText("\"test\""));
