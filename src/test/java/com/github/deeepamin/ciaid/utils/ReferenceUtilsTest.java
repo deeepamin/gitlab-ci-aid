@@ -118,7 +118,7 @@ public class ReferenceUtilsTest extends BaseTest {
   public void testGetInputReferences() {
     var inputElement = findChildWithKey(psiYaml, "$[[ inputs.context ]]");
     assertNotNull(inputElement);
-    var inputReference = ReferenceUtils.getInputReferences(inputElement);
+    var inputReference = ReferenceUtils.getReferencesToInputOrRefTag(inputElement);
     assertNotNull(inputReference);
     assertTrue(inputReference.isPresent());
     assertEquals(1, inputReference.get().length);

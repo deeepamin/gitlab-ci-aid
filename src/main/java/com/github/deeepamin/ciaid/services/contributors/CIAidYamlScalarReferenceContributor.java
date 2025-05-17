@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class CIAidYamlReferenceContributor extends PsiReferenceContributor {
+public class CIAidYamlScalarReferenceContributor extends PsiReferenceContributor {
   @Override
   public void registerReferenceProviders(@NotNull PsiReferenceRegistrar psiReferenceRegistrar) {
     psiReferenceRegistrar.registerReferenceProvider(
