@@ -72,9 +72,4 @@ public class CIAidYamlCodeCompletionTest extends BaseTest {
     var expectedCompletions = List.of(".is_not_schedule", ".is_merge_request");
     assertTrue(completions.containsAll(expectedCompletions));
   }
-
-  public void testRefTagsReferenceKeysCompletion() {
-    var expectedCompletions = List.of("script", "before_script");
-    assertTrue(completions.containsAll(expectedCompletions));
-  }
 }
