@@ -138,6 +138,24 @@ public class CIAidProjectServiceTest extends BaseTest {
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }
 
+  public void testGetJobFileName() {
+    var job = "checkstyle";
+    var fileName = getProject().getService(CIAidProjectService.class).getJobFileName(getProject(), job);
+    assertTrue(fileName.contains(PIPELINE_YML));
+  }
+
+  public void testGetJobStageFileName() {
+    var stage = "build";
+    var fileName = getProject().getService(CIAidProjectService.class).getJobStageFileName(getProject(), stage);
+    assertTrue(fileName.contains(GITLAB_CI_DEFAULT_YAML_FILE));
+  }
+
+  public void testGetStagsItemFileName() {
+    var stagesItem = "deploy";
+    var fileName = getProject().getService(CIAidProjectService.class).getStagesItemFileName(getProject(), stagesItem);
+    assertTrue(fileName.contains(GITLAB_CI_DEFAULT_YAML_FILE));
+  }
+
   public void testGetInputs() {
     var projectService = getProject().getService(CIAidProjectService.class);
     var inputNames = projectService.getInputs()

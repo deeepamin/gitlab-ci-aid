@@ -25,14 +25,10 @@ public class JobStageToStagesReferenceResolver extends SingleTargetReferenceReso
     return projectService
             .getStageNamesDefinedAtStagesLevel()
             .stream()
-            .map(stage -> LookupElementBuilder.create(stage)
+            .map(stagesItem -> LookupElementBuilder.create(stagesItem)
                     .bold()
                     .withIcon(Icons.ICON_STAGE.getIcon())
-                    .withTypeText(projectService.getFileName(myElement.getProject(),
-                            (entry) -> entry.getValue().getStagesItemElements()
-                                    .stream()
-                                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                                    .anyMatch(pointer -> pointer.getElement().getText().equals(stage)))))
+                    .withTypeText(projectService.getStagesItemFileName(myElement.getProject(), stagesItem)))
             .toArray(LookupElement[]::new);
   }
 }

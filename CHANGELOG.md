@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Auto-completion doesn't show file path for jobs
+
 ## [1.8.0] - 2025-05-17
 
 ### Added

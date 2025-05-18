@@ -44,7 +44,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                     .map(keyValue -> LookupElementBuilder.create(keyValue.getKeyText())
                             .bold()
                             .withIcon(Icons.ICON_NEEDS.getIcon())
-                            .withTypeText(getJobFileName(myElement, keyValue.getKeyText()))
+                            .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), keyValue.getKeyText()))
                     ).toArray(LookupElement[]::new);
           } else {
             var referenceText = children[0].getText();
@@ -61,7 +61,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                           .map(child -> (YAMLKeyValue) child)
                           .map(keyValue -> LookupElementBuilder.create(keyValue.getKeyText())
                                   .bold()
-                                  .withTypeText(getJobFileName(myElement, referenceText))
+                                  .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), referenceText))
                           ).toArray(LookupElement[]::new);
                 }
               }
@@ -73,11 +73,4 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
     return new LookupElement[0];
   }
 
-  private String getJobFileName(PsiElement element, String jobName) {
-    return CIAidProjectService.getInstance(element.getProject())
-            .getFileName(element.getProject(), (entry) -> entry.getValue().getJobElements()
-                    .stream()
-                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .anyMatch(pointer -> pointer.getElement().getText().equals(jobName)));
-  }
 }
