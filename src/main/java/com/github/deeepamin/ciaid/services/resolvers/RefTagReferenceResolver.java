@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.services.resolvers;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
+import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
@@ -15,6 +16,7 @@ import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 import java.util.Arrays;
 
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.REFERENCE_TAG;
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
   public RefTagReferenceResolver(@NotNull PsiElement element, PsiElement target) {
@@ -30,7 +32,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
             .flatMap(ciAidYamlData -> ciAidYamlData.getJobElements().stream())
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
             .map(SmartPsiElementPointer::getElement)
-            .filter(keyValue -> keyValue.getKeyText().startsWith("."))
+            .filter(keyValue -> handleQuotedText(keyValue.getKeyText()).startsWith("."))
             .toList();
     var parent = PsiUtils.findParentOfType(myElement, YAMLArrayImpl.class);
     if (parent.isPresent()) {
@@ -41,15 +43,17 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
           var elementText = myElement.getText();
           if (elementText.equals(children[0].getText())) {
             return referencesToShow.stream()
-                    .map(keyValue -> LookupElementBuilder.create(keyValue.getKeyText())
+                    .map(YAMLKeyValue::getKeyText)
+                    .map(ReferenceUtils::handleQuotedText)
+                    .map(ref -> LookupElementBuilder.create(ref)
                             .bold()
                             .withIcon(Icons.ICON_NEEDS.getIcon())
-                            .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), keyValue.getKeyText()))
+                            .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), ref))
                     ).toArray(LookupElement[]::new);
           } else {
-            var referenceText = children[0].getText();
+            var referenceText = handleQuotedText(children[0].getText());
             var refersTo = referencesToShow.stream()
-                    .filter(keyValue -> keyValue.getKeyText().equals(referenceText))
+                    .filter(keyValue -> handleQuotedText(keyValue.getKeyText()).equals(referenceText))
                     .findFirst()
                     .orElse(null);
             if (refersTo != null) {
@@ -59,7 +63,9 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                   return Arrays.stream(yamlBlockMapping.getChildren())
                           .filter(child -> child instanceof YAMLKeyValue)
                           .map(child -> (YAMLKeyValue) child)
-                          .map(keyValue -> LookupElementBuilder.create(keyValue.getKeyText())
+                          .map(YAMLKeyValue::getKeyText)
+                          .map(ReferenceUtils::handleQuotedText)
+                          .map(ref -> LookupElementBuilder.create(ref)
                                   .bold()
                                   .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), referenceText))
                           ).toArray(LookupElement[]::new);

@@ -51,6 +51,7 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STRING;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TYPE;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 @Service(Service.Level.PROJECT)
 public final class CIAidProjectService implements DumbAware, Disposable {
@@ -201,7 +202,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getJobElements().stream())
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> pointer.getElement().getKeyText())
+            .map(pointer -> handleQuotedText(pointer.getElement().getKeyText()))
             .toList();
   }
 
@@ -209,7 +210,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getStagesItemElements().stream())
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> pointer.getElement().getText())
+            .map(pointer -> handleQuotedText(pointer.getElement().getText()))
             .toList();
   }
 
@@ -217,7 +218,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getJobStageElements().stream())
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> pointer.getElement().getText())
+            .map(pointer -> handleQuotedText(pointer.getElement().getText()))
             .distinct()
             .toList();
   }
@@ -278,7 +279,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             (entry) -> entry.getValue().getJobElements()
             .stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
+            .map(pointer -> handleQuotedText(pointer.getElement().getKeyText()))
+            .anyMatch(pointerText -> pointerText.equals(job)));
   }
 
   public String getJobStageFileName(Project project, String stage) {
@@ -286,7 +288,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             (entry) -> entry.getValue().getJobStageElements()
                     .stream()
                     .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .anyMatch(pointer -> pointer.getElement().getText().equals(stage)));
+                    .map(pointer -> handleQuotedText(pointer.getElement().getText()))
+                    .anyMatch(pointerText -> pointerText.equals(stage)));
   }
 
   public String getStagesItemFileName(Project project, String stagesItem) {
@@ -294,7 +297,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             (entry) -> entry.getValue().getStagesItemElements()
                     .stream()
                     .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .anyMatch(pointer -> pointer.getElement().getText().equals(stagesItem)));
+                    .map(pointer -> handleQuotedText(pointer.getElement().getText()))
+                    .anyMatch(pointerText -> pointerText.equals(stagesItem)));
   }
 
   public void afterStartup(@NotNull Project project) {
