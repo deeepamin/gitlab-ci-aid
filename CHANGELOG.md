@@ -4,9 +4,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Settings page visual improvements
+
 ### Fixed
 
 - Auto-completion doesn't show file path for jobs
+- Stage/job with quoted strings doesn't resolve to correct reference
 
 ## [1.8.0] - 2025-05-17
 
