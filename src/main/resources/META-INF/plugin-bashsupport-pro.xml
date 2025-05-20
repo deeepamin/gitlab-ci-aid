@@ -2,5 +2,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <multiHostInjector
                 implementation="com.github.deeepamin.ciaid.services.injectors.BashSupportProCIAidYamlScriptInjector"/>
+        <completion.contributor language="BashSupport Pro Shell Script"
+                implementationClass="com.github.deeepamin.ciaid.services.contributors.BashSupportProCIAidCodeContributor"/>
     </extensions>
 </idea-plugin>

@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -10,7 +9,6 @@ import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
@@ -50,16 +48,16 @@ public class VariablesReferenceResolver extends PsiReferenceBase<PsiElement> imp
 
   @Override
   public Object @NotNull [] getVariants() {
-      var ciAidProjectService = CIAidProjectService.getInstance(myElement.getProject());
-      return ciAidProjectService.getPluginData().values()
-              .stream()
-              .flatMap(data -> data.getVariables().stream())
-              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-              .map(SmartPsiElementPointer::getElement)
-              .map(variable -> LookupElementBuilder.create(variable.getKeyText())
+    var varsToCompleteWithFileNames = CIAidProjectService.getInstance(myElement.getProject()).getVariableAndContainingFiles();
+    return varsToCompleteWithFileNames.entrySet().stream()
+            .map((variableAndFileName) -> {
+              var variable = variableAndFileName.getKey();
+              var files = variableAndFileName.getValue();
+              var fileNameText = files.size() == 1 ? files.getFirst().getName() : " (Defined in multiple files)";
+              return LookupElementBuilder.create(variable)
                       .bold()
                       .withIcon(Icons.ICON_VARIABLE.getIcon())
-                      .withTypeText(ciAidProjectService.getFileName(myElement.getProject(), (entry) -> entry.getKey().equals(myElement.getContainingFile().getVirtualFile())))
-              ).toArray(LookupElement[]::new);
+                      .withTypeText(fileNameText);
+            }).toArray();
   }
 }

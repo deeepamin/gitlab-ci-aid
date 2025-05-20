@@ -17,7 +17,6 @@
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlScalarReferenceContributor"/>
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlPsiElementReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
-        <completion.contributor language="yaml" implementationClass="com.github.deeepamin.ciaid.services.contributors.CIAidYamlCodeContributor"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.CIAidYamlAnnotator"/>
         <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
