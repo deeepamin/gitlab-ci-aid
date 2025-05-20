@@ -74,7 +74,7 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getJobElements().stream())
               .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
-              .filter(job -> job.getKeyText().equals(need))
+              .filter(job -> handleQuotedText(job.getKeyText()).equals(need))
               .findFirst()
               .orElse(null);
       return Optional.of(new PsiReference[]{ new NeedsOrExtendsToJobReferenceResolver(element, targetJob) });
@@ -93,7 +93,7 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getJobStageElements().stream())
               .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
-              .filter(stage -> stage.getText().equals(stageName))
+              .filter(stage -> handleQuotedText(stage.getText()).equals(stageName))
               .toList();
       return Optional.of(new PsiReference[]{ new StagesToJobStageReferenceResolver(element, targetStages) });
     }
@@ -111,7 +111,7 @@ public class ReferenceUtils {
               .flatMap(yamlData -> yamlData.getStagesItemElements().stream())
               .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
               .map(SmartPsiElementPointer::getElement)
-              .filter(stage -> stage.getText().equals(stageName))
+              .filter(stage -> handleQuotedText(stage.getText()).equals(stageName))
               .findFirst()
               .orElse(null);
       return Optional.of(new PsiReference[]{ new JobStageToStagesReferenceResolver(element, target) });
@@ -148,7 +148,7 @@ public class ReferenceUtils {
                 .flatMap(yamlData -> yamlData.getJobElements().stream())
                 .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
                 .map(SmartPsiElementPointer::getElement)
-                .filter(job -> job.getKeyText().equals(refTagText))
+                .filter(job -> handleQuotedText(job.getKeyText()).equals(refTagText))
                 .findFirst()
                 .orElse(null);
         // !reference [.some_job, key]: the element could be either .some_job or key

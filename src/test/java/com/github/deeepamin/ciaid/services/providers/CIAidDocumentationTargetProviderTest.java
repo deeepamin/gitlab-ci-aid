@@ -10,7 +10,7 @@ import com.intellij.psi.PsiFile;
 @SuppressWarnings("UnstableApiUsage")
 public class CIAidDocumentationTargetProviderTest extends BaseTest {
   public void testInputElementShowsDocumentation() {
-    myFixture.configureByText(".gitlab-ci.yml", """
+    myFixture.configureByText(GITLAB_CI_DEFAULT_YAML_FILE, """
             spec:
               inputs:
                 stageInput:
