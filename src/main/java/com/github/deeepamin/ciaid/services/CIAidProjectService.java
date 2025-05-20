@@ -273,6 +273,30 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return "";
   }
 
+  public String getJobFileName(Project project, String job) {
+    return getFileName(project,
+            (entry) -> entry.getValue().getJobElements()
+            .stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
+  }
+
+  public String getJobStageFileName(Project project, String stage) {
+    return getFileName(project,
+            (entry) -> entry.getValue().getJobStageElements()
+                    .stream()
+                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                    .anyMatch(pointer -> pointer.getElement().getText().equals(stage)));
+  }
+
+  public String getStagesItemFileName(Project project, String stagesItem) {
+    return getFileName(project,
+            (entry) -> entry.getValue().getStagesItemElements()
+                    .stream()
+                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                    .anyMatch(pointer -> pointer.getElement().getText().equals(stagesItem)));
+  }
+
   public void afterStartup(@NotNull Project project) {
     readDefaultGitlabCIYaml(project);
     readUserMarkedYamls(project);
