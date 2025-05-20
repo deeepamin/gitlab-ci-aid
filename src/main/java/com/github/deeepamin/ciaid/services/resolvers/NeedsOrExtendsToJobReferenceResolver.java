@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlProjectService;
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 public class NeedsOrExtendsToJobReferenceResolver extends SingleTargetReferenceResolver {
   // From Needs element to Job or Extends element to job
@@ -31,12 +32,12 @@ public class NeedsOrExtendsToJobReferenceResolver extends SingleTargetReferenceR
     var allJobs = getGitlabCIYamlProjectService(myElement).getJobNames();
     var parentJob = PsiUtils.findParent(myElement, allJobs);
     List<String> filteredJobs = new ArrayList<>(allJobs);
-    parentJob.ifPresent(job -> filteredJobs.remove(job.getKeyText()));
+    parentJob.ifPresent(job -> filteredJobs.remove(handleQuotedText(job.getKeyText())));
 
     boolean isChildOfNeedsElement = PsiUtils.isNeedsElement(myElement);
     if (isChildOfNeedsElement) {
       // empty jobs with . won't run in pipeline so don't show them in needs
-      filteredJobs.removeIf(job -> job.startsWith("."));
+      filteredJobs.removeIf(job -> handleQuotedText(job).startsWith("."));
     }
 
     return filteredJobs.stream()
