@@ -50,6 +50,7 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STRING;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TYPE;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
 
 @Service(Service.Level.PROJECT)
@@ -187,6 +188,15 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 if (value instanceof YAMLBlockMappingImpl blockMapping) {
                   blockMapping.getKeyValues()
                           .forEach(ciAidYamlData::addInput);
+                }
+              }
+            }
+            case VARIABLES -> {
+              if (PsiUtils.isNotSpecInputsElement(keyValue)) {
+                var value = keyValue.getValue();
+                if (value instanceof YAMLBlockMappingImpl blockMapping) {
+                  blockMapping.getKeyValues()
+                          .forEach(ciAidYamlData::addVariable);
                 }
               }
             }

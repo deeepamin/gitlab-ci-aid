@@ -8,6 +8,7 @@ import com.github.deeepamin.ciaid.services.resolvers.NeedsOrExtendsToJobReferenc
 import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
+import com.github.deeepamin.ciaid.services.resolvers.VariablesReferenceResolver;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -36,7 +37,7 @@ public class ReferenceUtils {
   }
 
   public static @NotNull Optional<PsiReference[]> getReferencesToInputOrRefTag(@NotNull PsiElement psiElement) {
-      return referencesInputsOrRefTag(psiElement);
+      return referencesInputsOrRefTagOrVariables(psiElement);
   }
 
   private static Optional<PsiReference[]> referencesScripts(PsiElement element) {
@@ -118,7 +119,7 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesInputsOrRefTag(PsiElement element) {
+  private static Optional<PsiReference[]> referencesInputsOrRefTagOrVariables(PsiElement element) {
     if (element instanceof YAMLPsiElement yamlPsiElement) {
       var elementText = element.getText();
       var project = element.getProject();
@@ -157,6 +158,25 @@ public class ReferenceUtils {
           var keyToReferTo = PsiUtils.findChildWithKey(refersTo, elementText);
           return Optional.of(new PsiReference[]{ new RefTagReferenceResolver(element, keyToReferTo) });
         }
+      }
+      var variables = GitlabCIYamlUtils.getVariables(elementText);
+      if (!variables.isEmpty()) {
+        var psiRefs = new ArrayList<PsiReference>();
+        variables.forEach(variableWithStartEndRange -> {
+          var variableName = variableWithStartEndRange.path();
+          var startOffset = variableWithStartEndRange.start();
+          var endOffset = variableWithStartEndRange.end();
+
+          var targetVariables = gitlabCIYamlProjectService.getPluginData().values()
+                  .stream()
+                  .flatMap(yamlData -> yamlData.getVariables().stream())
+                  .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                  .map(SmartPsiElementPointer::getElement)
+                  .filter(variableKeyValue -> variableKeyValue.getKeyText().equals(variableName))
+                  .toList();
+          psiRefs.add(new VariablesReferenceResolver(element, targetVariables, TextRange.create(startOffset, endOffset)));
+        });
+        return Optional.of(psiRefs.toArray(PsiReference[]::new));
       }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
