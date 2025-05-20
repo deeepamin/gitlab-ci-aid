@@ -26,13 +26,13 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,9 +47,9 @@ public class CIAidSettingsConfigurable implements Configurable {
   }
 
   private JBTextField defaultGitlabCIYamlPathField;
-  private JLabel defaultGitlabCIYamlPathCommentLabel;
+  private JTextArea defaultGitlabCIYamlPathCommentLabel;
   private JBCheckBox ignoreUndefinedJobCheckBox;
-  private JLabel ignoreUndefinedJobOrStageCommentLabel;
+  private JTextArea ignoreUndefinedJobOrStageCommentLabel;
   private JBCheckBox ignoreUndefinedStageCheckBox;
   private JBCheckBox ignoreUndefinedScriptCheckBox;
   private JBCheckBox ignoreUndefinedIncludeCheckBox;
@@ -154,7 +154,6 @@ public class CIAidSettingsConfigurable implements Configurable {
 
     userMarkedFilesTable = new JBTable(tableModel);
     userMarkedFilesTable.setRowHeight(28);
-    userMarkedFilesTable.setPreferredScrollableViewportSize(new Dimension(500, 200));
     userMarkedFilesTable.getEmptyText().setText(CIAidBundle.message("settings.user.yamls.table.empty-text"));
     userMarkedFilesTable.getColumnModel().getColumn(0).setCellEditor(new CIAidUserMarkedFilesTablePathEditor(project));
     userMarkedFilesTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
@@ -166,10 +165,19 @@ public class CIAidSettingsConfigurable implements Configurable {
         return this;
       }
     });
-    userMarkedFilesTable.getColumnModel().getColumn(0).setPreferredWidth(470);
 
-    userMarkedFilesTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JBCheckBox()));
-    userMarkedFilesTable.getColumnModel().getColumn(1).setCellRenderer(userMarkedFilesTable.getDefaultRenderer(Boolean.class));
+    var ignoreColumn = userMarkedFilesTable.getColumnModel().getColumn(1);
+    ignoreColumn.setCellEditor(new DefaultCellEditor(new JBCheckBox()));
+    ignoreColumn.setCellRenderer(userMarkedFilesTable.getDefaultRenderer(Boolean.class));
+    var ignoreHeaderRenderer = ignoreColumn.getHeaderRenderer();
+    if (ignoreHeaderRenderer == null) {
+      ignoreHeaderRenderer = userMarkedFilesTable.getTableHeader().getDefaultRenderer();
+    }
+    var ignoreHeaderComp = ignoreHeaderRenderer.getTableCellRendererComponent(userMarkedFilesTable, ignoreColumn.getHeaderValue(), false, false, -1, 1);
+    int preferredWidth = ignoreHeaderComp.getPreferredSize().width + 10; // +10 for padding around ignore
+    ignoreColumn.setMaxWidth(preferredWidth);
+    ignoreColumn.setMinWidth(preferredWidth);
+    ignoreColumn.setPreferredWidth(preferredWidth);
 
     userMarkedFilesPanel = ToolbarDecorator.createDecorator(userMarkedFilesTable)
             .setAddAction(button -> tableModel.addRow(new Object[]{"", false}))
@@ -186,12 +194,17 @@ public class CIAidSettingsConfigurable implements Configurable {
 
   }
 
-  private JLabel getCommentLabel(String comment) {
-    JLabel commentLabel = new JLabel(comment);
-    commentLabel.setFont(JBFont.medium());
-    commentLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
-    commentLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
-    return commentLabel;
+  private JTextArea getCommentLabel(String comment) {
+    JTextArea textArea = new JTextArea(comment);
+    textArea.setWrapStyleWord(true);
+    textArea.setLineWrap(true);
+    textArea.setEditable(false);
+    textArea.setFocusable(false);
+    textArea.setOpaque(false);
+    textArea.setFont(JBFont.medium());
+    textArea.setForeground(UIManager.getColor("Label.disabledForeground"));
+    textArea.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
+    return textArea;
   }
 
   private Map<String, Boolean> getYamlToUserMarkings() {
