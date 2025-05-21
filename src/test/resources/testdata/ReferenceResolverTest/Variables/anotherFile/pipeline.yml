@@ -1,0 +1,7 @@
+variables:
+  TEST_VAR_STAGE: TEST_VALUE1
+
+checkstyle:
+  stage: build
+  tags:
+    - build-dev-tag

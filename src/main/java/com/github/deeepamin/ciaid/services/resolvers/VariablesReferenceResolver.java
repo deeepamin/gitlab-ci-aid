@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -22,7 +23,6 @@ public class VariablesReferenceResolver extends PsiReferenceBase<PsiElement> imp
     super(element, rangeInElement);
     this.targets = targets;
   }
-
 
   @Override
   public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
@@ -53,7 +53,7 @@ public class VariablesReferenceResolver extends PsiReferenceBase<PsiElement> imp
             .map((variableAndFileName) -> {
               var variable = variableAndFileName.getKey();
               var files = variableAndFileName.getValue();
-              var fileNameText = files.size() == 1 ? files.getFirst().getName() : " (Defined in multiple files)";
+              var fileNameText = files.size() == 1 ? files.getFirst().getName() : "(" + CIAidBundle.message("variables.completion.declared.multiple.files") +")";
               return LookupElementBuilder.create(variable)
                       .bold()
                       .withIcon(Icons.ICON_VARIABLE.getIcon())

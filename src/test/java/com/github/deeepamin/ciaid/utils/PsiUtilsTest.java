@@ -42,7 +42,7 @@ public class PsiUtilsTest extends BaseTest {
     var quotedTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class);
     assertEquals(2, quotedTextChildrenCI.size());
     var plainTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLPlainTextImpl.class);
-    assertEquals(25, plainTextChildrenCI.size());
+    assertEquals(26, plainTextChildrenCI.size());
   }
 
   public void testIsYamlTextElement() {

@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.contributors;
 
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -58,7 +59,7 @@ abstract class AbstractShellCodeContributor extends CompletionContributor {
               for (Map.Entry<String, List<VirtualFile>> variableAndFileName : varsToCompleteWithFileNames.entrySet()) {
                 var variable = variableAndFileName.getKey();
                 var files = variableAndFileName.getValue();
-                var fileNameText = files.size() == 1 ? files.getFirst().getName() : " (Defined in multiple files)";
+                var fileNameText = files.size() == 1 ? files.getFirst().getName() : "(" + CIAidBundle.message("variables.completion.declared.multiple.files") +")";
                 result.addElement(LookupElementBuilder.create(variable)
                         .bold()
                         .withIcon(Icons.ICON_VARIABLE.getIcon())
