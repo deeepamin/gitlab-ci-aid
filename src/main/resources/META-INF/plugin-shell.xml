@@ -2,5 +2,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <multiHostInjector order="first"
                            implementation="com.github.deeepamin.ciaid.services.injectors.JetBrainsShellCIAidYamlScriptInjector"/>
+        <completion.contributor language="Shell Script"
+                                implementationClass="com.github.deeepamin.ciaid.services.contributors.JetBrainsShellCIAidCodeContributor"/>
     </extensions>
 </idea-plugin>

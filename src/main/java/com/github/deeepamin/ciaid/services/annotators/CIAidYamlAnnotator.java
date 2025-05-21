@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.services.annotators;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -13,7 +14,6 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class CIAidYamlAnnotator implements Annotator {
       return;
     }
 
-    var highlightRange = getHighlightTextRange(element, inputsStringWithStartEndRange.start(), inputsStringWithStartEndRange.end());
+    var highlightRange = CIAidUtils.getHighlightTextRange(element, inputsStringWithStartEndRange.start(), inputsStringWithStartEndRange.end());
     holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
             .textAttributes(STAGE_HIGHLIGHTER)
             .range(highlightRange)
@@ -188,7 +188,7 @@ public class CIAidYamlAnnotator implements Annotator {
                     }
                   }
                 } else {
-                  var highlightRange = getHighlightTextRange(scriptElement, scriptPathIndex.start(), scriptPathIndex.end());
+                  var highlightRange = CIAidUtils.getHighlightTextRange(scriptElement, scriptPathIndex.start(), scriptPathIndex.end());
                   holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                           .textAttributes(SCRIPT_HIGHLIGHTER)
                           .range(highlightRange)
@@ -229,19 +229,6 @@ public class CIAidYamlAnnotator implements Annotator {
                         .create();
               }
             });
-  }
-
-  private TextRange getHighlightTextRange(PsiElement element, int start, int end) {
-    var elementTextRange = element.getTextRange();
-    var highlightStartRange = elementTextRange.getStartOffset() + start;
-    if (highlightStartRange > elementTextRange.getEndOffset()) {
-      highlightStartRange = elementTextRange.getStartOffset();
-    }
-    var highlightEndRange = elementTextRange.getStartOffset() + end;
-    if (highlightEndRange > elementTextRange.getEndOffset()) {
-      highlightEndRange = elementTextRange.getEndOffset();
-    }
-    return new TextRange(highlightStartRange, highlightEndRange);
   }
 
 }

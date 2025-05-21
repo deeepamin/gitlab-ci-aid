@@ -1,0 +1,17 @@
+image:
+  name: docker:latest
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+  TEST_VAR2: TEST_VALUE2
+
+include:
+  - /pipeline.yml
+
+stages:
+  - validate
+  - build
+
+build:
+  variables:
+    VAR_TEST: ${TEST<caret>_VAR_STAGE}

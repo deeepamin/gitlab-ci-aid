@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Variables navigation and autocompletion
+
 ### Changed
 
 - Settings page visual improvements

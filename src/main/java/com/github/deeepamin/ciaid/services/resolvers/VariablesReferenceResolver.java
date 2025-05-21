@@ -1,10 +1,10 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiPolyVariantReference;
@@ -12,15 +12,15 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 
 import java.util.List;
 
-public class StagesToJobStageReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-  // From Stages to job level stage -> multiple jobs could have same stage so list of target
-  private final List<PsiElement> targets;
+public class VariablesReferenceResolver extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+  private final List<YAMLKeyValue> targets;
 
-  public StagesToJobStageReferenceResolver(@NotNull PsiElement element, List<PsiElement> targets) {
-    super(element);
+  public VariablesReferenceResolver(@NotNull PsiElement element, List<YAMLKeyValue> targets, TextRange rangeInElement) {
+    super(element, rangeInElement);
     this.targets = targets;
   }
 
@@ -46,26 +46,18 @@ public class StagesToJobStageReferenceResolver extends PsiReferenceBase<PsiEleme
     return myElement.getText();
   }
 
-  public List<PsiElement> getTargets() {
-    return targets;
-  }
-
   @Override
   public Object @NotNull [] getVariants() {
-    var isInputsString = GitlabCIYamlUtils.isAnInputsString(myElement.getText());
-    if (isInputsString) {
-      return new LookupElement[0];
-    }
-
-    var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    return projectService
-            .getStageNamesDefinedAtJobLevel()
-            .stream()
-            .map(stage -> LookupElementBuilder.create(stage)
-                    .bold()
-                    .withIcon(Icons.ICON_STAGE.getIcon())
-                    .withTypeText(projectService.getJobStageFileName(myElement.getProject(), stage)))
-            .toArray(LookupElement[]::new);
+    var varsToCompleteWithFileNames = CIAidProjectService.getInstance(myElement.getProject()).getVariableAndContainingFiles();
+    return varsToCompleteWithFileNames.entrySet().stream()
+            .map((variableAndFileName) -> {
+              var variable = variableAndFileName.getKey();
+              var files = variableAndFileName.getValue();
+              var fileNameText = files.size() == 1 ? files.getFirst().getName() : "(" + CIAidBundle.message("variables.completion.declared.multiple.files") +")";
+              return LookupElementBuilder.create(variable)
+                      .bold()
+                      .withIcon(Icons.ICON_VARIABLE.getIcon())
+                      .withTypeText(fileNameText);
+            }).toArray();
   }
-
 }

@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -132,5 +133,18 @@ public class GitlabCIYamlUtils {
       }
     }
     return null;
+  }
+
+  public static List<StringWithStartEndRange> getVariables(String text) {
+    if (text == null) {
+      return null;
+    }
+    var vars = new ArrayList<StringWithStartEndRange>();
+    var pattern = Pattern.compile("\\$\\{?(\\w+)}?");
+    var matcher = pattern.matcher(text);
+    while (matcher.find()) {
+      vars.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
+    }
+    return vars;
   }
 }

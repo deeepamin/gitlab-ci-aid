@@ -3,6 +3,8 @@ package com.github.deeepamin.ciaid.utils;
 import com.github.deeepamin.ciaid.BaseTest;
 import com.intellij.testFramework.LightVirtualFile;
 
+import java.util.List;
+
 public class GitlabCIYamlUtilsTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
 
@@ -81,5 +83,11 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("[[inputs.test ]]"));
     assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("$[ inputs.test ]]"));
     assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("$$[ output.test ]]"));
+  }
+
+  public void testGetVariables() {
+    assertEquals("test", GitlabCIYamlUtils.getVariables("$test").getFirst().path());
+    assertEquals("test", GitlabCIYamlUtils.getVariables("${test}").getFirst().path());
+    assertTrue(List.of("test", "test2").containsAll(GitlabCIYamlUtils.getVariables("$test ${test2}").stream().map(FileUtils.StringWithStartEndRange::path).toList()));
   }
 }

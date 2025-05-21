@@ -32,10 +32,12 @@ import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.ARRAY;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BOOLEAN;
@@ -50,6 +52,7 @@ import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STRING;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TYPE;
+import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
 import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
@@ -191,6 +194,15 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 }
               }
             }
+            case VARIABLES -> {
+              if (PsiUtils.isNotSpecInputsElement(keyValue)) {
+                var value = keyValue.getValue();
+                if (value instanceof YAMLBlockMappingImpl blockMapping) {
+                  blockMapping.getKeyValues()
+                          .forEach(ciAidYamlData::addVariable);
+                }
+              }
+            }
           }
         super.visitKeyValue(keyValue);
         }
@@ -299,6 +311,22 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                     .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
                     .map(pointer -> handleQuotedText(pointer.getElement().getText()))
                     .anyMatch(pointerText -> pointerText.equals(stagesItem)));
+  }
+
+  public @NotNull Map<String, List<VirtualFile>> getVariableAndContainingFiles() {
+    return getPluginData()
+            .entrySet()
+            .stream()
+            .flatMap(entry -> entry.getValue().getVariables().stream()
+                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                    .map(SmartPsiElementPointer::getElement)
+                    .map(YAMLKeyValue::getKeyText)
+                    .map(variable -> new AbstractMap.SimpleEntry<>(variable, entry.getKey()))
+            )
+            .collect(Collectors.groupingBy(
+                    Map.Entry::getKey,
+                    Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+            ));
   }
 
   public void afterStartup(@NotNull Project project) {

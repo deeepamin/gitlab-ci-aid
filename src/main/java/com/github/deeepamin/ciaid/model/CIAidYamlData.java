@@ -21,6 +21,7 @@ public class CIAidYamlData {
   private final List<SmartPsiElementPointer<YAMLKeyValue>> jobElements;
   private final List<SmartPsiElementPointer<YAMLPsiElement>> stagesItemElements;
   private final List<SmartPsiElementPointer<YAMLKeyValue>> inputs;
+  private final List<SmartPsiElementPointer<YAMLKeyValue>> variables;
 
   public CIAidYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
@@ -30,6 +31,7 @@ public class CIAidYamlData {
     this.includedYamls = new ArrayList<>();
     this.stagesItemElements = new ArrayList<>();
     this.inputs = new ArrayList<>();
+    this.variables = new ArrayList<>();
   }
 
   public VirtualFile getFile() {
@@ -96,6 +98,18 @@ public class CIAidYamlData {
     SmartPointerManager pointerManager = SmartPointerManager.getInstance(stagesItemElement.getProject());
     SmartPsiElementPointer<YAMLPsiElement> stagesItemPointer = pointerManager.createSmartPsiElementPointer(stagesItemElement);
     stagesItemElements.add(stagesItemPointer);
+  }
+
+  public List<SmartPsiElementPointer<YAMLKeyValue>> getVariables() {
+    return variables;
+  }
+
+  public void addVariable(YAMLKeyValue variable) {
+    if (variable != null) {
+      SmartPointerManager pointerManager = SmartPointerManager.getInstance(variable.getProject());
+      SmartPsiElementPointer<YAMLKeyValue> variablePointer = pointerManager.createSmartPsiElementPointer(variable);
+      variables.add(variablePointer);
+    }
   }
 
   private long getModificationStamp() {

@@ -165,4 +165,15 @@ public class CIAidProjectServiceTest extends BaseTest {
     var expectedInputNames = List.of("name", "stage", "context", "tag");
     assertTrue(inputNames.containsAll(expectedInputNames));
   }
+
+  public void testGetVariables() {
+    var projectService = getProject().getService(CIAidProjectService.class);
+    var variablesAndContainingFiles = projectService.getVariableAndContainingFiles();
+    assertNotNull(variablesAndContainingFiles);
+    assertTrue(variablesAndContainingFiles.containsKey("TEST_VAR1"));
+    assertTrue(variablesAndContainingFiles.containsKey("DOCKER_TAG"));
+    var filesContainingEnvVariable = variablesAndContainingFiles.get("TEST_VAR1");
+    assertNotNull(filesContainingEnvVariable);
+    assertEquals(2, filesContainingEnvVariable.size());
+  }
 }
