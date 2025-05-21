@@ -7,6 +7,7 @@
 ### Added
 
 - Variables navigation and autocompletion
+- !reference tag auto-completion in script blocks
 
 ### Changed
 

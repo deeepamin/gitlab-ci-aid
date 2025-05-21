@@ -12,6 +12,7 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.YAMLScalarList;
 import org.jetbrains.yaml.psi.YAMLScalarText;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
@@ -56,8 +57,12 @@ abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
   }
 
   private void injectShell(MultiHostRegistrar registrar, PsiElement context, @NotNull Language language) {
+    if (!(context instanceof YAMLPsiElement yamlPsiElement)) {
+      return;
+    }
     var isScript = PsiUtils.isChild(context, SCRIPT_KEYWORDS);
-    if (isScript) {
+    var isRefTag = GitlabCIYamlUtils.getReferenceTag(yamlPsiElement) != null;
+    if (isScript && !isRefTag) {
       registrar
               .startInjecting(language)
               .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
