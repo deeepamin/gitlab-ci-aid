@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Settings page doesn't shrink with resizing
+- !reference tag with only one key doesn't resolve to correct reference
+
+## [1.9.0] - 2025-05-22
+
 ### Added
 
 - Variables navigation and autocompletion
