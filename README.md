@@ -17,8 +17,8 @@
 ## Why CI Aid for GitLab?
 
 <!-- Plugin description -->
-Do you frequently work with [GitLab](https://gitlab.com)<sup>™</sup> CI Yaml files in Intellij and find yourself constantly using `Shift Shift` to search 
-for stages, script files or included files? CI Aid for GitLab to the rescue. With this plugin, enjoy automatic GitLab schema 
+Do you frequently work with GitLab CI Yaml files in Intellij and find yourself constantly using `Shift Shift` to search 
+for stages, script files or included files? CI Aid for GitLab to the rescue. With this plugin, enjoy automatic [GitLab](https://gitlab.com)&trade; schema 
 provision, navigation across elements, stage/job autocompletion, and prominent error notifications when issues are detected 
 in configuration. Reduce errors and accelerate your pipeline development.
 
