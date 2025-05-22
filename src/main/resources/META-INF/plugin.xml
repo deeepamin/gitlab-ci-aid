@@ -3,32 +3,6 @@
     <id>com.github.deeepamin.gitlabciaid</id>
     <name>CI Aid for GitLab</name>
     <vendor email="deeeepamin@gmail.com" url="https://github.com/deeepamin">Deep Amin</vendor>
-    <description><![CDATA[
-        <p>Do you frequently work with <a href="https://gitlab.com">GitLab</a><sup>™</sup> CI Yaml files in Intellij and find yourself constantly using
-        <code>Shift Shift</code> to search for stages, script files or included files? CI Aid for GitLab to the rescue. With this plugin,
-        enjoy automatic GitLab schema provision, navigation across elements, stage/job autocompletion, and prominent error notifications when issues are
-        detected in configuration. Reduce errors and accelerate your pipeline development.</p>
-
-        <p>GITLAB is a trademark of GitLab Inc. in the United States and other countries and regions. This plugin is not affiliated, endorsed, sponsored, or approved with or by GitLab Inc.</p>
-
-        <h2>Features</h2>
-
-        <ul>
-            <li>Autocomplete &amp; Syntax Highlighting: Write GitLab CI YAML files with confidence. Autocompletion suggestions and multi
-                level syntax highlighting will make your code easy to navigate and work with.</li>
-            <li>Local Path Resolution: Effortless navigation with one-click access to scripts, included files, job needs and more.</li>
-            <li>Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly</li>
-            <li>Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts</li>
-            <li>Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords </li>
-        </ul>
-
-        <h2>Getting Started</h2>
-
-        <ul>
-            <li><strong>Installation</strong>: Download the plugin from JetBrains Marketplace</li>
-            <li><strong>Usage</strong>: Enjoy autocomplete, syntax highlighting, and much more with GitLab CI YAML files.</li>
-        </ul>
-    ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
@@ -44,7 +18,7 @@
         <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlPsiElementReferenceContributor"/>
         <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
         <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.CIAidYamlAnnotator"/>
-        <fileType name="Gitlab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
+        <fileType name="GitLab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.CIAidYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidEditorNotificationProvider"/>
