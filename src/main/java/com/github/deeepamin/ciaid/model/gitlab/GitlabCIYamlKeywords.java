@@ -1,4 +1,4 @@
-package com.github.deeepamin.ciaid.model;
+package com.github.deeepamin.ciaid.model.gitlab;
 
 import java.util.List;
 
@@ -19,6 +19,7 @@ public class GitlabCIYamlKeywords {
   public static final String NEEDS = "needs";
   public static final String ARTIFACTS = "artifacts";
   public static final String OPTIONAL = "optional";
+  public static final String LOCAL = "local";
   public static final String PROJECT = "project";
   public static final String REF = "ref";
   public static final String PIPELINE = "pipeline";

@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.model;
 
-import com.github.deeepamin.ciaid.model.gitlab.Input;
+import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.model.Pointer;

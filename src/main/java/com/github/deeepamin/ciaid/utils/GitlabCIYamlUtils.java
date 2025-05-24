@@ -123,11 +123,16 @@ public class GitlabCIYamlUtils {
       var firstChild = parent.get().getFirstChild();
       if (firstChild != null && firstChild.getText().equals(REFERENCE_TAG)) {
         var children = parent.get().getChildren();
-        if (children.length == 2) {
+        if (children.length > 0) {
           var refersToText = handleQuotedText(children[0].getText());
-          var keyToReferToText = handleQuotedText(children[1].getText());
-          if (element.getText() != null && (element.getText().equals(refersToText) || element.getText().equals(keyToReferToText))) {
+          if (element.getText() != null && element.getText().equals(refersToText)) {
             return refersToText;
+          }
+          if (children.length > 1) {
+            var keyToReferToText = handleQuotedText(children[1].getText());
+            if (element.getText() != null && element.getText().equals(keyToReferToText)) {
+              return keyToReferToText;
+            }
           }
         }
       }

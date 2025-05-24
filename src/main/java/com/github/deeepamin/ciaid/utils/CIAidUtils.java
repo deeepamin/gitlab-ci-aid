@@ -16,4 +16,11 @@ public class CIAidUtils {
     }
     return new TextRange(highlightStartRange, highlightEndRange);
   }
+
+  public static boolean isHttpUrl(String url) {
+    if (url == null || url.isBlank()) {
+      return false;
+    }
+    return url.startsWith("http://") || url.startsWith("https://");
+  }
 }

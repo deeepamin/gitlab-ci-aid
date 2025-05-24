@@ -1,9 +1,13 @@
 package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
-import com.github.deeepamin.ciaid.model.gitlab.Input;
-import com.github.deeepamin.ciaid.model.gitlab.InputType;
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeProject;
+import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
+import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -23,13 +27,10 @@ import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
 import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
-import org.jetbrains.yaml.psi.impl.YAMLBlockScalarImpl;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.io.File;
 import java.util.AbstractMap;
@@ -39,20 +40,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.ARRAY;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BOOLEAN;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.DEFAULT;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.DESCRIPTION;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.NUMBER;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STRING;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.TYPE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.ARRAY;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.BOOLEAN;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.COMPONENT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DEFAULT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DESCRIPTION;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INPUTS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.LOCAL;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NUMBER;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REMOTE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STRING;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TEMPLATE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TYPE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.VARIABLES;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
 import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
@@ -89,125 +97,184 @@ public final class CIAidProjectService implements DumbAware, Disposable {
       return;
     }
     var gitlabCIYamlData = new CIAidYamlData(file, file.getModificationStamp());
-    getGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
+    doReadGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
   }
 
-  private void getGitlabCIYamlData(Project project, VirtualFile file, CIAidYamlData CIAidYamlData, boolean userMarked) {
+  private void doReadGitlabCIYamlData(Project project, VirtualFile file, CIAidYamlData ciAidYamlData, boolean userMarked) {
     if (userMarked) {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
     } else {
       GitlabCIYamlUtils.markAsCIYamlFile(file);
     }
-    parseGitlabCIYamlData(project, file, CIAidYamlData);
-    pluginData.put(file, CIAidYamlData);
-    CIAidYamlData.getIncludedYamls().forEach(yaml -> {
-      var sanitizedYamlPath = FileUtils.sanitizeFilePath(yaml);
-      var yamlVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
-      if (yamlVirtualFile == null) {
-        LOG.debug(yaml + " not found on " + project.getBasePath());
-        return;
-      }
-      if (!pluginData.containsKey(yamlVirtualFile)) {
-        var includedYamlData = new CIAidYamlData(yamlVirtualFile, yamlVirtualFile.getModificationStamp());
-        getGitlabCIYamlData(project, yamlVirtualFile, includedYamlData, userMarked);
-      }
+    ApplicationManager.getApplication().runReadAction(() -> {
+      parseGitlabCIYamlData(project, file, ciAidYamlData);
+      readIncludes(project, ciAidYamlData, userMarked);
     });
   }
 
-
-  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData ciAidYamlData) {
-    ApplicationManager.getApplication().runReadAction(() -> {
-      var psiManager = PsiManager.getInstance(project);
-      var psiFile = psiManager.findFile(file);
-      if (psiFile == null) {
-        LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
-        return;
-      }
-      psiFile.accept(new YamlRecursivePsiElementVisitor() {
-        @Override
-        public void visitFile(@NotNull PsiFile file) {
-          var isYamlFile = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file.getVirtualFile());
-          if (isYamlFile && file instanceof YAMLFile yamlFile) {
-            var topLevelKeys = YamlUtils.getTopLevelKeysForAllDocuments(yamlFile);
-
-            topLevelKeys.forEach(topLevelKey -> {
-              if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
-                // this means it's a job
-                ciAidYamlData.addJob(topLevelKey);
+  private void readIncludes(Project project, CIAidYamlData ciAidYamlData, boolean userMarked) {
+    ciAidYamlData.getIncludes()
+            .forEach(include -> {
+              var includeType = include.getFileType();
+              switch (includeType) {
+                case LOCAL -> {
+                  var sanitizedYamlPath = FileUtils.sanitizeFilePath(include.getPath());
+                  var includeVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
+                  doReadIncludeVirtualFile(includeVirtualFile, project, ciAidYamlData, userMarked);
+                }
+                case PROJECT -> {
+                  IncludeProject includeProject = (IncludeProject) include;
+                  var projectName = includeProject.getProject();
+                  var refName = includeProject.getRef();
+                  var file = includeProject.getPath();
+                  // TODO cache files from project
+                }
+                case REMOTE -> {
+                  // TODO handle remote includes
+                }
+                case TEMPLATE -> {
+                  // TODO handle template includes
+                }
+                case COMPONENT -> {
+                  // TODO handle component includes
+                }
               }
             });
-            super.visitFile(file);
-          }
-        }
+  }
 
-        @Override
-        public void visitScalar(@NotNull YAMLScalar scalar) {
-          if (PsiUtils.isNotSpecInputsElement(scalar)) {
-            if (YamlUtils.isYamlTextElement(scalar)) {
-              var isChildOfStagesElement = PsiUtils.isChild(scalar, List.of(STAGES));
-              if (isChildOfStagesElement) {
-                ciAidYamlData.addStagesItem(scalar);
+  private void doReadIncludeVirtualFile(VirtualFile includeVirtualFile, Project project, CIAidYamlData ciAidYamlData, boolean userMarked) {
+    if (includeVirtualFile == null) {
+      return;
+    }
+    if (!pluginData.containsKey(includeVirtualFile)) {
+      var includedYamlData = new CIAidYamlData(includeVirtualFile, includeVirtualFile.getModificationStamp());
+      doReadGitlabCIYamlData(project, includeVirtualFile, includedYamlData, userMarked);
+    }
+  }
+
+  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData ciAidYamlData) {
+    var psiManager = PsiManager.getInstance(project);
+    var psiFile = psiManager.findFile(file);
+    if (psiFile == null) {
+      LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
+      return;
+    }
+    psiFile.accept(new YamlRecursivePsiElementVisitor() {
+      @Override
+      public void visitFile(@NotNull PsiFile file) {
+        var isYamlFile = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file.getVirtualFile());
+        if (isYamlFile && file instanceof YAMLFile yamlFile) {
+          var topLevelKeys = YamlUtils.getTopLevelKeysForAllDocuments(yamlFile);
+
+          topLevelKeys.forEach(topLevelKey -> {
+            if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
+              // this means it's a job
+              ciAidYamlData.addJob(topLevelKey);
+            }
+          });
+          super.visitFile(file);
+        }
+      }
+
+      @Override
+      public void visitScalar(@NotNull YAMLScalar scalar) {
+        if (PsiUtils.isNotSpecInputsElement(scalar)) {
+          if (YamlUtils.isYamlTextElement(scalar)) {
+            var isChildOfStagesElement = PsiUtils.isChild(scalar, List.of(STAGES));
+            if (isChildOfStagesElement) {
+              ciAidYamlData.addStagesItem(scalar);
+            }
+            var isChildOfInclude = PsiUtils.isChild(scalar, List.of(INCLUDE));
+            var isNotChildOfOtherIncludes = !PsiUtils.isChild(scalar, List.of(LOCAL, REMOTE, TEMPLATE, COMPONENT, PROJECT, REF, FILE));
+            if (isChildOfInclude && isNotChildOfOtherIncludes) {
+              var include = new IncludeFile();
+              var path = handleQuotedText(scalar.getText());
+              var isRemote = CIAidUtils.isHttpUrl(path);
+              if (isRemote) {
+                include.setFileType(IncludeFileType.REMOTE);
+              } else {
+                include.setFileType(IncludeFileType.LOCAL);
               }
+              include.setPath(handleQuotedText(scalar.getText()));
+              ciAidYamlData.addInclude(include);
             }
-          }
-          super.visitScalar(scalar);
-        }
-
-        @Override
-        public void visitValue(@NotNull YAMLValue value) {
-          if (PsiUtils.isNotSpecInputsElement(value)) {
-            var isChildOfStageElement = PsiUtils.isChild(value, List.of(STAGE));
-            if (isChildOfStageElement) {
-              ciAidYamlData.addJobStage(value);
-            }
-          }
-          super.visitValue(value);
-        }
-
-        @Override
-        public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
-          var keyText = keyValue.getKeyText();
-          switch (keyText) {
-            case INCLUDE -> {
-              if (PsiUtils.isNotSpecInputsElement(keyValue)) {
-                // process include files to add to schema files which have names other than standard name
-                var plainTextChildren = PsiUtils.findChildren(keyValue, YAMLPlainTextImpl.class);
-                var quotedTextChildren = PsiUtils.findChildren(keyValue, YAMLQuotedText.class);
-
-                plainTextChildren.stream()
-                        .map(YAMLBlockScalarImpl::getText)
-                        .distinct()
-                        .forEach(ciAidYamlData::addIncludedYaml);
-                quotedTextChildren.stream()
-                        .map(YAMLQuotedText::getText)
-                        .distinct()
-                        .forEach(ciAidYamlData::addIncludedYaml);
-              }
-            }
-            case INPUTS -> {
-              boolean isSpecInputsElement = PsiUtils.findParent(keyValue, List.of(SPEC)).isPresent();
-              if (isSpecInputsElement) {
-                var value = keyValue.getValue();
-                if (value instanceof YAMLBlockMappingImpl blockMapping) {
-                  blockMapping.getKeyValues()
-                          .forEach(ciAidYamlData::addInput);
+            var isChildOfProjectFileInclude = PsiUtils.isChild(scalar, List.of(FILE));
+            if (isChildOfInclude && isChildOfProjectFileInclude) {
+              var blockMappingOptional = PsiUtils.findParentOfType(scalar, YAMLBlockMappingImpl.class);
+              if (blockMappingOptional.isPresent()) {
+                var blockMapping = blockMappingOptional.get();
+                var keyValues = blockMapping.getKeyValues();
+                var keys = keyValues.stream()
+                        .map(YAMLKeyValue::getKeyText)
+                        .collect(Collectors.toSet());
+                if (keys.contains(PROJECT) && keys.contains(FILE)) {
+                  var includeProject = new IncludeProject();
+                  includeProject.setFileType(IncludeFileType.PROJECT);
+                  keyValues.forEach(keyValue -> {
+                    var keyText = keyValue.getKeyText();
+                    switch (keyText) {
+                      case PROJECT -> includeProject.setProject(keyValue.getValueText());
+                      case REF -> includeProject.setRef(keyValue.getValueText());
+                      case FILE -> includeProject.setPath(handleQuotedText(scalar.getText()));
+                    }
+                  });
+                  ciAidYamlData.addInclude(includeProject);
                 }
               }
             }
-            case VARIABLES -> {
-              if (PsiUtils.isNotSpecInputsElement(keyValue)) {
-                var value = keyValue.getValue();
-                if (value instanceof YAMLBlockMappingImpl blockMapping) {
-                  blockMapping.getKeyValues()
-                          .forEach(ciAidYamlData::addVariable);
-                }
+          }
+        }
+        super.visitScalar(scalar);
+      }
+
+      @Override
+      public void visitValue(@NotNull YAMLValue value) {
+        if (PsiUtils.isNotSpecInputsElement(value)) {
+          var isChildOfStageElement = PsiUtils.isChild(value, List.of(STAGE));
+          if (isChildOfStageElement) {
+            ciAidYamlData.addJobStage(value);
+          }
+        }
+        super.visitValue(value);
+      }
+
+      @Override
+      public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
+        var keyText = keyValue.getKeyText();
+        switch (keyText) {
+          case COMPONENT, REMOTE, LOCAL, TEMPLATE -> {
+            var isChildOfInclude = PsiUtils.isChild(keyValue, List.of(INCLUDE));
+            if (isChildOfInclude) {
+              var include = new IncludeFile();
+              include.setFileType(IncludeFileType.fromString(keyValue.getKeyText()));
+              include.setPath(handleQuotedText(keyValue.getValueText()));
+              ciAidYamlData.addInclude(include);
+            }
+          }
+          case INPUTS -> {
+            boolean isSpecInputsElement = PsiUtils.findParent(keyValue, List.of(SPEC)).isPresent();
+            if (isSpecInputsElement) {
+              var value = keyValue.getValue();
+              if (value instanceof YAMLBlockMappingImpl blockMapping) {
+                blockMapping.getKeyValues()
+                        .forEach(ciAidYamlData::addInput);
               }
             }
           }
-        super.visitKeyValue(keyValue);
+          case VARIABLES -> {
+            if (PsiUtils.isNotSpecInputsElement(keyValue)) {
+              var value = keyValue.getValue();
+              if (value instanceof YAMLBlockMappingImpl blockMapping) {
+                blockMapping.getKeyValues()
+                        .forEach(ciAidYamlData::addVariable);
+              }
+            }
+          }
         }
-      });
+      super.visitKeyValue(keyValue);
+      }
     });
+    pluginData.put(file, ciAidYamlData);
   }
 
   public List<String> getJobNames() {

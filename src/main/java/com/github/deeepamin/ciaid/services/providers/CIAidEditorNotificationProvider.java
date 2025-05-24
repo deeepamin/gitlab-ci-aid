@@ -20,17 +20,17 @@ import javax.swing.JComponent;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.AFTER_SCRIPT;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.BEFORE_SCRIPT;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.COMPONENT;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.VARIABLES;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.WORKFLOW;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.AFTER_SCRIPT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.BEFORE_SCRIPT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.COMPONENT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.EXTENDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.VARIABLES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.WORKFLOW;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_USER_MARKED_KEY;
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 

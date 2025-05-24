@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INPUTS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.NEEDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SPEC;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.EXTENDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INPUTS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
 
 public class PsiUtils {
   public static boolean isScriptElement(PsiElement element) {

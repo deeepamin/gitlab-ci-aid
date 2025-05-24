@@ -1,4 +1,4 @@
-package com.github.deeepamin.ciaid.model.gitlab;
+package com.github.deeepamin.ciaid.model.gitlab.inputs;
 
 import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.yaml.psi.YAMLKeyValue;

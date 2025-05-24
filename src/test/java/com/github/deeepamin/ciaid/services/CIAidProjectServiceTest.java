@@ -2,7 +2,7 @@ package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
-import com.github.deeepamin.ciaid.model.gitlab.Input;
+import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
@@ -43,7 +43,7 @@ public class CIAidProjectServiceTest extends BaseTest {
     var yamlData = pluginData.get(gitlabCIYamlFile);
 
     assertNotNull(yamlData);
-    assertEquals(1, yamlData.getIncludedYamls().size());
+    assertEquals(1, yamlData.getIncludes().size());
     assertEquals(5, yamlData.getJobElements().size());
     var distinctJobStageNames = yamlData.getJobStageElements().stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
@@ -56,7 +56,7 @@ public class CIAidProjectServiceTest extends BaseTest {
 
     var pipelineCIYamlData = pluginData.get(pipelineCIYamlFile);
     assertNotNull(pipelineCIYamlData);
-    assertEquals(0, pipelineCIYamlData.getIncludedYamls().size());
+    assertEquals(0, pipelineCIYamlData.getIncludes().size());
     assertEquals(2, pipelineCIYamlData.getJobElements().size());
     assertEquals(1, pipelineCIYamlData.getJobStageElements().size());
     assertEquals(4, pipelineCIYamlData.getInputs().size());
@@ -69,9 +69,9 @@ public class CIAidProjectServiceTest extends BaseTest {
     var projectService = getProject().getService(CIAidProjectService.class);
     projectService.parseGitlabCIYamlData(getProject(), gitlabCIYaml, gitlabCIYamlData);
 
-    var includedYamls = gitlabCIYamlData.getIncludedYamls();
+    var includedYamls = gitlabCIYamlData.getIncludes();
     assertEquals(1, includedYamls.size());
-    assertEquals(PIPELINE_YML, includedYamls.getFirst());
+    assertEquals(PIPELINE_YML, includedYamls.getFirst().getPath());
     var expectedStages = List.of("build", "test", "deploy");
     var stageNames = gitlabCIYamlData.getJobStageElements().stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
