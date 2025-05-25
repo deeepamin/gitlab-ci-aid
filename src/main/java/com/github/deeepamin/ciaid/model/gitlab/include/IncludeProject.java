@@ -1,15 +1,17 @@
 package com.github.deeepamin.ciaid.model.gitlab.include;
 
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
+
 public final class IncludeProject extends IncludeFile {
   private String project;
   private String ref;
 
   public void setProject(String project) {
-    this.project = project;
+    this.project = handleQuotedText(project);
   }
 
   public void setRef(String ref) {
-    this.ref = ref;
+    this.ref = handleQuotedText(ref);
   }
 
   public String getProject() {

@@ -1,5 +1,7 @@
 package com.github.deeepamin.ciaid.model.gitlab.include;
 
+import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
+
 public class IncludeFile {
   protected String path;
   protected IncludeFileType fileType;
@@ -17,6 +19,6 @@ public class IncludeFile {
   }
 
   public void setPath(String path) {
-    this.path = path;
+    this.path = handleQuotedText(path);
   }
 }

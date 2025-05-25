@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
@@ -9,6 +10,7 @@ import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
+import com.github.deeepamin.ciaid.utils.GitLabUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
@@ -96,8 +98,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     if (pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
       return;
     }
-    var gitlabCIYamlData = new CIAidYamlData(file, file.getModificationStamp());
-    doReadGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
+    ApplicationManager.getApplication().runReadAction(() -> {
+      var gitlabCIYamlData = new CIAidYamlData(file, file.getModificationStamp());
+      doReadGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
+    });
   }
 
   private void doReadGitlabCIYamlData(Project project, VirtualFile file, CIAidYamlData ciAidYamlData, boolean userMarked) {
@@ -106,10 +110,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     } else {
       GitlabCIYamlUtils.markAsCIYamlFile(file);
     }
-    ApplicationManager.getApplication().runReadAction(() -> {
-      parseGitlabCIYamlData(project, file, ciAidYamlData);
-      readIncludes(project, ciAidYamlData, userMarked);
-    });
+    parseGitlabCIYamlData(project, file, ciAidYamlData);
+    readIncludes(project, ciAidYamlData, userMarked);
   }
 
   private void readIncludes(Project project, CIAidYamlData ciAidYamlData, boolean userMarked) {
@@ -127,7 +129,11 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                   var projectName = includeProject.getProject();
                   var refName = includeProject.getRef();
                   var file = includeProject.getPath();
-                  // TODO cache files from project
+                  if (projectName == null || file == null || projectName.isBlank() || file.isBlank()) {
+                    LOG.warn("Project name or file name is null or empty");
+                  } else {
+                    CIAidCacheService.getInstance().cacheProjectFile(project, projectName, file, refName);
+                  }
                 }
                 case REMOTE -> {
                   // TODO handle remote includes
@@ -218,6 +224,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                       case FILE -> includeProject.setPath(handleQuotedText(scalar.getText()));
                     }
                   });
+                  var downloadUrl = GitLabUtils.getProjectFileDownloadUrl(project, includeProject.getProject(), includeProject.getPath(), includeProject.getRef());
+                  scalar.putUserData(CIAidCacheService.DOWNLOAD_URL_KEY, downloadUrl);
                   ciAidYamlData.addInclude(includeProject);
                 }
               }

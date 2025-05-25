@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
@@ -24,9 +25,9 @@ import java.util.Optional;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DEFAULT_STAGES;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE_POSSIBLE_CHILD_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REMOTE_INCLUDE_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
@@ -201,8 +202,20 @@ public class CIAidYamlAnnotator implements Annotator {
   private void annotateHighlightIncludeFile(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(INCLUDE)))
-            .filter(element -> !PsiUtils.isChild(element, INCLUDE_POSSIBLE_CHILD_KEYWORDS)) // component, project, etc. currently not supported
             .ifPresent(includeElement -> {
+              var isRemoteInclude = PsiUtils.isChild(includeElement, REMOTE_INCLUDE_KEYWORDS);
+              if (isRemoteInclude) {
+                var downloadUrl = includeElement.getUserData(CIAidCacheService.DOWNLOAD_URL_KEY);
+                if (downloadUrl != null) {
+                  var path = CIAidCacheService.getInstance().getIncludePathFromDownloadUrl(downloadUrl);
+                  if (path != null) {
+                    holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                            .textAttributes(INCLUDE_HIGHLIGHTER)
+                            .create();
+                  }
+                }
+                return;
+              }
               var filePath = ReferenceUtils.handleQuotedText(includeElement.getText());
               var inputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
               if (inputsFilePathString) {

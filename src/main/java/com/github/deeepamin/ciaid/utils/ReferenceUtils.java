@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
@@ -9,6 +10,7 @@ import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.VariablesReferenceResolver;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -16,16 +18,22 @@ import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
+
 public class ReferenceUtils {
+  private static final Logger LOG = Logger.getInstance(ReferenceUtils.class);
+
   public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
     if (PsiUtils.isScriptElement(psiElement)) {
       return referencesScripts(psiElement);
-    } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
-      return referencesIncludeLocalFiles(psiElement);
+    } else if (PsiUtils.isIncludeElement(psiElement)) {
+      return referencesIncludes(psiElement);
     } else if (PsiUtils.isNeedsElement(psiElement) || PsiUtils.isExtendsElement(psiElement)) {
       return referencesNeedsOrExtendsToJob(psiElement);
     } else if (PsiUtils.isStagesElement(psiElement)) {
@@ -56,9 +64,34 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
+  private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
+    var project = element.getProject();
     if (YamlUtils.isYamlTextElement(element)) {
-      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element) });
+      var isChildOfFile = PsiUtils.isChild(element, List.of(FILE));
+      if (isChildOfFile) {
+        var downloadUrl = element.getUserData(CIAidCacheService.DOWNLOAD_URL_KEY);
+        if (downloadUrl != null) {
+          var filePath = CIAidCacheService.getInstance().getIncludePathFromDownloadUrl(downloadUrl);
+          if (filePath != null) {
+            try {
+              return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, Path.of(filePath)) });
+            } catch (InvalidPathException e) {
+              LOG.warn("Invalid path for remote include file: " + downloadUrl, e);
+            }
+          }
+        }
+      }
+
+      // else local file
+      var text = ReferenceUtils.handleQuotedText(element.getText());
+      Path filePath = null;
+      try {
+        filePath = FileUtils.getFilePath(text, project);
+      } catch (InvalidPathException e) {
+        LOG.warn("Invalid path for local include file: " + element.getText(), e);
+
+      }
+      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePath) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }

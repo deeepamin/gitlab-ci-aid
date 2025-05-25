@@ -22,7 +22,7 @@ public class PsiUtils {
     return isChild(element, SCRIPT_KEYWORDS);
   }
 
-  public static boolean isIncludeLocalFileElement(PsiElement element) {
+  public static boolean isIncludeElement(PsiElement element) {
     return isChild(element, List.of(INCLUDE));
   }
 
