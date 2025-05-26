@@ -8,23 +8,41 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class CIAidCacheUtils {
+  public static String sha256(String input) {
+    try {
+      var digest = MessageDigest.getInstance("SHA-256");
+      var encodedHash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+      StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
+      for (byte b : encodedHash) {
+        String hex = Integer.toHexString(0xff & b);
+        if (hex.length() == 1)
+          hexString.append('0');
+        hexString.append(hex);
+      }
+      return hexString.toString();
+    } catch (NoSuchAlgorithmException ignored) {
+    }
+    return null;
+  }
+
   public static void refreshAndReadFile(Project project, File file) {
-    ApplicationManager.getApplication().invokeLater(() -> {
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
       var virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
       if (virtualFile != null) {
-        ApplicationManager.getApplication().executeOnPooledThread(() -> {
-          GitlabCIYamlUtils.markAsCIYamlFile(virtualFile);
-          var projectService = CIAidProjectService.getInstance(project);
-          projectService.readGitlabCIYamlData(project, virtualFile, false);
-        });
+        GitlabCIYamlUtils.markAsCIYamlFile(virtualFile);
+        var projectService = CIAidProjectService.getInstance(project);
+        projectService.readGitlabCIYamlData(project, virtualFile, false);
       }
     });
   }
 
   public static File getCiAidCacheDir() {
-     return getOrCreateDir(PathManager.getSystemPath(), CIAidCacheService.CI_AID_CACHE_DIR_NAME);
+    return getOrCreateDir(PathManager.getSystemPath(), CIAidCacheService.CI_AID_CACHE_DIR_NAME);
   }
 
   public static File getProjectsCacheDir() {

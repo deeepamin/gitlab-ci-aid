@@ -57,8 +57,10 @@ public class CIAidSettingsConfigurable implements Configurable {
   private JPanel gitlabServerPanel;
   private JBPasswordField gitlabAccessTokenField;
   private JPanel gitlabAccessTokenPanel;
-  private JBTextField gitlabComponentsPathField;
-  private JPanel gitlabComponentsPathPanel;
+  private JBTextField gitlabTemplatesProjectField;
+  private JPanel gitlabTemplatesProjectPanel;
+  private JBTextField gitlabTemplatesPathField;
+  private JPanel gitlabTemplatesPathPanel;
   private JBCheckBox ignoreUndefinedJobCheckBox;
   private JBTextArea ignoreUndefinedJobOrStageCommentLabel;
   private JBCheckBox ignoreUndefinedStageCheckBox;
@@ -90,7 +92,8 @@ public class CIAidSettingsConfigurable implements Configurable {
             .setFormLeftIndent(20)
             .addLabeledComponent(new JLabel(CIAidBundle.message("settings.gitlab.server") + ":"), gitlabServerPanel)
             .addLabeledComponent(new JLabel(CIAidBundle.message("settings.gitlab.token") + ":"), gitlabAccessTokenPanel)
-            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.gitlab.components.path") + ":"), gitlabComponentsPathPanel)
+            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.gitlab.templates.project") + ":"), gitlabTemplatesProjectPanel)
+            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.gitlab.templates.path") + ":"), gitlabTemplatesPathPanel)
             .setFormLeftIndent(0)
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.inspections.separator")))
             .setFormLeftIndent(20)
@@ -177,14 +180,24 @@ public class CIAidSettingsConfigurable implements Configurable {
     gitlabAccessTokenPanel.add(gitlabAccessTokenField, BorderLayout.CENTER);
     gitlabAccessTokenPanel.add(helpLabel, BorderLayout.EAST);
 
-    gitlabComponentsPathField = new JBTextField();
+    gitlabTemplatesProjectField = new JBTextField();
     //noinspection DialogTitleCapitalization
-    gitlabComponentsPathField.getEmptyText().setText(CIAidBundle.message("settings.gitlab.components.path.empty-text"));
-    helpLabel = ContextHelpLabel.create(CIAidBundle.message("settings.gitlab.components.path.comment-text"));
+    gitlabTemplatesProjectField.getEmptyText().setText(CIAidBundle.message("settings.gitlab.templates.project.empty-text"));
+    helpLabel = ContextHelpLabel.create(CIAidBundle.message("settings.gitlab.templates.project.comment-text"));
 
-    gitlabComponentsPathPanel = new JPanel(new BorderLayout(5, 0));
-    gitlabComponentsPathPanel.add(gitlabComponentsPathField, BorderLayout.CENTER);
-    gitlabComponentsPathPanel.add(helpLabel, BorderLayout.EAST);
+
+    gitlabTemplatesProjectPanel = new JPanel(new BorderLayout(5, 0));
+    gitlabTemplatesProjectPanel.add(gitlabTemplatesProjectField, BorderLayout.CENTER);
+    gitlabTemplatesProjectPanel.add(helpLabel, BorderLayout.EAST);
+
+    gitlabTemplatesPathField = new JBTextField();
+    //noinspection DialogTitleCapitalization
+    gitlabTemplatesPathField.getEmptyText().setText(CIAidBundle.message("settings.gitlab.templates.path.empty-text"));
+    helpLabel = ContextHelpLabel.create(CIAidBundle.message("settings.gitlab.templates.path.comment-text"));
+
+    gitlabTemplatesPathPanel = new JPanel(new BorderLayout(5, 0));
+    gitlabTemplatesPathPanel.add(gitlabTemplatesPathField, BorderLayout.CENTER);
+    gitlabTemplatesPathPanel.add(helpLabel, BorderLayout.EAST);
   }
 
 
@@ -292,7 +305,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   }
 
   private void refreshVirtualFile(VirtualFile virtualFile) {
-    PsiManager.getInstance(project).dropPsiCaches();
     virtualFile.refresh(true, false);
   }
 
@@ -302,8 +314,9 @@ public class CIAidSettingsConfigurable implements Configurable {
 
     return !defaultGitlabCIYamlPathField.getText().equals(ciaidSettingsState.defaultGitlabCIYamlPath)
             || !gitlabServerTextField.getText().trim().equals(ciaidSettingsState.gitlabServerUrl)
+            || !gitlabTemplatesProjectField.getText().trim().equals(ciaidSettingsState.gitlabTemplatesProject)
             || !new String(gitlabAccessTokenField.getPassword()).trim().equals(ciaidSettingsState.getGitLabAccessToken())
-            || !gitlabComponentsPathField.getText().trim().equals(ciaidSettingsState.gitlabComponentsPath)
+            || !gitlabTemplatesPathField.getText().trim().equals(ciaidSettingsState.gitlabTemplatesPath)
             || ignoreUndefinedJobCheckBox.isSelected() != ciaidSettingsState.ignoreUndefinedJob
             || ignoreUndefinedStageCheckBox.isSelected() != ciaidSettingsState.ignoreUndefinedStage
             || ignoreUndefinedScriptCheckBox.isSelected() != ciaidSettingsState.ignoreUndefinedScript
@@ -317,12 +330,14 @@ public class CIAidSettingsConfigurable implements Configurable {
     ciaidSettingsState.defaultGitlabCIYamlPath = defaultGitlabCIYamlPathField.getText();
     ciaidSettingsState.gitlabServerUrl = gitlabServerTextField.getText().trim();
     ciaidSettingsState.saveGitLabAccessToken(gitlabServerTextField.getText().trim(), new String(gitlabAccessTokenField.getPassword()).trim());
-    ciaidSettingsState.gitlabComponentsPath = gitlabComponentsPathField.getText().trim();
+    ciaidSettingsState.gitlabTemplatesProject = gitlabTemplatesProjectField.getText().trim();
+    ciaidSettingsState.gitlabTemplatesPath = gitlabTemplatesPathField.getText().trim();
     ciaidSettingsState.ignoreUndefinedJob = ignoreUndefinedJobCheckBox.isSelected();
     ciaidSettingsState.ignoreUndefinedStage = ignoreUndefinedStageCheckBox.isSelected();
     ciaidSettingsState.ignoreUndefinedScript = ignoreUndefinedScriptCheckBox.isSelected();
     ciaidSettingsState.ignoreUndefinedInclude = ignoreUndefinedIncludeCheckBox.isSelected();
 
+    PsiManager.getInstance(project).dropPsiCaches();
     removedFiles.forEach(path -> {
       var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
       if (virtualFile != null) {
@@ -358,7 +373,8 @@ public class CIAidSettingsConfigurable implements Configurable {
     defaultGitlabCIYamlPathField.setText(ciaidSettingsState.defaultGitlabCIYamlPath);
     gitlabServerTextField.setText(ciaidSettingsState.gitlabServerUrl);
     gitlabAccessTokenField.setText(ciaidSettingsState.getGitLabAccessToken());
-    gitlabComponentsPathField.setText(ciaidSettingsState.gitlabComponentsPath);
+    gitlabTemplatesProjectField.setText(ciaidSettingsState.gitlabTemplatesProject);
+    gitlabTemplatesPathField.setText(ciaidSettingsState.gitlabTemplatesPath);
     ignoreUndefinedJobCheckBox.setSelected(ciaidSettingsState.ignoreUndefinedJob);
     ignoreUndefinedStageCheckBox.setSelected(ciaidSettingsState.ignoreUndefinedStage);
     ignoreUndefinedScriptCheckBox.setSelected(ciaidSettingsState.ignoreUndefinedScript);
@@ -377,8 +393,10 @@ public class CIAidSettingsConfigurable implements Configurable {
     gitlabServerPanel = null;
     gitlabAccessTokenField = null;
     gitlabAccessTokenPanel = null;
-    gitlabComponentsPathField = null;
-    gitlabComponentsPathPanel = null;
+    gitlabTemplatesProjectField = null;
+    gitlabTemplatesProjectPanel = null;
+    gitlabTemplatesPathField = null;
+    gitlabTemplatesPathPanel = null;
     ignoreUndefinedJobCheckBox = null;
     ignoreUndefinedJobOrStageCommentLabel = null;
     ignoreUndefinedStageCheckBox = null;

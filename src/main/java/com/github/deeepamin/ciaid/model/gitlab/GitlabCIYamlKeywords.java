@@ -59,7 +59,7 @@ public class GitlabCIYamlKeywords {
   public static final List<String> SCRIPT_KEYWORDS = List.of(SCRIPT, AFTER_SCRIPT, BEFORE_SCRIPT);
 
   public static final List<String> NEEDS_POSSIBLE_CHILD_KEYWORDS = List.of(ARTIFACTS, OPTIONAL, PROJECT, REF, PIPELINE, PARALLEL, MATRIX);
-  public static final List<String> REMOTE_INCLUDE_KEYWORDS = List.of(COMPONENT, PROJECT, FILE, REF, REMOTE, TEMPLATE, INPUTS, RULES);
+  public static final List<String> NON_LOCAL_INCLUDE_KEYWORDS = List.of(COMPONENT, PROJECT, FILE, REF, REMOTE, TEMPLATE, INPUTS, RULES);
 
 
   public static final String PRE_STAGE = ".pre";

@@ -79,6 +79,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return project.getService(CIAidProjectService.class);
   }
 
+  public static void executeOnThreadPool(final Runnable runnable) {
+    ApplicationManager.getApplication().executeOnPooledThread(runnable);
+  }
+
   public Map<VirtualFile, CIAidYamlData> getPluginData() {
     return pluginData;
   }
@@ -121,41 +125,30 @@ public final class CIAidProjectService implements DumbAware, Disposable {
               switch (includeType) {
                 case LOCAL -> {
                   var sanitizedYamlPath = FileUtils.sanitizeFilePath(include.getPath());
-                  var includeVirtualFile = FileUtils.getVirtualFile(sanitizedYamlPath, project).orElse(null);
-                  doReadIncludeVirtualFile(includeVirtualFile, project, ciAidYamlData, userMarked);
+                  FileUtils.getVirtualFile(sanitizedYamlPath, project)
+                          .ifPresent(includeVirtualFile -> readGitlabCIYamlData(project, includeVirtualFile, userMarked));
                 }
                 case PROJECT -> {
                   IncludeProject includeProject = (IncludeProject) include;
                   var projectName = includeProject.getProject();
                   var refName = includeProject.getRef();
                   var file = includeProject.getPath();
-                  if (projectName == null || file == null || projectName.isBlank() || file.isBlank()) {
-                    LOG.warn("Project name or file name is null or empty");
-                  } else {
-                    CIAidCacheService.getInstance().cacheProjectFile(project, projectName, file, refName);
-                  }
+                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheProjectFile(project, projectName, file, refName));
                 }
                 case REMOTE -> {
-                  // TODO handle remote includes
+                  var remoteUrl = include.getPath();
+                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheRemoteFile(project, remoteUrl));
                 }
                 case TEMPLATE -> {
-                  // TODO handle template includes
+                  var templatePath = include.getPath();
+                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheTemplate(project, templatePath));
                 }
                 case COMPONENT -> {
-                  // TODO handle component includes
+                  var componentPath = include.getPath();
+                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheComponent(project, componentPath));
                 }
               }
             });
-  }
-
-  private void doReadIncludeVirtualFile(VirtualFile includeVirtualFile, Project project, CIAidYamlData ciAidYamlData, boolean userMarked) {
-    if (includeVirtualFile == null) {
-      return;
-    }
-    if (!pluginData.containsKey(includeVirtualFile)) {
-      var includedYamlData = new CIAidYamlData(includeVirtualFile, includeVirtualFile.getModificationStamp());
-      doReadGitlabCIYamlData(project, includeVirtualFile, includedYamlData, userMarked);
-    }
   }
 
   public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData ciAidYamlData) {
@@ -200,9 +193,38 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 include.setFileType(IncludeFileType.REMOTE);
               } else {
                 include.setFileType(IncludeFileType.LOCAL);
+                var localFilePath = FileUtils.getFilePath(path, project);
+                var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
+                CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
               }
-              include.setPath(handleQuotedText(scalar.getText()));
+              include.setPath(path);
+              scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, path);
               ciAidYamlData.addInclude(include);
+            }
+            var isChildOfKeyValueIncludes = PsiUtils.isChild(scalar, List.of(LOCAL, REMOTE, TEMPLATE, COMPONENT));
+            if (isChildOfInclude && isChildOfKeyValueIncludes) {
+              var yamlKeyValueOptional = PsiUtils.findParentOfType(scalar, YAMLKeyValue.class);
+              yamlKeyValueOptional.ifPresent(keyValue -> {
+                var keyText = keyValue.getKeyText();
+                IncludeFileType includeFileType;
+                switch (keyText) {
+                  case REMOTE -> includeFileType = IncludeFileType.REMOTE;
+                  case TEMPLATE -> includeFileType = IncludeFileType.TEMPLATE;
+                  case COMPONENT -> includeFileType = IncludeFileType.COMPONENT;
+                  default -> includeFileType = IncludeFileType.LOCAL;
+                }
+                var include = new IncludeFile();
+                include.setFileType(includeFileType);
+                var path = handleQuotedText(keyValue.getValueText());
+                if (includeFileType == IncludeFileType.LOCAL) {
+                  var localFilePath = FileUtils.getFilePath(path, project);
+                  var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
+                  CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
+                }
+                include.setPath(path);
+                scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, path);
+                ciAidYamlData.addInclude(include);
+              });
             }
             var isChildOfProjectFileInclude = PsiUtils.isChild(scalar, List.of(FILE));
             if (isChildOfInclude && isChildOfProjectFileInclude) {
@@ -224,8 +246,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                       case FILE -> includeProject.setPath(handleQuotedText(scalar.getText()));
                     }
                   });
-                  var downloadUrl = GitLabUtils.getProjectFileDownloadUrl(project, includeProject.getProject(), includeProject.getPath(), includeProject.getRef());
-                  scalar.putUserData(CIAidCacheService.DOWNLOAD_URL_KEY, downloadUrl);
+                  var cacheKey = GitLabUtils.getProjectFileCacheKey( includeProject.getProject(), includeProject.getPath(), includeProject.getRef());
+                  scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, cacheKey);
                   ciAidYamlData.addInclude(includeProject);
                 }
               }
@@ -250,15 +272,6 @@ public final class CIAidProjectService implements DumbAware, Disposable {
       public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
         var keyText = keyValue.getKeyText();
         switch (keyText) {
-          case COMPONENT, REMOTE, LOCAL, TEMPLATE -> {
-            var isChildOfInclude = PsiUtils.isChild(keyValue, List.of(INCLUDE));
-            if (isChildOfInclude) {
-              var include = new IncludeFile();
-              include.setFileType(IncludeFileType.fromString(keyValue.getKeyText()));
-              include.setPath(handleQuotedText(keyValue.getValueText()));
-              ciAidYamlData.addInclude(include);
-            }
-          }
           case INPUTS -> {
             boolean isSpecInputsElement = PsiUtils.findParent(keyValue, List.of(SPEC)).isPresent();
             if (isSpecInputsElement) {

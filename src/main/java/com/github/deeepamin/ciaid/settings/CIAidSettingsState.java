@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.settings;
 
+import com.github.deeepamin.ciaid.utils.GitLabUtils;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -30,7 +31,8 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   // GitLab specific settings
   public String gitlabServerUrl = "";
-  public String gitlabComponentsPath = "";
+  public String gitlabTemplatesProject = "";
+  public String gitlabTemplatesPath = "";
 
   public static CIAidSettingsState getInstance(Project project) {
     return project.getService(CIAidSettingsState.class);
@@ -57,7 +59,7 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public String getGitLabServerUrl() {
     if (gitlabServerUrl.isEmpty()) {
-      return "https://gitlab.com";
+      return GitLabUtils.DEFAULT_GITLAB_SERVER_URL;
     }
     return gitlabServerUrl;
   }
@@ -66,11 +68,19 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     return getGitLabServerUrl() + "/api/v4";
   }
 
-  public String getGitLabComponentsPath() {
-    if (gitlabComponentsPath.isEmpty()) {
-      return "lib/gitlab/ci/templates";
+  public String getGitlabTemplatesProject() {
+    if (gitlabTemplatesProject.isBlank()) {
+      return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PROJECT;
     }
-    return gitlabComponentsPath;
+    return gitlabTemplatesProject;
+  }
+
+
+  public String getGitlabTemplatesPath() {
+    if (gitlabTemplatesPath.isBlank()) {
+      return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PATH;
+    }
+    return gitlabTemplatesPath;
   }
 
   public String getGitLabAccessToken() {

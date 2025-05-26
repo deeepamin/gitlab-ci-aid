@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
-
 public class ReferenceUtils {
   private static final Logger LOG = Logger.getInstance(ReferenceUtils.class);
 
@@ -65,33 +63,16 @@ public class ReferenceUtils {
   }
 
   private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
-    var project = element.getProject();
     if (YamlUtils.isYamlTextElement(element)) {
-      var isChildOfFile = PsiUtils.isChild(element, List.of(FILE));
-      if (isChildOfFile) {
-        var downloadUrl = element.getUserData(CIAidCacheService.DOWNLOAD_URL_KEY);
-        if (downloadUrl != null) {
-          var filePath = CIAidCacheService.getInstance().getIncludePathFromDownloadUrl(downloadUrl);
-          if (filePath != null) {
-            try {
-              return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, Path.of(filePath)) });
-            } catch (InvalidPathException e) {
-              LOG.warn("Invalid path for remote include file: " + downloadUrl, e);
-            }
-          }
+      var includePathCacheKey = element.getUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY);
+      var includePath = CIAidCacheService.getInstance().getIncludePathFromCacheKey(includePathCacheKey);
+      if (includePath != null) {
+        try {
+          return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, Path.of(includePath)) });
+        } catch (InvalidPathException e) {
+          LOG.warn("Invalid path for include file: " + includePath, e);
         }
       }
-
-      // else local file
-      var text = ReferenceUtils.handleQuotedText(element.getText());
-      Path filePath = null;
-      try {
-        filePath = FileUtils.getFilePath(text, project);
-      } catch (InvalidPathException e) {
-        LOG.warn("Invalid path for local include file: " + element.getText(), e);
-
-      }
-      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePath) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }

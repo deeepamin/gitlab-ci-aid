@@ -27,7 +27,7 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DEFAU
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REMOTE_INCLUDE_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
@@ -203,11 +203,11 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(INCLUDE)))
             .ifPresent(includeElement -> {
-              var isRemoteInclude = PsiUtils.isChild(includeElement, REMOTE_INCLUDE_KEYWORDS);
-              if (isRemoteInclude) {
-                var downloadUrl = includeElement.getUserData(CIAidCacheService.DOWNLOAD_URL_KEY);
-                if (downloadUrl != null) {
-                  var path = CIAidCacheService.getInstance().getIncludePathFromDownloadUrl(downloadUrl);
+              var isNonLocalInclude = PsiUtils.isChild(includeElement, NON_LOCAL_INCLUDE_KEYWORDS);
+              if (isNonLocalInclude) {
+                var cacheKey = includeElement.getUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY);
+                if (cacheKey != null) {
+                  var path = CIAidCacheService.getInstance().getIncludePathFromCacheKey(cacheKey);
                   if (path != null) {
                     holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                             .textAttributes(INCLUDE_HIGHLIGHTER)
@@ -222,19 +222,23 @@ public class CIAidYamlAnnotator implements Annotator {
                 return;
               }
               var project = includeElement.getProject();
-              var virtualScriptFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
-              if (virtualScriptFile == null) {
-                var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedInclude;
-                if (!ignoreUndefinedIncludeErrors) {
-                  var errorText = CIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
-                  var quickFix = new CreateIncludeFileQuickFix();
-                  var problemDescriptor = InspectionManager.getInstance(project)
-                          .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
-                  holder.newAnnotation(HighlightSeverity.WARNING, errorText)
-                          .highlightType(LIKE_UNKNOWN_SYMBOL)
-                          .newLocalQuickFix(quickFix, problemDescriptor)
-                          .registerFix()
-                          .create();
+              var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
+              var isRemoteInclude = CIAidUtils.isHttpUrl(filePath);
+              if (includeVirtualFile == null) {
+                if (!isRemoteInclude) {
+                  // don't highlight remote includes, they should come from include cache key
+                  var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedInclude;
+                  if (!ignoreUndefinedIncludeErrors) {
+                    var errorText = CIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
+                    var quickFix = new CreateIncludeFileQuickFix();
+                    var problemDescriptor = InspectionManager.getInstance(project)
+                            .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
+                    holder.newAnnotation(HighlightSeverity.WARNING, errorText)
+                            .highlightType(LIKE_UNKNOWN_SYMBOL)
+                            .newLocalQuickFix(quickFix, problemDescriptor)
+                            .registerFix()
+                            .create();
+                  }
                 }
               }  else {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
