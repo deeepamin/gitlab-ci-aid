@@ -8,6 +8,9 @@
 
 - Settings page doesn't shrink with resizing
 - !reference tag with only one key doesn't resolve to correct reference
+- Documentation provider NPEs
+- Regex pattern error on WSL file names
+- Schema provider Progress Cancelled exception
 
 ## [1.9.0] - 2025-05-22
 
