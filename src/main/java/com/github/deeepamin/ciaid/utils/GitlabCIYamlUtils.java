@@ -131,7 +131,8 @@ public class GitlabCIYamlUtils {
           if (children.length > 1) {
             var keyToReferToText = handleQuotedText(children[1].getText());
             if (element.getText() != null && element.getText().equals(keyToReferToText)) {
-              return keyToReferToText;
+              // still return refersToText, as it is the reference tag and the key is resolved in resolver
+              return refersToText;
             }
           }
         }
