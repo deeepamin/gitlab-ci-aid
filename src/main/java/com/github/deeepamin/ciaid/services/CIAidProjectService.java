@@ -1,6 +1,12 @@
 package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
+import com.github.deeepamin.ciaid.cache.providers.AbstractIncludeProvider;
+import com.github.deeepamin.ciaid.cache.providers.ComponentIncludeProvider;
+import com.github.deeepamin.ciaid.cache.providers.LocalIncludeProvider;
+import com.github.deeepamin.ciaid.cache.providers.ProjectFileIncludeProvider;
+import com.github.deeepamin.ciaid.cache.providers.RemoteUrlIncludeProvider;
+import com.github.deeepamin.ciaid.cache.providers.TemplateIncludeProvider;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
@@ -123,31 +129,22 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     ciAidYamlData.getIncludes()
             .forEach(include -> {
               var includeType = include.getFileType();
+              AbstractIncludeProvider includeProvider = null;
               switch (includeType) {
-                case LOCAL -> {
-                  var sanitizedYamlPath = FileUtils.sanitizeFilePath(include.getPath());
-                  FileUtils.getVirtualFile(sanitizedYamlPath, project)
-                          .ifPresent(includeVirtualFile -> readGitlabCIYamlData(project, includeVirtualFile, userMarked));
-                }
+                case LOCAL -> includeProvider = new LocalIncludeProvider(project, include.getPath(), userMarked);
                 case PROJECT -> {
                   IncludeProject includeProject = (IncludeProject) include;
                   var projectName = includeProject.getProject();
                   var refName = includeProject.getRef();
                   var file = includeProject.getPath();
-                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheProjectFile(project, projectName, file, refName));
+                  includeProvider = new ProjectFileIncludeProvider(project, file, projectName, refName);
                 }
-                case REMOTE -> {
-                  var remoteUrl = include.getPath();
-                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheRemoteFile(project, remoteUrl));
-                }
-                case TEMPLATE -> {
-                  var templatePath = include.getPath();
-                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheTemplate(project, templatePath));
-                }
-                case COMPONENT -> {
-                  var componentPath = include.getPath();
-                  executeOnThreadPool(() -> CIAidCacheService.getInstance().cacheComponent(project, componentPath));
-                }
+                case REMOTE -> includeProvider = new RemoteUrlIncludeProvider(project, include.getPath());
+                case TEMPLATE -> includeProvider = new TemplateIncludeProvider(project, include.getPath());
+                case COMPONENT -> includeProvider = new ComponentIncludeProvider(project, include.getPath());
+              }
+              if (includeProvider != null) {
+                executeOnThreadPool(includeProvider::readIncludeFile);
               }
             });
   }
@@ -197,7 +194,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 include.setFileType(IncludeFileType.LOCAL);
                 var localFilePath = FileUtils.getFilePath(path, project);
                 var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
-                CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
+                CIAidCacheService.getInstance().addIncludeIdentifierToCacheFilePath(path, localFilePathString);
               }
               include.setPath(path);
               ciAidYamlData.addInclude(include);
@@ -222,7 +219,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 if (includeFileType == IncludeFileType.LOCAL) {
                   var localFilePath = FileUtils.getFilePath(path, project);
                   var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
-                  CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
+                  CIAidCacheService.getInstance().addIncludeIdentifierToCacheFilePath(path, localFilePathString);
                 }
                 include.setPath(path);
                 ciAidYamlData.addInclude(include);

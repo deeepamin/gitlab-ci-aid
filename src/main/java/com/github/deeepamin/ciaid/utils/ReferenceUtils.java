@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
+import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
@@ -72,7 +73,7 @@ public class ReferenceUtils {
   private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
       var includePathCacheKey = getIncludeCacheKey(element);
-      var includePath = CIAidCacheService.getInstance().getIncludePathFromCacheKey(includePathCacheKey);
+      var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
       if (includePath != null) {
         try {
           return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, Path.of(includePath)) });
@@ -222,7 +223,7 @@ public class ReferenceUtils {
           }
         }
         if (projectName != null && filePath != null) {
-          return GitLabUtils.getProjectFileCacheKey(projectName, filePath, ref);
+          return CIAidCacheUtils.getProjectFileCacheKey(projectName, filePath, ref);
         }
       }
     }

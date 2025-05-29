@@ -47,28 +47,16 @@ public class CIAidCacheUtils {
     return getOrCreateDir(PathManager.getSystemPath(), CIAidCacheService.CI_AID_CACHE_DIR_NAME);
   }
 
-  public static File getProjectsCacheDir() {
-    return getOrCreateDir(getCiAidCacheDir().getPath(), "projects");
-  }
-
-  public static File getTemplatesCacheDir() {
-    return getOrCreateDir(getCiAidCacheDir().getPath(), "templates");
-  }
-
-  public static File getComponentsCacheDir() {
-    return getOrCreateDir(getCiAidCacheDir().getPath(), "components");
-  }
-
-  public static File getRemoteCacheDir() {
-    return getOrCreateDir(getCiAidCacheDir().getPath(), "remote");
-  }
-
-  private static File getOrCreateDir(String parent, String dir) {
+  public static File getOrCreateDir(String parent, String dir) {
     File directory = new File(parent, dir);
     if (!directory.exists()) {
       //noinspection ResultOfMethodCallIgnored
       directory.mkdirs();
     }
     return directory;
+  }
+
+  public static String getProjectFileCacheKey(String projectName, String file, String ref) {
+    return projectName + "_" + file + (ref != null ? "_" + ref : "");
   }
 }

@@ -207,7 +207,7 @@ public class CIAidYamlAnnotator implements Annotator {
               if (isNonLocalInclude) {
                 var cacheKey = ReferenceUtils.getIncludeCacheKey(includeElement);
                 if (cacheKey != null) {
-                  var path = CIAidCacheService.getInstance().getIncludePathFromCacheKey(cacheKey);
+                  var path = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
                   if (path != null) {
                     holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                             .textAttributes(INCLUDE_HIGHLIGHTER)

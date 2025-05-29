@@ -1,27 +1,17 @@
 package com.github.deeepamin.ciaid.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -63,65 +53,6 @@ public class GitLabHttpConnectionUtils {
     return null;
   }
 
-  public static String resolveComponentVersion(Project project, String projectPath, String versionRef, String accessToken) throws IOException, InterruptedException {
-    if (versionRef.matches("^[a-fA-F0-9]{40}$")) {
-      // Direct SHA reference — no need to resolve
-      return versionRef;
-    }
-    String encodedProject = URLEncoder.encode(projectPath, StandardCharsets.UTF_8);
-    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl();
-
-    String url = String.format(GitLabUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
-    try (var httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build()) {
-
-      HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-              .uri(URI.create(url));
-
-      if (accessToken != null && !accessToken.isBlank()) {
-        requestBuilder.header("PRIVATE-TOKEN", accessToken);
-      }
-
-      HttpResponse<String> response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
-      if (response.statusCode() != HTTP_OK) {
-        LOG.debug("Couldn't resolve component version " + response.body());
-        return null;
-      }
-
-      var mapper = new ObjectMapper();
-      ArrayNode tags = (ArrayNode) mapper.readTree(response.body());
-      List<String> versions = new ArrayList<>();
-      for (JsonNode tag : tags) {
-        String name = tag.get("name").asText();
-        if (!name.matches(("v?\\d+(\\.\\d+){0,2}(-[a-zA-Z0-9]+)?"))) {
-          continue;
-        }
-        if (!name.matches("^\\d.*")) {
-          name = name.substring(1);
-        }
-        versions.add(name);
-      }
-      if (versions.contains(versionRef)) {
-        return versionRef; // Exact match e.g. v1.0.0
-      }
-
-      List<String> matching;
-      if (versionRef.equals("~latest")) {
-        matching = versions.stream()
-                .filter(v -> !v.contains("-")) // skip pre-releases
-                .sorted(Comparator.reverseOrder())
-                .toList();
-      } else {
-        matching = versions.stream()
-                .filter(v -> v.startsWith(versionRef + "."))
-                .sorted(Comparator.reverseOrder())
-                .toList();
-      }
-
-      return matching.isEmpty() ? null : matching.getFirst();
-    }
-  }
 
   private static String getUserAgent() {
     var applicationInfo = ApplicationInfo.getInstance();

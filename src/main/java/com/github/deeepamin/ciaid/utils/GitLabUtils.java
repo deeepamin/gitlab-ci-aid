@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
 public class GitLabUtils {
   public static final String DEFAULT_GITLAB_TEMPLATE_PROJECT = "gitlab-org/gitlab";
@@ -31,31 +30,5 @@ public class GitLabUtils {
       downloadUrl = downloadUrl.concat(ref);
     }
     return downloadUrl;
-  }
-
-  public static String getProjectFileCacheKey(String projectName, String file, String ref) {
-    return projectName + "_" + file + (ref != null ? "_" + ref : "");
-  }
-
-  public static ComponentProjectNameVersion getComponentProjectNameAndVersion(String componentPath) {
-    if (componentPath == null || componentPath.isBlank()) {
-      return null;
-    }
-    String regex = "^(?:https?://[^/]+|\\$CI_SERVER_FQDN)/(.+?)/([^/@]+)@([^?]+)(?:\\?.*)?$";
-    var pattern = Pattern.compile(regex);
-    var matcher = pattern.matcher(componentPath);
-    if (matcher.find()) {
-      String project = matcher.group(1);
-      String component = matcher.group(2);
-      String version = matcher.group(3);
-      if (project == null || component == null || version == null) {
-        return null;
-      }
-      return new ComponentProjectNameVersion(project, component, version);
-    }
-    return null;
-  }
-
-  public record ComponentProjectNameVersion(String project, String component, String version) {
   }
 }
