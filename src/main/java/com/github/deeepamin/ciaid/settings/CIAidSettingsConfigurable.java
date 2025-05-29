@@ -11,9 +11,12 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.ui.ContextHelpLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.FormBuilder;
@@ -26,13 +29,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,14 +51,15 @@ public class CIAidSettingsConfigurable implements Configurable {
   }
 
   private JBTextField defaultGitlabCIYamlPathField;
-  private JTextArea defaultGitlabCIYamlPathCommentLabel;
+  private JPanel defaultGitlabCIYamlPathFieldWithHelpPanel;
   private JBCheckBox ignoreUndefinedJobCheckBox;
-  private JTextArea ignoreUndefinedJobOrStageCommentLabel;
+  private JBTextArea ignoreUndefinedJobOrStageCommentLabel;
   private JBCheckBox ignoreUndefinedStageCheckBox;
   private JBCheckBox ignoreUndefinedScriptCheckBox;
   private JBCheckBox ignoreUndefinedIncludeCheckBox;
   private JBTable userMarkedFilesTable;
-  private JPanel userMarkedFilesPanel;
+  private JBScrollPane userMarkedFilesScrollPane;
+
   private final List<String> removedFiles = new ArrayList<>();
 
   @Override
@@ -71,8 +76,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     return FormBuilder.createFormBuilder()
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.general.separator")))
             .setFormLeftIndent(20)
-            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.general.ci.yaml.path") + ":"), defaultGitlabCIYamlPathField)
-            .addComponent(defaultGitlabCIYamlPathCommentLabel)
+            .addLabeledComponent(new JLabel(CIAidBundle.message("settings.general.ci.yaml.path") + ":"), defaultGitlabCIYamlPathFieldWithHelpPanel)
             .setFormLeftIndent(0)
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.inspections.separator")))
             .setFormLeftIndent(20)
@@ -84,7 +88,7 @@ public class CIAidSettingsConfigurable implements Configurable {
             .setFormLeftIndent(0)
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.user.yamls.separator")), 6)
             .setFormLeftIndent(20)
-            .addComponent(userMarkedFilesPanel)
+            .addComponent(userMarkedFilesScrollPane)
             .addComponentFillVertically(new JPanel(), 0)
             .getPanel();
   }
@@ -92,7 +96,11 @@ public class CIAidSettingsConfigurable implements Configurable {
   private void configureDefaultYamlPathTextField() {
     defaultGitlabCIYamlPathField = new JBTextField();
     defaultGitlabCIYamlPathField.getEmptyText().setText(CIAidBundle.message("settings.general.ci.yaml.path.empty-text"));
-    defaultGitlabCIYamlPathCommentLabel = getCommentLabel(CIAidBundle.message("settings.general.ci.yaml.path.comment-text"));
+    var helpLabel = ContextHelpLabel.create(CIAidBundle.message("settings.general.ci.yaml.path.comment-text"));
+
+    defaultGitlabCIYamlPathFieldWithHelpPanel = new JPanel(new BorderLayout(5, 0));
+    defaultGitlabCIYamlPathFieldWithHelpPanel.add(defaultGitlabCIYamlPathField, BorderLayout.CENTER);
+    defaultGitlabCIYamlPathFieldWithHelpPanel.add(helpLabel, BorderLayout.EAST);
     ComponentValidator validator = new ComponentValidator(() -> {})
             .withValidator(() -> {
               String path = defaultGitlabCIYamlPathField.getText();
@@ -179,7 +187,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     ignoreColumn.setMinWidth(preferredWidth);
     ignoreColumn.setPreferredWidth(preferredWidth);
 
-    userMarkedFilesPanel = ToolbarDecorator.createDecorator(userMarkedFilesTable)
+    userMarkedFilesScrollPane = new JBScrollPane(ToolbarDecorator.createDecorator(userMarkedFilesTable)
             .setAddAction(button -> tableModel.addRow(new Object[]{"", false}))
             .setRemoveAction(button -> {
               int selectedRow = userMarkedFilesTable.getSelectedRow();
@@ -190,12 +198,18 @@ public class CIAidSettingsConfigurable implements Configurable {
               }
             })
             .disableUpDownActions()
-            .createPanel();
-
+            .createPanel());
   }
 
-  private JTextArea getCommentLabel(String comment) {
-    JTextArea textArea = new JTextArea(comment);
+  private JBTextArea getCommentLabel(String comment) {
+    JBTextArea textArea = new JBTextArea(comment) {
+      @Override
+      public Dimension getPreferredSize() {
+        Dimension size = super.getPreferredSize();
+        int width = getParent() != null ? getParent().getWidth() - 40 : 400;
+        return new Dimension(Math.min(width, size.width), size.height);
+      }
+    };
     textArea.setWrapStyleWord(true);
     textArea.setLineWrap(true);
     textArea.setEditable(false);
@@ -304,13 +318,13 @@ public class CIAidSettingsConfigurable implements Configurable {
   @Override
   public void disposeUIResources() {
     defaultGitlabCIYamlPathField = null;
-    defaultGitlabCIYamlPathCommentLabel = null;
+    defaultGitlabCIYamlPathFieldWithHelpPanel = null;
     ignoreUndefinedJobCheckBox = null;
     ignoreUndefinedJobOrStageCommentLabel = null;
     ignoreUndefinedStageCheckBox = null;
     ignoreUndefinedScriptCheckBox = null;
     ignoreUndefinedIncludeCheckBox = null;
     userMarkedFilesTable = null;
-    userMarkedFilesPanel = null;
+    userMarkedFilesScrollPane = null;
   }
 }

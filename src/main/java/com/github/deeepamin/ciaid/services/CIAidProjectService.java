@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.ARRAY;
@@ -281,7 +282,11 @@ public final class CIAidProjectService implements DumbAware, Disposable {
              .orElse(null);
     var basePath = project.getBasePath();
     if (filePath != null && basePath != null) {
-      return filePath.replaceFirst("^" + basePath + File.separator, "");
+      try {
+        return filePath.replaceFirst("^" + basePath + File.separator, "");
+      } catch (PatternSyntaxException e) {
+        LOG.debug("Regex pattern syntax error in file name: " + e);
+      }
     }
     return "";
   }

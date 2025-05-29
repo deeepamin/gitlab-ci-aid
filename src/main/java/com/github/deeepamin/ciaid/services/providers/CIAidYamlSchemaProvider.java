@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.injected.editor.VirtualFileWindow;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -19,12 +20,14 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final Logger LOG = Logger.getInstance(CIAidYamlSchemaProvider.class);
   private static final String SCHEMA_NAME = "Gitlab CI [Auto]";
   private static final String SCHEMA_PATH = "/schemas/gitlab-ci-yml.json";
-  private final VirtualFile schemaFile;
+  private VirtualFile schemaFile;
 
   public CIAidYamlSchemaProvider() {
-    this.schemaFile = Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
-            .map(VfsUtil::findFileByURL)
-            .orElse(null);
+    ApplicationManager.getApplication().runReadAction(() -> {
+      this.schemaFile = Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
+              .map(VfsUtil::findFileByURL)
+              .orElse(null);
+    });
   }
 
   @Override
