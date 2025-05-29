@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.9.1] - 2025-05-29
+
 ### Fixed
 
 - Settings page doesn't shrink with resizing
@@ -186,7 +188,9 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.1...HEAD
+[1.9.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.5.0...v1.6.0
