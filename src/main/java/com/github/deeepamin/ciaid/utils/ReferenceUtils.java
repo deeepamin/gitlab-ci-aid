@@ -16,13 +16,20 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
+import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class ReferenceUtils {
   private static final Logger LOG = Logger.getInstance(ReferenceUtils.class);
@@ -64,7 +71,7 @@ public class ReferenceUtils {
 
   private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
-      var includePathCacheKey = element.getUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY);
+      var includePathCacheKey = getIncludeCacheKey(element);
       var includePath = CIAidCacheService.getInstance().getIncludePathFromCacheKey(includePathCacheKey);
       if (includePath != null) {
         try {
@@ -196,13 +203,29 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static String handleQuotedText(String text) {
-    if (text.startsWith("\"") && text.endsWith("\"")) {
-      text = text.replaceAll("\"", "");
-    } else if (text.startsWith("'") && text.endsWith("'")) {
-      text = text.replaceAll("'", "");
+  public static String getIncludeCacheKey(@NotNull PsiElement element) {
+    var isChildOfFile = PsiUtils.isChild(element, List.of(FILE));
+    if (isChildOfFile) {
+      var blockMappingOptional = PsiUtils.findParentOfType(element, YAMLBlockMappingImpl.class);
+      if (blockMappingOptional.isPresent()) {
+        var blockMapping = blockMappingOptional.get();
+        var keyValues = blockMapping.getKeyValues();
+        String projectName = null;
+        String filePath = null;
+        String ref = null;
+        for (YAMLKeyValue keyValue : keyValues) {
+          var keyText = keyValue.getKeyText();
+          switch (keyText) {
+            case PROJECT -> projectName = handleQuotedText(keyValue.getValueText());
+            case FILE -> filePath = handleQuotedText(element.getText());
+            case REF -> ref = handleQuotedText(keyValue.getValueText());
+          }
+        }
+        if (projectName != null && filePath != null) {
+          return GitLabUtils.getProjectFileCacheKey(projectName, filePath, ref);
+        }
+      }
     }
-    return text;
+    return handleQuotedText(element.getText());
   }
-
 }

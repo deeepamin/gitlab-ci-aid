@@ -23,4 +23,13 @@ public class CIAidUtils {
     }
     return url.startsWith("http://") || url.startsWith("https://");
   }
+
+  public static String handleQuotedText(String text) {
+    if (text.startsWith("\"") && text.endsWith("\"")) {
+      text = text.replaceAll("\"", "");
+    } else if (text.startsWith("'") && text.endsWith("'")) {
+      text = text.replaceAll("'", "");
+    }
+    return text;
+  }
 }

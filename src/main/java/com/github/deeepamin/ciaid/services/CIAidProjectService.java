@@ -10,7 +10,6 @@ import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.GitLabUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
@@ -56,6 +55,7 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NUMBE
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REMOTE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.RULES;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
@@ -64,8 +64,8 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TEMPL
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TOP_LEVEL_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.TYPE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.VARIABLES;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAULT_YAML_FILES;
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 @Service(Service.Level.PROJECT)
 public final class CIAidProjectService implements DumbAware, Disposable {
@@ -187,6 +187,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             var isChildOfInclude = PsiUtils.isChild(scalar, List.of(INCLUDE));
             var isNotChildOfOtherIncludes = !PsiUtils.isChild(scalar, List.of(LOCAL, REMOTE, TEMPLATE, COMPONENT, PROJECT, REF, FILE));
             if (isChildOfInclude && isNotChildOfOtherIncludes) {
+              // this is a top-level include which means local/remote
               var include = new IncludeFile();
               var path = handleQuotedText(scalar.getText());
               var isRemote = CIAidUtils.isHttpUrl(path);
@@ -199,11 +200,12 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                 CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
               }
               include.setPath(path);
-              scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, path);
               ciAidYamlData.addInclude(include);
             }
             var isChildOfKeyValueIncludes = PsiUtils.isChild(scalar, List.of(LOCAL, REMOTE, TEMPLATE, COMPONENT));
-            if (isChildOfInclude && isChildOfKeyValueIncludes) {
+            var isNotChildOfRulesInputsIncludes = !PsiUtils.isChild(scalar, List.of(RULES, INPUTS));
+            if (isChildOfInclude && isChildOfKeyValueIncludes && isNotChildOfRulesInputsIncludes) {
+              // this is a key-value include which means local/remote/template/component, cache the files and skip rules/inputs
               var yamlKeyValueOptional = PsiUtils.findParentOfType(scalar, YAMLKeyValue.class);
               yamlKeyValueOptional.ifPresent(keyValue -> {
                 var keyText = keyValue.getKeyText();
@@ -223,12 +225,12 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                   CIAidCacheService.getInstance().addIncludeIdentifierToLocalPath(path, localFilePathString);
                 }
                 include.setPath(path);
-                scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, path);
                 ciAidYamlData.addInclude(include);
               });
             }
             var isChildOfProjectFileInclude = PsiUtils.isChild(scalar, List.of(FILE));
-            if (isChildOfInclude && isChildOfProjectFileInclude) {
+            if (isChildOfInclude && isChildOfProjectFileInclude && isNotChildOfRulesInputsIncludes) {
+              // this is a project file include, cache the project file and skip rules/inputs
               var blockMappingOptional = PsiUtils.findParentOfType(scalar, YAMLBlockMappingImpl.class);
               if (blockMappingOptional.isPresent()) {
                 var blockMapping = blockMappingOptional.get();
@@ -247,8 +249,6 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                       case FILE -> includeProject.setPath(handleQuotedText(scalar.getText()));
                     }
                   });
-                  var cacheKey = GitLabUtils.getProjectFileCacheKey( includeProject.getProject(), includeProject.getPath(), includeProject.getRef());
-                  scalar.putUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY, cacheKey);
                   ciAidYamlData.addInclude(includeProject);
                 }
               }
@@ -348,8 +348,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                           default -> inputType;
                         };
                       }
-                      case DEFAULT -> defaultValue = inputKeyValue.getValueText();
-                      case DESCRIPTION -> inputDescription = inputKeyValue.getValueText();
+                      case DEFAULT -> defaultValue = handleQuotedText(inputKeyValue.getValueText());
+                      case DESCRIPTION -> inputDescription = handleQuotedText(inputKeyValue.getValueText());
                     }
                   }
                   SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
@@ -429,8 +429,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
 
   private void readDefaultGitlabCIYaml(@NotNull Project project) {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
-    if (!ciAidSettingsState.defaultGitlabCIYamlPath.isBlank()) {
-      final var defaultGitlabCIYamlPath = ciAidSettingsState.defaultGitlabCIYamlPath;
+    if (!ciAidSettingsState.getDefaultGitlabCIYamlPath().isBlank()) {
+      final var defaultGitlabCIYamlPath = ciAidSettingsState.getDefaultGitlabCIYamlPath();
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(defaultGitlabCIYamlPath);
       if (gitlabCIYamlFile != null) {
         readGitlabCIYamlData(project, gitlabCIYamlFile, false);
@@ -452,7 +452,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
 
   private void readUserMarkedYamls(@NotNull Project project) {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
-    ciAidSettingsState.yamlToUserMarkings.forEach((path, ignore) -> {
+    ciAidSettingsState.getYamlToUserMarkings().forEach((path, ignore) -> {
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(path);
       if (gitlabCIYamlFile != null) {
         if (ignore) {

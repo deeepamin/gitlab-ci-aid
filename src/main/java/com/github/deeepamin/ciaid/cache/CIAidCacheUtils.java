@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.psi.PsiManager;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +39,7 @@ public class CIAidCacheUtils {
         var projectService = CIAidProjectService.getInstance(project);
         projectService.readGitlabCIYamlData(project, virtualFile, false);
       }
+      ApplicationManager.getApplication().invokeLater(() -> PsiManager.getInstance(project).dropPsiCaches());
     });
   }
 

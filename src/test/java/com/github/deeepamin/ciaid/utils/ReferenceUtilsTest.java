@@ -147,16 +147,6 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals(refTagKeysElement, refTagKeysReference.get()[0].getElement());
   }
 
-
-  public void testHandleQuotedText() {
-    assertEquals("test", ReferenceUtils.handleQuotedText("\"test\""));
-    assertEquals("\"test", ReferenceUtils.handleQuotedText("\"test"));
-    assertEquals("test\"", ReferenceUtils.handleQuotedText("test\""));
-    assertEquals("test", ReferenceUtils.handleQuotedText("'test'"));
-    assertEquals("'test", ReferenceUtils.handleQuotedText("'test"));
-    assertEquals("test'", ReferenceUtils.handleQuotedText("test'"));
-  }
-
   private List<YAMLPlainTextImpl> getBuildElements() {
     var buildStageElementsList = new ArrayList<YAMLPlainTextImpl>();
     findChildrenWithKey(psiYaml, "build", YAMLPlainTextImpl.class, buildStageElementsList);

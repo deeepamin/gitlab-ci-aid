@@ -9,7 +9,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,26 +19,36 @@ import java.util.Map;
         name = "CIAidSettingsState",
         storages = {@Storage("CIAidSettingsState.xml")}
 )
-public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState> {
-  public String defaultGitlabCIYamlPath = "";
-  public boolean ignoreUndefinedJob;
-  public boolean ignoreUndefinedStage;
-  public boolean ignoreUndefinedScript;
-  public boolean ignoreUndefinedInclude;
-  public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
-  public Long cacheExpiryTime = 24L; // Default to 24 hours
+public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState.State> {
+  public static class State {
+    public String defaultGitlabCIYamlPath = "";
+    public boolean ignoreUndefinedJob;
+    public boolean ignoreUndefinedStage;
+    public boolean ignoreUndefinedScript;
+    public boolean ignoreUndefinedInclude;
+    public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
+    public Long cacheExpiryTime = 24L; // Default to 24 hours
 
-  // GitLab specific settings
-  public String gitlabServerUrl = "";
-  public String gitlabTemplatesProject = "";
-  public String gitlabTemplatesPath = "";
+    // GitLab specific settings
+    public String gitlabServerUrl = "";
+    public String gitlabTemplatesProject = "";
+    public String gitlabTemplatesPath = "";
+  }
+
+  private State state = new State();
+  private final Project project;
+  private String cachedGitLabAccessToken;
+
+  public CIAidSettingsState(Project project) {
+    this.project = project;
+  }
 
   public static CIAidSettingsState getInstance(Project project) {
     return project.getService(CIAidSettingsState.class);
   }
 
   public void addYamlToUserMarking(VirtualFile file, boolean ignore) {
-    yamlToUserMarkings.putIfAbsent(file.getPath(), ignore);
+    getYamlToUserMarkings().putIfAbsent(file.getPath(), ignore);
   }
 
   @Override
@@ -48,20 +57,21 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   }
 
   @Override
-  public CIAidSettingsState getState() {
-    return this;
+  public CIAidSettingsState.State getState() {
+    return this.state;
   }
 
   @Override
-  public void loadState(@NotNull CIAidSettingsState state) {
-    XmlSerializerUtil.copyBean(state, this);
+  public void loadState(@NotNull CIAidSettingsState.State state) {
+    this.cachedGitLabAccessToken = getGitLabAccessToken();
+    this.state = state;
   }
 
   public String getGitLabServerUrl() {
-    if (gitlabServerUrl.isEmpty()) {
+    if (getGitlabServerUrl().isEmpty()) {
       return GitLabUtils.DEFAULT_GITLAB_SERVER_URL;
     }
-    return gitlabServerUrl;
+    return getGitlabServerUrl();
   }
 
   public String getGitLabApiUrl() {
@@ -69,30 +79,111 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   }
 
   public String getGitlabTemplatesProject() {
-    if (gitlabTemplatesProject.isBlank()) {
+    if (state.gitlabTemplatesProject.isBlank()) {
       return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PROJECT;
     }
-    return gitlabTemplatesProject;
+    return state.gitlabTemplatesProject;
   }
 
 
   public String getGitlabTemplatesPath() {
-    if (gitlabTemplatesPath.isBlank()) {
+    if (state.gitlabTemplatesPath.isBlank()) {
       return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PATH;
     }
-    return gitlabTemplatesPath;
+    return state.gitlabTemplatesPath;
+  }
+
+  public String getCachedGitLabAccessToken() {
+    if (cachedGitLabAccessToken == null) {
+      cachedGitLabAccessToken = getGitLabAccessToken();
+    }
+    return cachedGitLabAccessToken;
   }
 
   public String getGitLabAccessToken() {
-    var credentialAttributes = getCredentialAttributes(gitlabServerUrl);
+    var credentialAttributes = getCredentialAttributes(project, getGitlabServerUrl());
     return PasswordSafe.getInstance().getPassword(credentialAttributes);
   }
 
   public void saveGitLabAccessToken(String gitlabServerUrl, String token) {
-    PasswordSafe.getInstance().setPassword(getCredentialAttributes(gitlabServerUrl), token);
+    PasswordSafe.getInstance().setPassword(getCredentialAttributes(project, gitlabServerUrl), token);
+    this.cachedGitLabAccessToken = token;
   }
 
-  private CredentialAttributes getCredentialAttributes(String gitlabServerUrl) {
-    return new CredentialAttributes("CIAidGitlabAccessToken", gitlabServerUrl);
+  private CredentialAttributes getCredentialAttributes(Project project, String gitlabServerUrl) {
+    var projectLocationHash = project.getLocationHash();
+    return new CredentialAttributes("CIAidGitlabAccessToken-" + projectLocationHash, gitlabServerUrl);
+  }
+
+  public String getDefaultGitlabCIYamlPath() {
+    return state.defaultGitlabCIYamlPath;
+  }
+
+  public void setDefaultGitlabCIYamlPath(String defaultGitlabCIYamlPath) {
+    this.state.defaultGitlabCIYamlPath = defaultGitlabCIYamlPath;
+  }
+
+  public boolean isIgnoreUndefinedJob() {
+    return state.ignoreUndefinedJob;
+  }
+
+  public void setIgnoreUndefinedJob(boolean ignoreUndefinedJob) {
+    this.state.ignoreUndefinedJob = ignoreUndefinedJob;
+  }
+
+  public boolean isIgnoreUndefinedStage() {
+    return state.ignoreUndefinedStage;
+  }
+
+  public void setIgnoreUndefinedStage(boolean ignoreUndefinedStage) {
+    this.state.ignoreUndefinedStage = ignoreUndefinedStage;
+  }
+
+  public boolean isIgnoreUndefinedScript() {
+    return state.ignoreUndefinedScript;
+  }
+
+  public void setIgnoreUndefinedScript(boolean ignoreUndefinedScript) {
+    this.state.ignoreUndefinedScript = ignoreUndefinedScript;
+  }
+
+  public boolean isIgnoreUndefinedInclude() {
+    return state.ignoreUndefinedInclude;
+  }
+
+  public void setIgnoreUndefinedInclude(boolean ignoreUndefinedInclude) {
+    this.state.ignoreUndefinedInclude = ignoreUndefinedInclude;
+  }
+
+  public Map<String, Boolean> getYamlToUserMarkings() {
+    return state.yamlToUserMarkings;
+  }
+
+  public void setYamlToUserMarkings(Map<String, Boolean> yamlToUserMarkings) {
+    this.state.yamlToUserMarkings = yamlToUserMarkings;
+  }
+
+  public Long getCacheExpiryTime() {
+    return state.cacheExpiryTime;
+  }
+
+  public void setCacheExpiryTime(Long cacheExpiryTime) {
+    this.state.cacheExpiryTime = cacheExpiryTime;
+  }
+
+  public String getGitlabServerUrl() {
+    return state.gitlabServerUrl;
+  }
+
+  public void setGitlabServerUrl(String gitlabServerUrl) {
+    this.state.gitlabServerUrl = gitlabServerUrl;
+  }
+
+  public void setGitlabTemplatesProject(String gitlabTemplatesProject) {
+    this.state.gitlabTemplatesProject = gitlabTemplatesProject;
+  }
+
+  public void setGitlabTemplatesPath(String gitlabTemplatesPath) {
+    this.state.gitlabTemplatesPath = gitlabTemplatesPath;
   }
 }

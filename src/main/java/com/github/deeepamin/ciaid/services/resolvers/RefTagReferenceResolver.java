@@ -2,8 +2,8 @@ package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
-import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
@@ -15,8 +15,8 @@ import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
 import java.util.Arrays;
 
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.REFERENCE_TAG;
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
   public RefTagReferenceResolver(@NotNull PsiElement element, PsiElement target) {
@@ -44,7 +44,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
           if (elementText.equals(children[0].getText())) {
             return referencesToShow.stream()
                     .map(YAMLKeyValue::getKeyText)
-                    .map(ReferenceUtils::handleQuotedText)
+                    .map(CIAidUtils::handleQuotedText)
                     .map(ref -> LookupElementBuilder.create(ref)
                             .bold()
                             .withIcon(Icons.ICON_NEEDS.getIcon())
@@ -64,7 +64,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                           .filter(child -> child instanceof YAMLKeyValue)
                           .map(child -> (YAMLKeyValue) child)
                           .map(YAMLKeyValue::getKeyText)
-                          .map(ReferenceUtils::handleQuotedText)
+                          .map(CIAidUtils::handleQuotedText)
                           .map(ref -> LookupElementBuilder.create(ref)
                                   .bold()
                                   .withTypeText(ciAidProjectService.getJobFileName(myElement.getProject(), referenceText))

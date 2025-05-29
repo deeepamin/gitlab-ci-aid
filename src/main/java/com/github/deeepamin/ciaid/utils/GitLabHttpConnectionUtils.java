@@ -75,17 +75,15 @@ public class GitLabHttpConnectionUtils {
     try (var httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build()) {
-      if (accessToken == null || accessToken.isBlank()) {
-        LOG.debug("Access token is required to resolve component version");
-        return null;
+
+      HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+              .uri(URI.create(url));
+
+      if (accessToken != null && !accessToken.isBlank()) {
+        requestBuilder.header("PRIVATE-TOKEN", accessToken);
       }
-      HttpRequest request = HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .header("PRIVATE-TOKEN", accessToken)
-              .build();
 
-      HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
+      HttpResponse<String> response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() != HTTP_OK) {
         LOG.debug("Couldn't resolve component version " + response.body());
         return null;
@@ -103,6 +101,9 @@ public class GitLabHttpConnectionUtils {
           name = name.substring(1);
         }
         versions.add(name);
+      }
+      if (versions.contains(versionRef)) {
+        return versionRef; // Exact match e.g. v1.0.0
       }
 
       List<String> matching;

@@ -14,7 +14,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,7 +37,6 @@ import static com.github.deeepamin.ciaid.utils.GitLabUtils.getProjectFileCacheKe
 public final class CIAidCacheService implements PersistentStateComponent<CIAidCacheService.State> {
   private static final Logger LOG = Logger.getInstance(CIAidCacheService.class);
   public static final String CI_AID_CACHE_DIR_NAME = "gitlab-ci-aid-cache";
-  public static final Key<String> INCLUDE_PATH_CACHE_KEY = Key.create("CIAid.Gitlab.Include.Path.Cache");
 
   public static class State {
     public Map<String, CIAidGitLabCacheMetadata> filePathToCache = new ConcurrentHashMap<>();
@@ -71,6 +70,8 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
       LOG.debug("File is not a YAML file: " + fileName);
       return;
     }
+    var cacheKey = getProjectFileCacheKey(projectName, filePath, ref);
+
     // remove the file name from the path to get the directory
     filePath = filePath.substring(0, filePath.lastIndexOf("/"));
     var projectFileDirectoryString = projectName.replaceAll("/", "_") +
@@ -78,7 +79,6 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
             (ref != null && !ref.isBlank() ? ref + File.separator : "") +
             filePath.replaceAll("/", File.separator);
     var fileAbsolutePath = Paths.get(CIAidCacheUtils.getProjectsCacheDir().getAbsolutePath()).resolve(projectFileDirectoryString).resolve(fileName);
-    var cacheKey = getProjectFileCacheKey(projectName, filePath, ref);
     validateAndCacheRepositoryFile(project, downloadUrl, fileAbsolutePath.toString(), cacheKey, true);
   }
 
@@ -106,10 +106,6 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
   }
 
   public void cacheComponent(Project project, String componentPath) {
-    if (componentPath == null || componentPath.isBlank()) {
-      LOG.debug("Component path is null or empty");
-      return;
-    }
     var componentProjectNameVersion = GitLabUtils.getComponentProjectNameAndVersion(componentPath);
     if (componentProjectNameVersion == null) {
       LOG.debug("Component path does not match the expected format: " + componentPath);
@@ -127,19 +123,27 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
     String resolvedVersion = null;
     try {
       resolvedVersion = GitLabHttpConnectionUtils.resolveComponentVersion(project, projectName, versionRef,
-              CIAidSettingsState.getInstance(project).getGitLabAccessToken());
+              CIAidSettingsState.getInstance(project).getCachedGitLabAccessToken());
     } catch (IOException | InterruptedException e) {
       LOG.debug("Error resolving component version: " + e.getMessage());
     }
-    var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, projectName, componentName, resolvedVersion);
-    var projectFilePath = projectName.replaceAll("/", "_") +
-            File.separator +
-            (resolvedVersion != null && !resolvedVersion.isBlank() ? resolvedVersion + File.separator : "") +
-            componentName.replaceAll("/", File.separator);
+    var templatesPathInGitLabUrl = "templates";
+    var possiblePaths = List.of(
+            templatesPathInGitLabUrl + (componentName.startsWith("/") ? "" : "/") + componentName + (componentName.endsWith("/") ? "" : "/") + "template.yml",
+            templatesPathInGitLabUrl + (componentName.startsWith("/") ? "" : "/") + componentName + ".yml"
+    );
 
-    // TODO 2 different components check component-name/template.yml, component-name.yml
-    var absolutePath = Paths.get(CIAidCacheUtils.getComponentsCacheDir().getAbsolutePath()).resolve(projectFilePath);
-    validateAndCacheRepositoryFile(project, downloadUrl, absolutePath.toString(), componentPath, true);
+    String finalResolvedVersion = resolvedVersion;
+    for (String path : possiblePaths) {
+      var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, projectName, path, finalResolvedVersion);
+      var projectFilePath = projectName.replaceAll("/", "_") +
+              File.separator +
+              (finalResolvedVersion != null && !finalResolvedVersion.isBlank() ? finalResolvedVersion + File.separator : "") +
+              path.replaceAll("/", File.separator);
+
+      var absolutePath = Paths.get(CIAidCacheUtils.getComponentsCacheDir().getAbsolutePath()).resolve(projectFilePath);
+      validateAndCacheRepositoryFile(project, downloadUrl, absolutePath.toString(), componentPath, true);
+    }
   }
 
   private void validateAndCacheRepositoryFile(Project project, String downloadUrl, String filePath, String cacheKey, boolean authorize) {
@@ -176,7 +180,7 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
         }
         try (FileWriter writer = new FileWriter(file)) {
           writer.write(content);
-          var expiryTime = CIAidSettingsState.getInstance(project).cacheExpiryTime;
+          var expiryTime = CIAidSettingsState.getInstance(project).getCacheExpiryTime();
           var metadata = new CIAidGitLabCacheMetadata()
                   .path(filePath)
                   .expiryTime(expiryTime * 60 * 60)

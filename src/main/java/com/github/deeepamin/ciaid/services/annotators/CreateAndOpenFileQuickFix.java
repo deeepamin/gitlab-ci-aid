@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -15,7 +15,7 @@ public abstract class CreateAndOpenFileQuickFix implements LocalQuickFix {
     if (!YamlUtils.isYamlTextElement(element)) {
       return;
     }
-    var scriptPath = ReferenceUtils.handleQuotedText(element.getText());
+    var scriptPath = CIAidUtils.handleQuotedText(element.getText());
     var scriptAbsolutePath = FileUtils.getFilePath(scriptPath, project);
     if (scriptAbsolutePath == null) {
       return;

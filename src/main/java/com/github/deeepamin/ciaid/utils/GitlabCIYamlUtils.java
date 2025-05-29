@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class GitlabCIYamlUtils {
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";

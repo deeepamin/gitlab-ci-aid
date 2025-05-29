@@ -38,6 +38,9 @@ public class GitLabUtils {
   }
 
   public static ComponentProjectNameVersion getComponentProjectNameAndVersion(String componentPath) {
+    if (componentPath == null || componentPath.isBlank()) {
+      return null;
+    }
     String regex = "^(?:https?://[^/]+|\\$CI_SERVER_FQDN)/(.+?)/([^/@]+)@([^?]+)(?:\\?.*)?$";
     var pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(componentPath);

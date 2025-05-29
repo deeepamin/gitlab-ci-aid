@@ -88,7 +88,7 @@ public class CIAidYamlAnnotator implements Annotator {
             .filter(element -> PsiUtils.isChild(element, List.of(STAGE)))
             .ifPresent(stage -> {
               var allStages = getGitlabCIYamlProjectService(psiElement).getStageNamesDefinedAtStagesLevel();
-              var stageName = ReferenceUtils.handleQuotedText(psiElement.getText());
+              var stageName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = GitlabCIYamlUtils.isAnInputsString(stageName);
               if (isInputsString) {
                 return;
@@ -102,7 +102,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 return;
               }
               if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
-                var ignoreUndefinedStageErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedStage;
+                var ignoreUndefinedStageErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedStage();
                 if (!ignoreUndefinedStageErrors) {
                   holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.stage-undefined", stage.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
@@ -141,13 +141,13 @@ public class CIAidYamlAnnotator implements Annotator {
             .filter(element -> !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS))
             .ifPresent(job -> {
               var allJobs = getGitlabCIYamlProjectService(psiElement).getJobNames();
-              var jobName = ReferenceUtils.handleQuotedText(psiElement.getText());
+              var jobName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
               if (isInputsString) {
                 return;
               }
               if (!allJobs.contains(jobName)) {
-                var ignoreUndefinedJobErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedJob;
+                var ignoreUndefinedJobErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedJob();
                 if (!ignoreUndefinedJobErrors) {
                   holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.need-job-undefined", job.getText()))
                           .highlightType(LIKE_UNKNOWN_SYMBOL)
@@ -165,7 +165,7 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, SCRIPT_KEYWORDS))
             .ifPresent(scriptElement -> {
-              var filePath = ReferenceUtils.handleQuotedText(scriptElement.getText());
+              var filePath = CIAidUtils.handleQuotedText(scriptElement.getText());
               var scriptPathIndexes = FileUtils.getFilePathAndIndexes(filePath);
               for (var scriptPathIndex : scriptPathIndexes) {
                 var project = scriptElement.getProject();
@@ -175,7 +175,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 if (virtualScriptFile == null) {
                   // in block any command can be quoted/plain text, and then we don't want to show path related error
                   if (isNotScriptBlock) {
-                    var ignoreUndefinedScriptErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedScript;
+                    var ignoreUndefinedScriptErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedScript();
                     if (!ignoreUndefinedScriptErrors) {
                       var errorText = CIAidBundle.message("annotator.error.script-not-found", scriptElement.getText());
                       var quickFix = new CreateScriptQuickFix();
@@ -205,7 +205,7 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(includeElement -> {
               var isNonLocalInclude = PsiUtils.isChild(includeElement, NON_LOCAL_INCLUDE_KEYWORDS);
               if (isNonLocalInclude) {
-                var cacheKey = includeElement.getUserData(CIAidCacheService.INCLUDE_PATH_CACHE_KEY);
+                var cacheKey = ReferenceUtils.getIncludeCacheKey(includeElement);
                 if (cacheKey != null) {
                   var path = CIAidCacheService.getInstance().getIncludePathFromCacheKey(cacheKey);
                   if (path != null) {
@@ -216,7 +216,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 }
                 return;
               }
-              var filePath = ReferenceUtils.handleQuotedText(includeElement.getText());
+              var filePath = CIAidUtils.handleQuotedText(includeElement.getText());
               var inputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
               if (inputsFilePathString) {
                 return;
@@ -227,7 +227,7 @@ public class CIAidYamlAnnotator implements Annotator {
               if (includeVirtualFile == null) {
                 if (!isRemoteInclude) {
                   // don't highlight remote includes, they should come from include cache key
-                  var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).ignoreUndefinedInclude;
+                  var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedInclude();
                   if (!ignoreUndefinedIncludeErrors) {
                     var errorText = CIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
                     var quickFix = new CreateIncludeFileQuickFix();

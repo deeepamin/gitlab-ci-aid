@@ -12,7 +12,7 @@ import org.jetbrains.yaml.psi.YAMLPsiElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class CIAidYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files

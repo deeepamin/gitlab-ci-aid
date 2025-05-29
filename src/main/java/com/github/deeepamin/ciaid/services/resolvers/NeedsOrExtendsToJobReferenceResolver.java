@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlProjectService;
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
 
 public class NeedsOrExtendsToJobReferenceResolver extends SingleTargetReferenceResolver {
   // From Needs element to Job or Extends element to job

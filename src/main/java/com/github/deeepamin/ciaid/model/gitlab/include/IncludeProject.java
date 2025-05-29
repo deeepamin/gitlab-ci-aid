@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.model.gitlab.include;
 
-import static com.github.deeepamin.ciaid.utils.ReferenceUtils.handleQuotedText;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public final class IncludeProject extends IncludeFile {
   private String project;

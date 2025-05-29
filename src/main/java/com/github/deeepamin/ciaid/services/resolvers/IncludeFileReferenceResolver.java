@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
@@ -37,6 +37,6 @@ public class IncludeFileReferenceResolver extends PsiReferenceBase<PsiElement> {
 
   @Override
   public @NotNull String getCanonicalText() {
-    return ReferenceUtils.handleQuotedText(myElement.getText());
+    return CIAidUtils.handleQuotedText(myElement.getText());
   }
 }
