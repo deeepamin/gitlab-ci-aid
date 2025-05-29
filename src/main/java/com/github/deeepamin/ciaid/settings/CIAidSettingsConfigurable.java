@@ -79,7 +79,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   @Override
   public @Nullable JComponent createComponent() {
     configureDefaultYamlPathTextField();
-    configureGitLabSettings();
     configureInspectionCheckboxes();
     configureUserMarkedFilesTable();
 

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class CIAidDocumentationTargetProvider implements PsiDocumentationTargetProvider {
   @Override
   public @Nullable DocumentationTarget documentationTarget(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-    if (originalElement == null) {
+    if (originalElement == null || element.getContainingFile() == null) {
       return null;
     }
     var isGitlabCIYaml = GitlabCIYamlUtils.isValidGitlabCIYamlFile(element.getContainingFile().getVirtualFile());
