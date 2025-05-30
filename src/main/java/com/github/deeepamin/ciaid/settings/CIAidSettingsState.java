@@ -164,7 +164,13 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   }
 
   public Long getCacheExpiryTime() {
-    return state.cacheExpiryTime;
+    var expiryTimeHours = state.cacheExpiryTime;
+    if (expiryTimeHours == null || expiryTimeHours <= 0) {
+      // Default to 24 hours if not set or invalid
+      expiryTimeHours = 24L;
+      state.cacheExpiryTime = expiryTimeHours;
+    }
+    return expiryTimeHours * 60 * 60 * 1000; // Convert hours to milliseconds
   }
 
   public void setCacheExpiryTime(Long cacheExpiryTime) {

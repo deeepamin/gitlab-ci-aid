@@ -8,7 +8,6 @@ public class CIAidGitLabCacheMetadata implements Serializable {
   private final Map<String, String> metaData = new ConcurrentHashMap<>();
   private static final String PATH = "path";
   private static final String EXPIRY_TIME_KEY = "expiryTime";
-  private static final String SHA_KEY = "sha";
 
   public String getPath() {
     return metaData.getOrDefault(PATH, "");
@@ -25,15 +24,6 @@ public class CIAidGitLabCacheMetadata implements Serializable {
 
   public CIAidGitLabCacheMetadata expiryTime(Long expiryTime) {
     metaData.put(EXPIRY_TIME_KEY, String.valueOf(expiryTime));
-    return this;
-  }
-
-  public String getSha() {
-    return metaData.getOrDefault(SHA_KEY, "");
-  }
-
-  public CIAidGitLabCacheMetadata sha(String sha) {
-    metaData.put(SHA_KEY, sha);
     return this;
   }
 }

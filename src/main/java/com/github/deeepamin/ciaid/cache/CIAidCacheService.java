@@ -14,6 +14,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,15 +77,33 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
     return state.remoteIncludeIdentifierToLocalPath.get(cacheKey);
   }
 
-  public void addFilePathToStateCache(Project project, String filePath, String sha) {
+  public void addFilePathToStateCache(Project project, String filePath) {
     if (filePath == null) {
       LOG.debug("File path is null");
       return;
     }
     var metadata = new CIAidGitLabCacheMetadata()
             .path(filePath)
-            .expiryTime(CIAidSettingsState.getInstance(project).getCacheExpiryTime() * 60 * 60)
-            .sha(sha);
+            .expiryTime(Instant.now().toEpochMilli() + CIAidSettingsState.getInstance(project).getCacheExpiryTime());
     state.filePathToCache.put(filePath, metadata);
+  }
+
+  public boolean isCacheExpired(String cacheFilePath) {
+    if (cacheFilePath == null) {
+      LOG.debug("Cache file path is null");
+      return true;
+    }
+    var metadata = state.filePathToCache.get(cacheFilePath);
+    if (metadata == null) {
+      return true;
+    }
+    long currentTime = Instant.now().toEpochMilli();
+    return currentTime > metadata.getExpiryTime();
+  }
+
+  public void clearCache() {
+    state.filePathToCache.clear();
+    state.remoteIncludeIdentifierToLocalPath.clear();
+    LOG.info("CIAid cache cleared");
   }
 }

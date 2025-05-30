@@ -32,6 +32,8 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
 
   protected abstract void readRemoteIncludeFile();
 
+  protected abstract String getCacheDirName();
+
   protected String getGitLabAccessToken() {
     if (this instanceof RemoteUrlIncludeProvider) {
       // Remote URL includes do not support authorization
@@ -44,12 +46,10 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     return getOrCreateDir(getCiAidCacheDir().getPath(), getCacheDirName());
   }
 
-  protected abstract String getCacheDirName();
-
   protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
-    //TODO check sha and expiry time
+    var isCacheExpired = CIAidCacheService.getInstance().isCacheExpired(cacheFilePath);
     var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
-    if (includePath != null) {
+    if (includePath != null && !isCacheExpired) {
       LOG.debug("File already cached " + cacheFilePath + " for key " + cacheKey);
       return;
     }
@@ -64,26 +64,25 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     new Task.Backgroundable(project, "Resolving GitLab CI includes", false) {
       @Override
       public void run(@NotNull final ProgressIndicator indicator) {
-        File file = new File(cacheFilePath);
-        if (file.exists()) {
+        File cacheFile = new File(cacheFilePath);
+        if (cacheFile.exists()) {
           //noinspection ResultOfMethodCallIgnored
-          file.delete(); //TODO
+          cacheFile.delete();
         }
         var content = GitLabHttpConnectionUtils.downloadContent(downloadUrl, getGitLabAccessToken());
         if (content == null) {
           LOG.debug("Failed to download content from " + downloadUrl);
           return;
         }
-        File parent = file.getParentFile();
+        File parent = cacheFile.getParentFile();
         if (!parent.exists()) {
           //noinspection ResultOfMethodCallIgnored
           parent.mkdirs();
         }
-        try (FileWriter writer = new FileWriter(file)) {
+        try (FileWriter writer = new FileWriter(cacheFile)) {
           writer.write(content);
-          var sha = ""; //TODO get sha of file
-          updateCache(cacheKey, cacheFilePath, sha);
-          CIAidCacheUtils.refreshAndReadFile(project, file);
+          // cache file path in cache service
+          updateCache(project, cacheKey, cacheFile);
         } catch (IOException e) {
           LOG.error("Error while caching file " + downloadUrl + ": " + e);
         }
@@ -91,10 +90,10 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     }.queue();
   }
 
-  private void updateCache(String cacheKey, String cacheFilePath, String sha) {
+  private void updateCache(Project project, String cacheKey, File cacheFile) {
     var ciAidCacheService = CIAidCacheService.getInstance();
-    ciAidCacheService.addFilePathToStateCache(project, cacheFilePath, sha);
-    ciAidCacheService.addIncludeIdentifierToCacheFilePath(cacheKey, cacheFilePath);
+    ciAidCacheService.addIncludeIdentifierToCacheFilePath(cacheKey, cacheFile.getAbsolutePath());
+    ciAidCacheService.addFilePathToStateCache(project, cacheFile.getAbsolutePath());
+    CIAidCacheUtils.refreshAndReadFile(project, cacheFile);
   }
-
 }
