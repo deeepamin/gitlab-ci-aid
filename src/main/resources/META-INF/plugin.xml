@@ -22,7 +22,7 @@
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.CIAidYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidEditorNotificationProvider"/>
-        <platform.backend.documentation.psiTargetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
+        <platform.backend.documentation.targetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
         <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.CIAid" key="settings.display.name" nonDefaultProject="true"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">

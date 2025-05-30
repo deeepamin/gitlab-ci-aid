@@ -70,16 +70,20 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightInputs(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
     var elementText = element.getText();
-    var inputsStringWithStartEndRange = GitlabCIYamlUtils.getInputsString(elementText);
-    if (inputsStringWithStartEndRange == null || inputsStringWithStartEndRange.path() == null) {
+    var inputsWithStartEndRange = GitlabCIYamlUtils.getInputs(elementText);
+    if (inputsWithStartEndRange == null || inputsWithStartEndRange.isEmpty()) {
       return;
     }
 
-    var highlightRange = CIAidUtils.getHighlightTextRange(element, inputsStringWithStartEndRange.start(), inputsStringWithStartEndRange.end());
-    holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-            .textAttributes(STAGE_HIGHLIGHTER)
-            .range(highlightRange)
-            .create();
+    inputsWithStartEndRange.forEach(input -> {
+      if (input.path() != null) {
+        var highlightRange = CIAidUtils.getHighlightTextRange(element, input.start(), input.end());
+        holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                .textAttributes(STAGE_HIGHLIGHTER)
+                .range(highlightRange)
+                .create();
+      }
+    });
   }
 
   private void annotateHighlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
