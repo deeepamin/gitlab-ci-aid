@@ -3,7 +3,6 @@ package com.github.deeepamin.ciaid.cache;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.psi.PsiManager;
@@ -41,10 +40,6 @@ public class CIAidCacheUtils {
       }
       ApplicationManager.getApplication().invokeLater(() -> PsiManager.getInstance(project).dropPsiCaches());
     });
-  }
-
-  public static File getCiAidCacheDir() {
-    return getOrCreateDir(PathManager.getSystemPath(), CIAidCacheService.CI_AID_CACHE_DIR_NAME);
   }
 
   public static File getOrCreateDir(String parent, String dir) {

@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services.targets;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
@@ -90,7 +91,7 @@ public class InputDocumentationTarget implements DocumentationTarget {
       var inputFile = input.inputElement().getContainingFile();
       if (inputFile != null) {
         var inputFilePath = getFilePathForDocumentation(originalElementPtr.getProject(), inputFile.getVirtualFile());
-        if (inputFilePath != null) {
+        if (!inputFilePath.isBlank()) {
           return TargetPresentation.builder(input.name() + " Documentation")
                   .locationText(inputFilePath, Icons.ICON_YAML.getIcon())
                   .presentation();
@@ -112,8 +113,11 @@ public class InputDocumentationTarget implements DocumentationTarget {
     if (virtualFile != null) {
       var filePath = virtualFile.getPath();
       var basePath = project.getBasePath();
+      var ciAidCacheDir = CIAidCacheService.getCiAidCacheDir();
       if (basePath != null && filePath.startsWith(basePath + File.separator)) {
         return filePath.replace(basePath + File.separator, "");
+      } else if (filePath.startsWith(ciAidCacheDir.getPath() + File.separator)) {
+        return filePath.replace(ciAidCacheDir.getPath() + File.separator, "");
       } else {
         return filePath;
       }

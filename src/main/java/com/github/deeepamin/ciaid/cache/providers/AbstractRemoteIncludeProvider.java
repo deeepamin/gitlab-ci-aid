@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static com.github.deeepamin.ciaid.cache.CIAidCacheUtils.getCiAidCacheDir;
+import static com.github.deeepamin.ciaid.cache.CIAidCacheService.getCiAidCacheDir;
 import static com.github.deeepamin.ciaid.cache.CIAidCacheUtils.getOrCreateDir;
 
 public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvider {
