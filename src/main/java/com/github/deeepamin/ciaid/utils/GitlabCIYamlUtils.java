@@ -89,32 +89,34 @@ public class GitlabCIYamlUtils {
     if (input == null) {
       return false;
     }
-    var fileWithStartEndRange = getInputsString(input);
-    return fileWithStartEndRange != null && fileWithStartEndRange.path() != null;
+    var inputsWithStartEndRange = getInputs(input);
+    return inputsWithStartEndRange != null && !inputsWithStartEndRange.isEmpty();
   }
 
-  public static StringWithStartEndRange getInputsString(String input) {
+  public static List<StringWithStartEndRange> getInputs(String input) {
     if (input == null) {
       return null;
     }
     var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
     var matcher = pattern.matcher(input);
-    if (!matcher.find()) {
-      return null;
+    var inputs = new ArrayList<StringWithStartEndRange>();
+    while (matcher.find()) {
+      inputs.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
     }
-    return new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
+    return inputs;
   }
 
-  public static StringWithStartEndRange getInputNameFromInputsString(String input) {
+  public static List<StringWithStartEndRange> getInputNames(String input) {
     if (input == null) {
       return null;
     }
     var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.(\\w+)");
     var matcher = pattern.matcher(input);
-    if (!matcher.find()) {
-      return null;
+    var inputs = new ArrayList<StringWithStartEndRange>();
+    while (matcher.find()) {
+      inputs.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
     }
-    return new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1));
+    return inputs;
   }
 
   public static String getReferenceTag(YAMLPsiElement element) {

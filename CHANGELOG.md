@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Multiple inputs in a single line shows documentation for each input
+
 ## [1.9.1] - 2025-05-29
 
 ### Fixed
