@@ -39,10 +39,9 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       LOG.debug("Component path does not match the expected format: " + filePath);
       return;
     }
-    var ciAidSettings = CIAidSettingsState.getInstance(project);
     componentProjectPath = componentProjectNameVersion.project();
     componentName = componentProjectNameVersion.component();
-    componentVersion = resolveComponentVersion(project, componentProjectNameVersion.version(), ciAidSettings.getCachedGitLabAccessToken());
+    componentVersion = componentProjectNameVersion.version();
   }
 
   @Override
@@ -56,6 +55,8 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       LOG.debug("Component project path or component name is null for " + this.getClass().getSimpleName());
       return;
     }
+    var ciAidSettings = CIAidSettingsState.getInstance(project);
+    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, ciAidSettings.getCachedGitLabAccessToken());
 
     // one of the possible paths for component file in GitLab will be found
     var possiblePaths = List.of(
@@ -67,7 +68,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, componentVersion);
       var projectFilePath = componentProjectPath.replaceAll("/", "_") +
               File.separator +
-              (componentVersion != null && !componentVersion.isBlank() ? componentVersion + File.separator : "") +
+              (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + File.separator : "") +
               path.replaceAll("/", File.separator);
 
       var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(projectFilePath).toString();
