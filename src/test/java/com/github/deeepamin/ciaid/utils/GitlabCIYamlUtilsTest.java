@@ -58,31 +58,31 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
   }
 
-  public void testGetInputsString() {
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputsString("$[[inputs.test]]").path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputsString("$[[ inputs.test ]]").path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputsString("$[[inputs.test ]]").path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputsString("$[[ inputs.test]]").path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputsString("   $[[ inputs.test ]]  ").path());
+  public void testGetInputs() {
+    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[inputs.test]]").getFirst().path());
+    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[ inputs.test ]]").getFirst().path());
+    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[inputs.test ]]").getFirst().path());
+    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[ inputs.test]]").getFirst().path());
+    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("   $[[ inputs.test ]]  ").getFirst().path());
 
-    assertNull(GitlabCIYamlUtils.getInputsString("$[[ input.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputsString("[[inputs.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputsString("$[ inputs.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputsString("$[[ inputs.test ]"));
-    assertNull(GitlabCIYamlUtils.getInputsString("$$[ output.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputs("$[[ input.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputs("[[inputs.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputs("$[ inputs.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputs("$[[ inputs.test ]"));
+    assertEmpty(GitlabCIYamlUtils.getInputs("$$[ output.test ]]"));
   }
 
   public void testGetInputNameString() {
-    assertEquals("test", GitlabCIYamlUtils.getInputNameFromInputsString("$[[inputs.test]]").path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNameFromInputsString("$[[ inputs.test ]]").path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNameFromInputsString("$[[inputs.test ]]").path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNameFromInputsString("$[[ inputs.test]]").path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNameFromInputsString("   $[[ inputs.test ]]  ").path());
+    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[inputs.test]]").getFirst().path());
+    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[ inputs.test ]]").getFirst().path());
+    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[inputs.test ]]").getFirst().path());
+    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[ inputs.test]]").getFirst().path());
+    assertEquals("test", GitlabCIYamlUtils.getInputNames("   $[[ inputs.test ]]  ").getFirst().path());
 
-    assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("$[[ input.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("[[inputs.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("$[ inputs.test ]]"));
-    assertNull(GitlabCIYamlUtils.getInputNameFromInputsString("$$[ output.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputNames("$[[ input.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputNames("[[inputs.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputNames("$[ inputs.test ]]"));
+    assertEmpty(GitlabCIYamlUtils.getInputNames("$$[ output.test ]]"));
   }
 
   public void testGetVariables() {

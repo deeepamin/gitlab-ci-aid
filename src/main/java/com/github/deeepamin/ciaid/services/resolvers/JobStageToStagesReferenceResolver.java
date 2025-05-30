@@ -16,7 +16,7 @@ public class JobStageToStagesReferenceResolver extends SingleTargetReferenceReso
 
   @Override
   public Object @NotNull [] getVariants() {
-    var isInputsString = GitlabCIYamlUtils.getInputNameFromInputsString(myElement.getText()) != null;
+    var isInputsString = GitlabCIYamlUtils.isAnInputsString(myElement.getText());
     if (isInputsString) {
       return new LookupElement[0];
     }

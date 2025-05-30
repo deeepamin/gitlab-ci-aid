@@ -124,21 +124,26 @@ public class ReferenceUtils {
       var elementText = element.getText();
       var project = element.getProject();
       var gitlabCIYamlProjectService = CIAidProjectService.getInstance(project);
-      var inputNameWithStartEndRange = GitlabCIYamlUtils.getInputNameFromInputsString(elementText);
-      if (inputNameWithStartEndRange != null) {
-        var inputName = inputNameWithStartEndRange.path();
-        var startOffset = inputNameWithStartEndRange.start();
-        var endOffset = inputNameWithStartEndRange.end();
+      var inputNamesWithStartEndRange = GitlabCIYamlUtils.getInputNames(elementText);
+      if (inputNamesWithStartEndRange != null && !inputNamesWithStartEndRange.isEmpty()) {
+        var inputRefs = new ArrayList<PsiReference>();
+        inputNamesWithStartEndRange.forEach(inputNameWithStartEndRange -> {
+          var inputName = inputNameWithStartEndRange.path();
+          var startOffset = inputNameWithStartEndRange.start();
+          var endOffset = inputNameWithStartEndRange.end();
 
-        var targetInput = gitlabCIYamlProjectService.getPluginData().values()
-                .stream()
-                .flatMap(yamlData -> yamlData.getInputs().stream())
-                .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                .map(SmartPsiElementPointer::getElement)
-                .filter(inputKeyValue -> inputKeyValue.getKeyText().equals(inputName))
-                .findFirst()
-                .orElse(null);
-        return Optional.of(new PsiReference[]{ new InputsReferenceResolver(element, targetInput, TextRange.create(startOffset, endOffset)) });
+          var targetInput = gitlabCIYamlProjectService.getPluginData().values()
+                  .stream()
+                  .flatMap(yamlData -> yamlData.getInputs().stream())
+                  .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+                  .map(SmartPsiElementPointer::getElement)
+                  .filter(inputKeyValue -> inputKeyValue.getKeyText().equals(inputName))
+                  .findFirst()
+                  .orElse(null);
+
+          inputRefs.add(new InputsReferenceResolver(element, targetInput, TextRange.create(startOffset, endOffset)));
+        });
+        return Optional.of(inputRefs.toArray(PsiReference[]::new));
       }
       var refTagText = GitlabCIYamlUtils.getReferenceTag(yamlPsiElement);
       if (refTagText != null) {

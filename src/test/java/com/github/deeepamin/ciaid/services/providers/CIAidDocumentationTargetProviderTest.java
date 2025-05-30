@@ -1,9 +1,9 @@
 package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.model.InputDocumentationTarget;
+import com.github.deeepamin.ciaid.services.targets.InputDocumentationTarget;
 import com.intellij.platform.backend.documentation.DocumentationData;
-import com.intellij.platform.backend.documentation.PsiDocumentationTargetProvider;
+import com.intellij.platform.backend.documentation.DocumentationTargetProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
@@ -26,17 +26,17 @@ public class CIAidDocumentationTargetProviderTest extends BaseTest {
     int offset = myFixture.getCaretOffset();
     PsiElement leafPsiElement = myFixture.getFile().findElementAt(offset);
     assertNotNull(leafPsiElement);
-    PsiElement element = leafPsiElement.getParent();
 
-    var providers = PsiDocumentationTargetProvider.EP_NAME.getExtensionList();
+    var providers = DocumentationTargetProvider.EP_NAME.getExtensionList();
     assertNotNull(providers);
-    assertEquals(1, providers.size());
-    var documentationTargetProvider = providers.getFirst();
+    assertTrue(providers.stream().anyMatch(provider -> provider instanceof CIAidDocumentationTargetProvider));
+    var documentationTargetProvider = providers.stream().filter(provider -> provider instanceof CIAidDocumentationTargetProvider).findFirst().orElse(null);
     assertTrue(documentationTargetProvider instanceof CIAidDocumentationTargetProvider);
     var ciAidDocumentationTargetProvider = (CIAidDocumentationTargetProvider) documentationTargetProvider;
 
-    var documentationTarget = ciAidDocumentationTargetProvider.documentationTarget(file, element);
-    assertNotNull(documentationTarget);
+    var documentationTargets = ciAidDocumentationTargetProvider.documentationTargets(file, offset);
+    assertNotNull(documentationTargets);
+    var documentationTarget = documentationTargets.getFirst();
     assertTrue(documentationTarget instanceof InputDocumentationTarget);
     var inputDocumentationTarget = (InputDocumentationTarget) documentationTarget;
 
@@ -50,7 +50,7 @@ public class CIAidDocumentationTargetProviderTest extends BaseTest {
     var expectedHtml = "<div style=\"font-family: JetBrains Mono; font-weight: bold; margin-bottom: 5px;\">stageInput: string</div>" +
                        "<hr/>" +
                        "<div style=\"margin-top: 5px; margin-bottom: 5px;\">The stage the job will run in.</div>" +
-                       "<span style=\"color: gray; margin-bottom: 8px;\">default: build</span>";
+                       "<span style=\"color: gray; margin-bottom: 8px;\">Default: build</span>";
     assertNotNull(documentationResult);
     assertTrue(documentationResult instanceof DocumentationData);
     var documentationData = (DocumentationData) documentationResult;
