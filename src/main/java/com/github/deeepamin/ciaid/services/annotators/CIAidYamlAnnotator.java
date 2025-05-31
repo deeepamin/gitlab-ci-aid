@@ -227,7 +227,7 @@ public class CIAidYamlAnnotator implements Annotator {
               }
               var project = includeElement.getProject();
               var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
-              var isRemoteInclude = CIAidUtils.isHttpUrl(filePath);
+              var isRemoteInclude = CIAidUtils.isValidUrl(filePath);
               if (includeVirtualFile == null) {
                 if (!isRemoteInclude) {
                   // don't highlight remote includes, they should come from include cache key

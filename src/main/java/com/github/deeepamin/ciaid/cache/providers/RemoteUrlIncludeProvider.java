@@ -21,6 +21,6 @@ public class RemoteUrlIncludeProvider extends AbstractRemoteIncludeProvider {
   protected void readRemoteIncludeFile() {
     var fileName = sha256(filePath) + ".yml";
     var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath(), fileName).toString();
-    validateAndCacheRemoteFile(filePath, filePath, cacheFilePath);
+    validateAndCacheRemoteFile(filePath, filePath, cacheFilePath, null);
   }
 }

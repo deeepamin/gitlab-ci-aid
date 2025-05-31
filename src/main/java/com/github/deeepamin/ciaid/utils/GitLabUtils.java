@@ -7,14 +7,12 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class GitLabUtils {
-  public static final String DEFAULT_GITLAB_TEMPLATE_PROJECT = "gitlab-org/gitlab";
-  public static final String DEFAULT_GITLAB_TEMPLATE_PATH = "lib/gitlab/ci/templates";
-  public static final String DEFAULT_GITLAB_SERVER_URL = "https://gitlab.com";
+  public static final String DEFAULT_GITLAB_SERVER_API_URL = "https://gitlab.com/api/v4";
   private static final String GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH = "%s/projects/%s/repository/files/%s/raw";
   public static final String GITLAB_PROJECT_TAGS_PATH = "%s/projects/%s/repository/tags";
 
   public static String getRepositoryFileDownloadUrl(Project project, String projectName, String file, String ref) {
-    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl();
+    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(projectName);
     if (projectName.startsWith("/")) {
       projectName = projectName.substring(1);
     }

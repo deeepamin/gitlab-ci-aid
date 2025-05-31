@@ -55,8 +55,8 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       LOG.debug("Component project path or component name is null for " + this.getClass().getSimpleName());
       return;
     }
-    var ciAidSettings = CIAidSettingsState.getInstance(project);
-    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, ciAidSettings.getCachedGitLabAccessToken());
+    var accessToken = CIAidSettingsState.getInstance(project).getGitLabAccessToken(componentProjectPath);
+    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, accessToken);
 
     // one of the possible paths for component file in GitLab will be found
     var possiblePaths = List.of(
@@ -65,14 +65,14 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
     );
 
     for (String path : possiblePaths) {
-      var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, componentVersion);
+      var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, resolvedComponentVersion);
       var projectFilePath = componentProjectPath.replaceAll("/", "_") +
               File.separator +
               (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + File.separator : "") +
               path.replaceAll("/", File.separator);
 
       var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(projectFilePath).toString();
-      validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath);
+      validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath, accessToken);
     }
   }
 
@@ -82,7 +82,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       return versionRef;
     }
     String encodedProject = URLEncoder.encode(componentProjectPath, StandardCharsets.UTF_8);
-    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl();
+    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(componentProjectPath);
 
     String url = String.format(GitLabUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
     try (var httpClient = HttpClient.newBuilder()

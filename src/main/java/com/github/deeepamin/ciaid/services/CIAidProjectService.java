@@ -187,7 +187,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
               // this is a top-level include which means local/remote
               var include = new IncludeFile();
               var path = handleQuotedText(scalar.getText());
-              var isRemote = CIAidUtils.isHttpUrl(path);
+              var isRemote = CIAidUtils.isValidUrl(path);
               if (isRemote) {
                 include.setFileType(IncludeFileType.REMOTE);
               } else {

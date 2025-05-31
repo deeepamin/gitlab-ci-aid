@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.settings;
 
-import com.github.deeepamin.ciaid.utils.GitLabUtils;
+import com.github.deeepamin.ciaid.settings.remotes.Remote;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -11,8 +11,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static com.github.deeepamin.ciaid.utils.GitLabUtils.DEFAULT_GITLAB_SERVER_API_URL;
 
 @Service(Service.Level.PROJECT)
 @State(
@@ -27,17 +31,17 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     public boolean ignoreUndefinedScript;
     public boolean ignoreUndefinedInclude;
     public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
-    public Long cacheExpiryTime = 24L; // Default to 24 hours
 
-    // GitLab specific settings
-    public String gitlabServerUrl = "";
-    public String gitlabTemplatesProject = "";
-    public String gitlabTemplatesPath = "";
+    // Remotes settings
+    public List<Remote> remotes = new ArrayList<>();
+    public String gitlabTemplatesProject;
+    public String gitlabTemplatesPath;
+    private boolean isCachingEnabled = true;
+    public Long cacheExpiryTime = 24L; // Default to 24 hours
   }
 
   private State state = new State();
   private final Project project;
-  private String cachedGitLabAccessToken;
 
   public CIAidSettingsState(Project project) {
     this.project = project;
@@ -52,67 +56,45 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   }
 
   @Override
-  public void initializeComponent() {
-    getGitLabAccessToken();
-  }
-
-  @Override
   public CIAidSettingsState.State getState() {
     return this.state;
   }
 
   @Override
   public void loadState(@NotNull CIAidSettingsState.State state) {
-    this.cachedGitLabAccessToken = getGitLabAccessToken();
     this.state = state;
   }
 
-  public String getGitLabServerUrl() {
-    if (getGitlabServerUrl().isEmpty()) {
-      return GitLabUtils.DEFAULT_GITLAB_SERVER_URL;
+  public String getGitLabApiUrl(String projectPath) {
+    var remoteOptional = state.remotes.stream()
+            .filter(remote -> remote.getProject().equals(projectPath))
+            .findFirst();
+    if (remoteOptional.isPresent()) {
+      return remoteOptional.get().getApiUrl();
     }
-    return getGitlabServerUrl();
-  }
-
-  public String getGitLabApiUrl() {
-    return getGitLabServerUrl() + "/api/v4";
+    return DEFAULT_GITLAB_SERVER_API_URL;
   }
 
   public String getGitlabTemplatesProject() {
-    if (state.gitlabTemplatesProject.isBlank()) {
-      return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PROJECT;
-    }
     return state.gitlabTemplatesProject;
   }
 
-
   public String getGitlabTemplatesPath() {
-    if (state.gitlabTemplatesPath.isBlank()) {
-      return GitLabUtils.DEFAULT_GITLAB_TEMPLATE_PATH;
-    }
     return state.gitlabTemplatesPath;
   }
 
-  public String getCachedGitLabAccessToken() {
-    if (cachedGitLabAccessToken == null) {
-      cachedGitLabAccessToken = getGitLabAccessToken();
-    }
-    return cachedGitLabAccessToken;
-  }
-
-  public String getGitLabAccessToken() {
-    var credentialAttributes = getCredentialAttributes(project, getGitlabServerUrl());
+  public String getGitLabAccessToken(String projectPath) {
+    var credentialAttributes = getCredentialAttributes(project, projectPath);
     return PasswordSafe.getInstance().getPassword(credentialAttributes);
   }
 
-  public void saveGitLabAccessToken(String gitlabServerUrl, String token) {
-    PasswordSafe.getInstance().setPassword(getCredentialAttributes(project, gitlabServerUrl), token);
-    this.cachedGitLabAccessToken = token;
+  public void saveGitLabAccessToken(String projectPath, String token) {
+    PasswordSafe.getInstance().setPassword(getCredentialAttributes(project, projectPath), token);
   }
 
-  private CredentialAttributes getCredentialAttributes(Project project, String gitlabServerUrl) {
+  private CredentialAttributes getCredentialAttributes(Project project, String projectPath) {
     var projectLocationHash = project.getLocationHash();
-    return new CredentialAttributes("CIAidGitlabAccessToken-" + projectLocationHash, gitlabServerUrl);
+    return new CredentialAttributes("CIAidGitlabAccessToken-" + projectLocationHash, projectPath);
   }
 
   public String getDefaultGitlabCIYamlPath() {
@@ -163,26 +145,12 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     this.state.yamlToUserMarkings = yamlToUserMarkings;
   }
 
-  public Long getCacheExpiryTime() {
-    var expiryTimeHours = state.cacheExpiryTime;
-    if (expiryTimeHours == null || expiryTimeHours <= 0) {
-      // Default to 24 hours if not set or invalid
-      expiryTimeHours = 24L;
-      state.cacheExpiryTime = expiryTimeHours;
-    }
-    return expiryTimeHours * 60 * 60 * 1000; // Convert hours to milliseconds
+  public List<Remote> getRemotes() {
+    return state.remotes;
   }
 
-  public void setCacheExpiryTime(Long cacheExpiryTime) {
-    this.state.cacheExpiryTime = cacheExpiryTime;
-  }
-
-  public String getGitlabServerUrl() {
-    return state.gitlabServerUrl;
-  }
-
-  public void setGitlabServerUrl(String gitlabServerUrl) {
-    this.state.gitlabServerUrl = gitlabServerUrl;
+  public void setRemotes(List<Remote> remotes) {
+    state.remotes = remotes;
   }
 
   public void setGitlabTemplatesProject(String gitlabTemplatesProject) {
@@ -191,5 +159,26 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public void setGitlabTemplatesPath(String gitlabTemplatesPath) {
     this.state.gitlabTemplatesPath = gitlabTemplatesPath;
+  }
+
+  public boolean isCachingEnabled() {
+    return state.isCachingEnabled;
+  }
+
+  public void setCachingEnabled(boolean cachingEnabled) {
+    state.isCachingEnabled = cachingEnabled;
+  }
+
+  public Long getCacheExpiryTime() {
+    var expiryTimeHours = state.cacheExpiryTime;
+    if (expiryTimeHours == null || expiryTimeHours <= 0) {
+      // Default to 24 hours if not set or invalid
+      expiryTimeHours = 24L;
+    }
+    return expiryTimeHours;
+  }
+
+  public void setCacheExpiryTime(Long cacheExpiryTime) {
+    this.state.cacheExpiryTime = cacheExpiryTime;
   }
 }

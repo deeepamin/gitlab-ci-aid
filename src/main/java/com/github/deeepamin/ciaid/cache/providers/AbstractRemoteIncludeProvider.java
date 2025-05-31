@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.cache.providers;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
-import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabHttpConnectionUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -34,19 +33,11 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
 
   protected abstract String getCacheDirName();
 
-  protected String getGitLabAccessToken() {
-    if (this instanceof RemoteUrlIncludeProvider) {
-      // Remote URL includes do not support authorization
-      return null;
-    }
-    return CIAidSettingsState.getInstance(project).getGitLabAccessToken();
-  }
-
   protected File getCacheDir() {
     return getOrCreateDir(getCiAidCacheDir().getPath(), getCacheDirName());
   }
 
-  protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
+  protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath, String accessToken) {
     var isCacheExpired = CIAidCacheService.getInstance().isCacheExpired(cacheFilePath);
     var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
     if (includePath != null && !isCacheExpired) {
@@ -57,19 +48,15 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
       LOG.debug("Download URL is null or empty for " + this.getClass().getSimpleName());
       return;
     }
-    cacheRemoteFile(downloadUrl, cacheKey, cacheFilePath);
+    cacheRemoteFile(downloadUrl, cacheKey, cacheFilePath, accessToken);
   }
 
-  private void cacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
+  private void cacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath, String accessToken) {
     new Task.Backgroundable(project, "Resolving GitLab CI includes", false) {
       @Override
       public void run(@NotNull final ProgressIndicator indicator) {
         File cacheFile = new File(cacheFilePath);
-        if (cacheFile.exists()) {
-          //noinspection ResultOfMethodCallIgnored
-          cacheFile.delete();
-        }
-        var content = GitLabHttpConnectionUtils.downloadContent(downloadUrl, getGitLabAccessToken());
+        var content = GitLabHttpConnectionUtils.downloadContent(downloadUrl, accessToken);
         if (content == null) {
           LOG.debug("Failed to download content from " + downloadUrl);
           return;
@@ -80,6 +67,7 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
           parent.mkdirs();
         }
         try (FileWriter writer = new FileWriter(cacheFile)) {
+          // overwrites the existing file or creates a new one
           writer.write(content);
           // cache file path in cache service
           updateCache(project, cacheKey, cacheFile);

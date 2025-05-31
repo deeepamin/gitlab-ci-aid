@@ -82,9 +82,14 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
       LOG.debug("File path is null");
       return;
     }
+    long expiryTimeInHours = CIAidSettingsState.getInstance(project).getCacheExpiryTime();
+    if (expiryTimeInHours <= 0) {
+      expiryTimeInHours = 24L;
+    }
+    var expiryTimeMillis = Instant.now().toEpochMilli() + (expiryTimeInHours * 60 * 60 * 1000);
     var metadata = new CIAidGitLabCacheMetadata()
             .path(filePath)
-            .expiryTime(Instant.now().toEpochMilli() + CIAidSettingsState.getInstance(project).getCacheExpiryTime());
+            .expiryTime(expiryTimeMillis);
     state.filePathToCache.put(filePath, metadata);
   }
 
@@ -104,6 +109,5 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
   public void clearCache() {
     state.filePathToCache.clear();
     state.remoteIncludeIdentifierToLocalPath.clear();
-    LOG.info("CIAid cache cleared");
   }
 }
