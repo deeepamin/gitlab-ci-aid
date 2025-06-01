@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 public class CreateIncludeFileQuickFix extends CreateAndOpenFileQuickFix {
   @Override
   public @IntentionName @NotNull String getName() {
-    return CIAidBundle.message("annotator.create-include-file");
+    return CIAidBundle.message("inspections.gitlab.ci.fix.create-include-file");
   }
 
   @Override
   public @IntentionFamilyName @NotNull String getFamilyName() {
-    return CIAidBundle.message("annotator.create-include-file");
+    return CIAidBundle.message("inspections.gitlab.ci.fix.create-include-file");
   }
 }

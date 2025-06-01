@@ -31,10 +31,6 @@ import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_P
 public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState.State> {
     public static class State {
     public String defaultGitlabCIYamlPath = "";
-    public boolean ignoreUndefinedJob;
-    public boolean ignoreUndefinedStage;
-    public boolean ignoreUndefinedScript;
-    public boolean ignoreUndefinedInclude;
     public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
 
     // Remotes settings
@@ -141,38 +137,6 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public void setDefaultGitlabCIYamlPath(String defaultGitlabCIYamlPath) {
     this.state.defaultGitlabCIYamlPath = defaultGitlabCIYamlPath;
-  }
-
-  public boolean isIgnoreUndefinedJob() {
-    return state.ignoreUndefinedJob;
-  }
-
-  public void setIgnoreUndefinedJob(boolean ignoreUndefinedJob) {
-    this.state.ignoreUndefinedJob = ignoreUndefinedJob;
-  }
-
-  public boolean isIgnoreUndefinedStage() {
-    return state.ignoreUndefinedStage;
-  }
-
-  public void setIgnoreUndefinedStage(boolean ignoreUndefinedStage) {
-    this.state.ignoreUndefinedStage = ignoreUndefinedStage;
-  }
-
-  public boolean isIgnoreUndefinedScript() {
-    return state.ignoreUndefinedScript;
-  }
-
-  public void setIgnoreUndefinedScript(boolean ignoreUndefinedScript) {
-    this.state.ignoreUndefinedScript = ignoreUndefinedScript;
-  }
-
-  public boolean isIgnoreUndefinedInclude() {
-    return state.ignoreUndefinedInclude;
-  }
-
-  public void setIgnoreUndefinedInclude(boolean ignoreUndefinedInclude) {
-    this.state.ignoreUndefinedInclude = ignoreUndefinedInclude;
   }
 
   public Map<String, Boolean> getYamlToUserMarkings() {

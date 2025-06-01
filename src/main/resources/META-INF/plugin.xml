@@ -37,6 +37,27 @@
                              bundle="messages.CIAid"
                              key="settings.remotes.display.name"
                              nonDefaultProject="true"/>
+        <localInspection language="yaml"
+                         shortName="CIAidGitLabYamlScriptUnavailable"
+                         groupBundle="messages.CIAid"
+                         groupKey="inspections.gitlab.ci.display.name"
+                         key="inspections.gitlab.ci.script.unavailable.on.path"
+                         enabledByDefault="true"
+                         implementationClass="com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlScriptUnavailableInspection"/>
+        <localInspection language="yaml"
+                         shortName="CIAidGitLabYamlIncludeUnavailable"
+                         groupBundle="messages.CIAid"
+                         groupKey="inspections.gitlab.ci.display.name"
+                         key="inspections.gitlab.ci.include.unavailable.on.path"
+                         enabledByDefault="true"
+                         implementationClass="com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlIncludeUnavailableInspection"/>
+        <localInspection language="yaml"
+                         shortName="CIAidGitLabYamlNeedsJobUnavailable"
+                         groupBundle="messages.CIAid"
+                         groupKey="inspections.gitlab.ci.display.name"
+                         key="inspections.gitlab.ci.need.job.unavailable"
+                         enabledByDefault="true"
+                         implementationClass="com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlUndefinedNeedsInspection"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.CIAidYamlSchemaProviderFactory"/>

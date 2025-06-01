@@ -1,15 +1,12 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
-import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
-import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
-import com.intellij.codeInspection.InspectionManager;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
@@ -32,7 +29,6 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIP
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getGitlabCIYamlProjectService;
-import static com.intellij.codeInspection.ProblemHighlightType.LIKE_UNKNOWN_SYMBOL;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.NUMBER;
@@ -58,14 +54,14 @@ public class CIAidYamlAnnotator implements Annotator {
     if (element instanceof LeafPsiElement) {
       highlightJobs(element, holder);
     } else if (YamlUtils.isYamlTextElement(element)) {
-      annotateHighlightNeedsJob(element, holder);
-      annotateHighlightStage(element, holder);
-      annotateStages(element, holder);
-      annotateHighlightIncludeFile(element, holder);
-      annotateHighlightScript(element, holder);
+      highlightNeedsJob(element, holder);
+      highlightStage(element, holder);
+      highlightStages(element, holder);
+      highlightIncludeFile(element, holder);
+      highlightScript(element, holder);
       highlightInputs(element, holder);
     } else if (YamlUtils.isYamlScalarListOrYamlScalarTextElement(element)) {
-      annotateHighlightScript(element, holder);
+      highlightScript(element, holder);
     }
   }
 
@@ -87,7 +83,7 @@ public class CIAidYamlAnnotator implements Annotator {
     });
   }
 
-  private void annotateHighlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGE)))
             .ifPresent(stage -> {
@@ -105,15 +101,7 @@ public class CIAidYamlAnnotator implements Annotator {
               if (!isStageInJobElement) {
                 return;
               }
-              if (!allStages.contains(stageName) && !DEFAULT_STAGES.contains(stageName)) {
-                var ignoreUndefinedStageErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedStage();
-                if (!ignoreUndefinedStageErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.stage-undefined", stage.getText()))
-                          .highlightType(LIKE_UNKNOWN_SYMBOL)
-                          .create();
-                }
-              } else {
-                // highlight correct stage
+              if (allStages.contains(stageName) || DEFAULT_STAGES.contains(stageName)) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                         .textAttributes(STAGE_HIGHLIGHTER)
                         .create();
@@ -131,7 +119,7 @@ public class CIAidYamlAnnotator implements Annotator {
             );
   }
 
-  private void annotateStages(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightStages(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(STAGES)))
             .ifPresent(stage -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
@@ -139,7 +127,7 @@ public class CIAidYamlAnnotator implements Annotator {
                     .create());
   }
 
-  private void annotateHighlightNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(NEEDS)))
             .filter(element -> !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS))
@@ -150,14 +138,7 @@ public class CIAidYamlAnnotator implements Annotator {
               if (isInputsString) {
                 return;
               }
-              if (!allJobs.contains(jobName)) {
-                var ignoreUndefinedJobErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedJob();
-                if (!ignoreUndefinedJobErrors) {
-                  holder.newAnnotation(HighlightSeverity.WARNING, CIAidBundle.message("annotator.error.need-job-undefined", job.getText()))
-                          .highlightType(LIKE_UNKNOWN_SYMBOL)
-                          .create();
-                }
-              } else {
+              if (allJobs.contains(jobName)) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                         .textAttributes(JOB_HIGHLIGHTER)
                         .create();
@@ -165,7 +146,7 @@ public class CIAidYamlAnnotator implements Annotator {
             });
   }
 
-  private void annotateHighlightScript(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightScript(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, SCRIPT_KEYWORDS))
             .ifPresent(scriptElement -> {
@@ -175,24 +156,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 var project = scriptElement.getProject();
                 var scriptPath = scriptPathIndex.path();
                 var virtualScriptFile = FileUtils.findVirtualFile(scriptPath, project).orElse(null);
-                var isNotScriptBlock = YamlUtils.isYamlTextElement(scriptElement) && scriptElement.getParent() instanceof YAMLKeyValue;
-                if (virtualScriptFile == null) {
-                  // in block any command can be quoted/plain text, and then we don't want to show path related error
-                  if (isNotScriptBlock) {
-                    var ignoreUndefinedScriptErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedScript();
-                    if (!ignoreUndefinedScriptErrors) {
-                      var errorText = CIAidBundle.message("annotator.error.script-not-found", scriptElement.getText());
-                      var quickFix = new CreateScriptQuickFix();
-                      var problemDescriptor = InspectionManager.getInstance(project)
-                              .createProblemDescriptor(scriptElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
-                      holder.newAnnotation(HighlightSeverity.ERROR, errorText)
-                              .highlightType(LIKE_UNKNOWN_SYMBOL)
-                              .newLocalQuickFix(quickFix, problemDescriptor)
-                              .registerFix()
-                              .create();
-                    }
-                  }
-                } else {
+                if (virtualScriptFile != null) {
                   var highlightRange = CIAidUtils.getHighlightTextRange(scriptElement, scriptPathIndex.start(), scriptPathIndex.end());
                   holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                           .textAttributes(SCRIPT_HIGHLIGHTER)
@@ -203,7 +167,7 @@ public class CIAidYamlAnnotator implements Annotator {
             });
   }
 
-  private void annotateHighlightIncludeFile(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  private void highlightIncludeFile(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
             .filter(element -> PsiUtils.isChild(element, List.of(INCLUDE)))
             .ifPresent(includeElement -> {
@@ -228,23 +192,7 @@ public class CIAidYamlAnnotator implements Annotator {
               var project = includeElement.getProject();
               var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               var isRemoteInclude = CIAidUtils.isValidUrl(filePath);
-              if (includeVirtualFile == null) {
-                if (!isRemoteInclude) {
-                  // don't highlight remote includes, they should come from include cache key
-                  var ignoreUndefinedIncludeErrors = CIAidSettingsState.getInstance(psiElement.getProject()).isIgnoreUndefinedInclude();
-                  if (!ignoreUndefinedIncludeErrors) {
-                    var errorText = CIAidBundle.message("annotator.error.include-not-found", includeElement.getText());
-                    var quickFix = new CreateIncludeFileQuickFix();
-                    var problemDescriptor = InspectionManager.getInstance(project)
-                            .createProblemDescriptor(includeElement, errorText, quickFix, LIKE_UNKNOWN_SYMBOL, true);
-                    holder.newAnnotation(HighlightSeverity.WARNING, errorText)
-                            .highlightType(LIKE_UNKNOWN_SYMBOL)
-                            .newLocalQuickFix(quickFix, problemDescriptor)
-                            .registerFix()
-                            .create();
-                  }
-                }
-              }  else {
+              if (includeVirtualFile != null && !isRemoteInclude) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                         .textAttributes(INCLUDE_HIGHLIGHTER)
                         .create();

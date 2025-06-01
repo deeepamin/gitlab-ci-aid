@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 public class CreateScriptQuickFix extends CreateAndOpenFileQuickFix {
   @Override
   public @IntentionName @NotNull String getName() {
-    return CIAidBundle.message("annotator.create-script");
+    return CIAidBundle.message("inspections.gitlab.ci.fix.create-script");
   }
 
   @Override
   public @IntentionFamilyName @NotNull String getFamilyName() {
-    return CIAidBundle.message("annotator.create-script");
+    return CIAidBundle.message("inspections.gitlab.ci.fix.create-script");
   }
 }
