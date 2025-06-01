@@ -37,6 +37,7 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
+import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
 import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
 import java.io.File;
@@ -345,7 +346,17 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                           default -> inputType;
                         };
                       }
-                      case DEFAULT -> defaultValue = handleQuotedText(inputKeyValue.getValueText());
+                      case DEFAULT -> {
+                        var value = inputKeyValue.getValue();
+                        var arrayChildren = PsiUtils.findChildren(value, YAMLArrayImpl.class);
+                        if (!arrayChildren.isEmpty()) {
+                          defaultValue = arrayChildren.stream()
+                                  .map(YAMLArrayImpl::getText)
+                                  .collect(Collectors.joining(", "));
+                        } else if (value instanceof YAMLScalar yamlScalar) {
+                          defaultValue = handleQuotedText(yamlScalar.getText());
+                        }
+                      }
                       case DESCRIPTION -> inputDescription = handleQuotedText(inputKeyValue.getValueText());
                     }
                   }

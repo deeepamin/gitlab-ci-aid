@@ -12,6 +12,10 @@
 ### Changed
 
 - Multiple inputs in a single line shows documentation for each input
+- 
+### Fixed
+
+- Inputs with arrays show empty value in documentation
 
 ## [1.9.1] - 2025-05-29
 
