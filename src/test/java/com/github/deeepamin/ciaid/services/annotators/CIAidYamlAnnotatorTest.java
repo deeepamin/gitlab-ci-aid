@@ -1,6 +1,9 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlIncludeUnavailableInspection;
+import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlScriptUnavailableInspection;
+import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlUndefinedNeedsInspection;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -51,15 +54,13 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
     assertTrue(actualHighlighters.contains(expectedHighlighter));
   }
 
-  public void testUndefinedStage() {
-    myFixture.testHighlighting(true, false, true, ciYamlFile);
-  }
-
   public void testUndefinedNeedsJob() {
+    myFixture.enableInspections(new CIAidGitLabYamlUndefinedNeedsInspection());
     myFixture.testHighlighting(true, false, true, ciYamlFile);
   }
 
   public void testUnknownScript() {
+    myFixture.enableInspections(new CIAidGitLabYamlScriptUnavailableInspection());
     myFixture.configureByFile(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
     List<HighlightInfo> highlightInfos = myFixture.doHighlighting();
     assertEquals(6, highlightInfos.size());
@@ -67,6 +68,7 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
   }
 
   public void testCreateScriptQuickFix() {
+    myFixture.enableInspections(new CIAidGitLabYamlScriptUnavailableInspection());
     List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
     assertEquals(1, allQuickFixes.size());
     assertEquals("Create script", allQuickFixes.getFirst().getText());
@@ -77,6 +79,7 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
   }
 
   public void testCreateIncludeFileQuickFix() {
+    myFixture.enableInspections(new CIAidGitLabYamlIncludeUnavailableInspection());
     List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
     assertEquals(1, allQuickFixes.size());
     assertEquals("Create include file", allQuickFixes.getFirst().getText());

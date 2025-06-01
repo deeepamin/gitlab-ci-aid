@@ -35,7 +35,7 @@ public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool
                 return;
               }
               if (!allJobs.contains(jobName)) {
-                var inspectionText = CIAidBundle.message("inspections.gitlab.ci.need-job-undefined", jobName);
+                var inspectionText = CIAidBundle.message("inspections.gitlab.ci.need-job-undefined", element.getText());
                 holder.registerProblem(element, inspectionText);
               }
             }
