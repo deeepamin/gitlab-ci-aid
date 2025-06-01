@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for components, templates and remote files
+- Configurable caching support for remote GitLab CI Yaml files
+
 ### Changed
 
 - Multiple inputs in a single line shows documentation for each input
