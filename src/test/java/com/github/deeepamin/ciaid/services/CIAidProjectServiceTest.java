@@ -67,7 +67,7 @@ public class CIAidProjectServiceTest extends BaseTest {
     var gitlabCIYaml = getGitlabCIYamlFile(rootDir);
     var gitlabCIYamlData = new CIAidYamlData(gitlabCIYaml, gitlabCIYaml.getModificationStamp());
     var projectService = getProject().getService(CIAidProjectService.class);
-    projectService.parseGitlabCIYamlData(getProject(), gitlabCIYaml, gitlabCIYamlData);
+    projectService.parseGitlabCIYamlData(gitlabCIYaml, gitlabCIYamlData);
 
     var includedYamls = gitlabCIYamlData.getIncludes();
     assertEquals(1, includedYamls.size());
@@ -124,13 +124,13 @@ public class CIAidProjectServiceTest extends BaseTest {
   public void testGetFileName() {
     var job = "checkstyle";
     var projectService = getProject().getService(CIAidProjectService.class);
-    var jobFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobElements()
+    var jobFileName = projectService.getFileName((entry) -> entry.getValue().getJobElements()
             .stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
             .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
     assertTrue(jobFileName.contains(PIPELINE_YML));
     var stage = "build";
-    var stageFileName = projectService.getFileName(getProject(), (entry) -> entry.getValue().getJobStageElements()
+    var stageFileName = projectService.getFileName((entry) -> entry.getValue().getJobStageElements()
             .stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
             .anyMatch(pointer -> pointer.getElement().getText().equals(stage)));
@@ -140,19 +140,19 @@ public class CIAidProjectServiceTest extends BaseTest {
 
   public void testGetJobFileName() {
     var job = "checkstyle";
-    var fileName = getProject().getService(CIAidProjectService.class).getJobFileName(getProject(), job);
+    var fileName = getProject().getService(CIAidProjectService.class).getJobFileName(job);
     assertTrue(fileName.contains(PIPELINE_YML));
   }
 
   public void testGetJobStageFileName() {
     var stage = "build";
-    var fileName = getProject().getService(CIAidProjectService.class).getJobStageFileName(getProject(), stage);
+    var fileName = getProject().getService(CIAidProjectService.class).getJobStageFileName(stage);
     assertTrue(fileName.contains(GITLAB_CI_DEFAULT_YAML_FILE));
   }
 
   public void testGetStagsItemFileName() {
     var stagesItem = "deploy";
-    var fileName = getProject().getService(CIAidProjectService.class).getStagesItemFileName(getProject(), stagesItem);
+    var fileName = getProject().getService(CIAidProjectService.class).getStagesItemFileName(stagesItem);
     assertTrue(fileName.contains(GITLAB_CI_DEFAULT_YAML_FILE));
   }
 

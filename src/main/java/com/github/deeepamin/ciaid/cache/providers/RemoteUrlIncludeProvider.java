@@ -18,14 +18,14 @@ public class RemoteUrlIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
-  protected String getProjectPath() {
-    return null;
-  }
-
-  @Override
   protected void readRemoteIncludeFile() {
     var fileName = sha256(filePath) + ".yml";
     var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath(), fileName).toString();
     validateAndCacheRemoteFile(filePath, filePath, cacheFilePath);
+  }
+
+  @Override
+  public String getProjectPath() {
+    return null;
   }
 }

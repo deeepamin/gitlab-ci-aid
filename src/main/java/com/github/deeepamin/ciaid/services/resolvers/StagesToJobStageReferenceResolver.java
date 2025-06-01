@@ -64,7 +64,7 @@ public class StagesToJobStageReferenceResolver extends PsiReferenceBase<PsiEleme
             .map(stage -> LookupElementBuilder.create(stage)
                     .bold()
                     .withIcon(Icons.ICON_STAGE.getIcon())
-                    .withTypeText(projectService.getJobStageFileName(myElement.getProject(), stage)))
+                    .withTypeText(projectService.getJobStageFileName(stage)))
             .toArray(LookupElement[]::new);
   }
 

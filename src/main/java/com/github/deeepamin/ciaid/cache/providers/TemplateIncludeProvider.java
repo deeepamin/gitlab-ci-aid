@@ -18,7 +18,7 @@ public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
-  protected String getProjectPath() {
+  public String getProjectPath() {
     var templatesProject = CIAidSettingsState.getInstance(project).getGitlabTemplatesProject();
     if (templatesProject == null) {
       templatesProject = DEFAULT_GITLAB_TEMPLATE_PROJECT;

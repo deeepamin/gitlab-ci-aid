@@ -44,7 +44,7 @@ public class NeedsOrExtendsToJobReferenceResolver extends SingleTargetReferenceR
             .map(job -> LookupElementBuilder.create(job)
                     .bold()
                     .withIcon(Icons.ICON_NEEDS.getIcon())
-                    .withTypeText(projectService.getJobFileName(myElement.getProject(), job)))
+                    .withTypeText(projectService.getJobFileName(job)))
             .toArray(LookupElement[]::new);
   }
 }

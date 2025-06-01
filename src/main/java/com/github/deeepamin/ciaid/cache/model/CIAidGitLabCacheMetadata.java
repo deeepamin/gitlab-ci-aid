@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CIAidGitLabCacheMetadata implements Serializable {
-  private final Map<String, String> metaData = new ConcurrentHashMap<>();
+  // public to serialize the object to XML
+  public final Map<String, String> metaData = new ConcurrentHashMap<>();
   private static final String PATH = "path";
   private static final String EXPIRY_TIME_KEY = "expiryTime";
 

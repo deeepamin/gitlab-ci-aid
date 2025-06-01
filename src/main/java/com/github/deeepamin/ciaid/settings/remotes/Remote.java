@@ -5,10 +5,15 @@ import com.intellij.util.xmlb.annotations.Transient;
 import java.io.Serializable;
 
 public class Remote implements Serializable {
-  private String apiUrl;
+  // public attributes and getters/setters serialize the object to XML
+  public String apiUrl;
   @Transient
-  private String token;
-  private String projectPath;
+  public String token;
+  public String projectPath;
+
+  public void setApiUrl(String apiUrl) {
+    this.apiUrl = apiUrl;
+  }
 
   public Remote apiUrl(String apiUrl) {
     this.apiUrl = apiUrl;
@@ -27,6 +32,11 @@ public class Remote implements Serializable {
   @Transient
   public String getToken() {
     return token;
+  }
+
+  @Transient
+  public void setToken(String token) {
+    this.token = token;
   }
 
   public Remote projectPath(String projectPath) {

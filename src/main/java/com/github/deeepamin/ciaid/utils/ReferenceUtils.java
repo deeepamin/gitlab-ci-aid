@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
 import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
@@ -72,14 +73,20 @@ public class ReferenceUtils {
 
   private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
-      var includePathCacheKey = getIncludeCacheKey(element);
-      var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
-      if (includePath != null) {
-        try {
-          return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, Path.of(includePath)) });
-        } catch (InvalidPathException e) {
-          LOG.warn("Invalid path for include file: " + includePath, e);
+      var isNonLocalInclude = PsiUtils.isChild(element, NON_LOCAL_INCLUDE_KEYWORDS);
+      if (isNonLocalInclude) {
+        var includePathCacheKey = getIncludeCacheKey(element);
+        var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
+        if (includePath != null) {
+          try {
+            return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element, Path.of(includePath))});
+          } catch (InvalidPathException e) {
+            LOG.warn("Invalid path for include file: " + includePath, e);
+          }
         }
+      } else {
+        var filePath = FileUtils.getFilePath(handleQuotedText(element.getText()), element.getProject());
+        return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePath) });
       }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);

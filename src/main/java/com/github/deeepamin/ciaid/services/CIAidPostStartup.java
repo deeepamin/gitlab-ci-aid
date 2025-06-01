@@ -18,15 +18,15 @@ public class CIAidPostStartup implements ProjectActivity {
   public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
     final var projectService = CIAidProjectService.getInstance(project);
     CIAidProjectService.executeOnThreadPool(() -> {
-      projectService.afterStartup(project);
       CIAidCacheService.getInstance().loadCacheFromDisk(project);
+      projectService.afterStartup();
     });
 
     final MessageBusConnection connection = project.getMessageBus().connect();
     connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
       @Override
       public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-        CIAidProjectService.executeOnThreadPool(() -> projectService.processOpenedFile(project, file));
+        CIAidProjectService.executeOnThreadPool(() -> projectService.processOpenedFile(file));
       }
     });
     Disposer.register(DisposerService.getInstance(project), projectService);

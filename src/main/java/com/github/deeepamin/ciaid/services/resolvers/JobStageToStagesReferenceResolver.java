@@ -28,7 +28,7 @@ public class JobStageToStagesReferenceResolver extends SingleTargetReferenceReso
             .map(stagesItem -> LookupElementBuilder.create(stagesItem)
                     .bold()
                     .withIcon(Icons.ICON_STAGE.getIcon())
-                    .withTypeText(projectService.getStagesItemFileName(myElement.getProject(), stagesItem)))
+                    .withTypeText(projectService.getStagesItemFileName(stagesItem)))
             .toArray(LookupElement[]::new);
   }
 }

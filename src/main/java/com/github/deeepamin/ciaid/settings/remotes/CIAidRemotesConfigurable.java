@@ -132,9 +132,9 @@ public class CIAidRemotesConfigurable implements Configurable {
     try {
       long cacheExpiryTime = Long.parseLong(cacheExpiryTimeTextField.getText().trim());
       ciaidSettingsState.setCacheExpiryTime(cacheExpiryTime);
-    } catch (NumberFormatException e) {
-      ciaidSettingsState.setCacheExpiryTime(CIAidSettingsState.getInstance(project).getCacheExpiryTime());
+    } catch (NumberFormatException ignored) {
     }
+    ciaidSettingsState.forceReadPluginData();
   }
 
   @Override
@@ -325,6 +325,8 @@ public class CIAidRemotesConfigurable implements Configurable {
       var apiUrl = gitlabApiUrlTextField.getText().trim();
       if (!CIAidUtils.isValidUrl(apiUrl)) {
         return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.gitlab-api-url.validation.error"), gitlabApiUrlTextField);
+      } else if (!apiUrl.contains("api")) {
+        return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.gitlab-api-url.validation.error.api"), gitlabApiUrlTextField);
       }
       var projectPath = gitlabProjectTextField.getText().trim();
       var accessToken = new String(gitlabAccessTokenField.getPassword()).trim();
@@ -369,6 +371,7 @@ public class CIAidRemotesConfigurable implements Configurable {
       gitlabApiUrlTextField = gitLabApiUrlTextFieldAndPanel.first;
       gitlabApiUrlPanel = gitLabApiUrlTextFieldAndPanel.second;
 
+      //noinspection DialogTitleCapitalization
       var gitLabProjectTextFieldAndPanel = getTextFieldWithHelp(CIAidBundle.message("settings.remotes.dialog.group-or-project.empty-text"),
               CIAidBundle.message("settings.remotes.dialog.group-or-project.comment-text"));
       gitlabProjectTextField = gitLabProjectTextFieldAndPanel.first;
@@ -378,6 +381,12 @@ public class CIAidRemotesConfigurable implements Configurable {
       // noinspection DialogTitleCapitalization
       gitlabAccessTokenField.getEmptyText().setText(CIAidBundle.message("settings.remotes.dialog.access-token.empty-text"));
       var helpLabel = ContextHelpLabel.create(CIAidBundle.message("settings.remotes.dialog.access-token.comment-text"));
+
+      if (remote != null) {
+        gitlabApiUrlTextField.setText(remote.getApiUrl());
+        gitlabProjectTextField.setText(remote.getProjectPath());
+        gitlabAccessTokenField.setText(remote.getToken());
+      }
 
       gitlabAccessTokenPanel = new JPanel(new BorderLayout(5, 0));
       gitlabAccessTokenPanel.add(gitlabAccessTokenField, BorderLayout.CENTER);

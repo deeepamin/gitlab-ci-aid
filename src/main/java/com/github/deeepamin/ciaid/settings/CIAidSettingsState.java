@@ -1,8 +1,11 @@
 package com.github.deeepamin.ciaid.settings;
 
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.remotes.Remote;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.State;
@@ -12,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +29,7 @@ import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_P
         storages = {@Storage("CIAidSettingsState.xml")}
 )
 public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState.State> {
-  public static class State {
+    public static class State {
     public String defaultGitlabCIYamlPath = "";
     public boolean ignoreUndefinedJob;
     public boolean ignoreUndefinedStage;
@@ -66,14 +70,44 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     this.state = state;
   }
 
-  public String getGitLabApiUrl(String projectPath) {
-    var remoteOptional = state.remotes.stream()
-            .filter(remote -> remote.getProjectPath().equals(projectPath))
-            .findFirst();
-    if (remoteOptional.isPresent()) {
-      return remoteOptional.get().getApiUrl();
+  @Override
+  public void initializeComponent() {
+    state.remotes = state.remotes.stream()
+            .peek(remote -> {
+              var accessToken = getGitLabAccessToken(remote.getProjectPath());
+              remote.setToken(accessToken);
+            })
+            .toList();
+  }
+
+  public String getMatchingProjectPath(String projectPath) {
+    // separate public method for testing purposes
+    if (projectPath == null) {
+      return null;
     }
-    return DEFAULT_GITLAB_SERVER_API_URL;
+    var sanitizedProjectPath = projectPath.startsWith("/") ? projectPath.substring(1) : projectPath;
+    var settingsPaths = getRemotes().stream()
+            .map(Remote::getProjectPath)
+            .toList();
+    if (settingsPaths.contains(sanitizedProjectPath)) {
+      return sanitizedProjectPath;
+    }
+    return settingsPaths.stream()
+            .filter(sanitizedProjectPath::startsWith)
+            .max(Comparator.comparingInt(String::length)) // Get the longest matching path
+            .orElse(null);
+  }
+
+  public String getGitLabApiUrl(String projectPath) {
+    var matchingProjectPath = getMatchingProjectPath(projectPath);
+    if (matchingProjectPath == null) {
+      return DEFAULT_GITLAB_SERVER_API_URL;
+    }
+    var apiUrlOptional = state.remotes.stream()
+            .filter(remote -> matchingProjectPath.equals(remote.getProjectPath()))
+            .map(Remote::getApiUrl)
+            .findFirst();
+    return apiUrlOptional.orElse(DEFAULT_GITLAB_SERVER_API_URL);
   }
 
   public String getGitlabTemplatesProject() {
@@ -184,5 +218,18 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public void setCacheExpiryTime(Long cacheExpiryTime) {
     this.state.cacheExpiryTime = cacheExpiryTime;
+  }
+
+  public void forceReadPluginData() {
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
+      var ciAidProjectService = CIAidProjectService.getInstance(project);
+      if (ciAidProjectService != null) {
+        var pluginData = ciAidProjectService.getPluginData();
+        pluginData.keySet().forEach(file -> {
+          var isUserMarked = GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file);
+          ciAidProjectService.readGitlabCIYamlData(file, isUserMarked, true);
+        });
+      }
+    });
   }
 }

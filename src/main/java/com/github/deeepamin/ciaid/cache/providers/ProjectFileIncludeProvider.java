@@ -20,13 +20,13 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
-  protected String getProjectPath() {
-    return projectPath;
+  protected String getCacheDirName() {
+    return "projects";
   }
 
   @Override
-  protected String getCacheDirName() {
-    return "projects";
+  public String getProjectPath() {
+    return projectPath;
   }
 
   @Override

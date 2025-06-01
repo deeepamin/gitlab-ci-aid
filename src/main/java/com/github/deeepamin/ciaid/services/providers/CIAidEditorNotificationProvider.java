@@ -57,7 +57,7 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
     panel.setText(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml-question"));
     panel.createActionLabel(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml"), () -> {
       GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
-      projectService.readGitlabCIYamlData(project, file, true);
+      projectService.readGitlabCIYamlData(file, true, false);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {
         var document = FileDocumentManager.getInstance().getDocument(file);

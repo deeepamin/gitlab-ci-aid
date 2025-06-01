@@ -34,7 +34,7 @@ public class CIAidYamlAsyncListener implements AsyncFileListener {
           @Override
           public void afterVfsChange() {
             boolean userMarked = GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file);
-            projectService.readGitlabCIYamlData(project, file, userMarked);
+            projectService.readGitlabCIYamlData(file, userMarked, false);
           }
         };
       }

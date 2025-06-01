@@ -17,6 +17,6 @@ public class LocalIncludeProvider extends AbstractIncludeProvider {
     var sanitizedYamlPath = FileUtils.sanitizeFilePath(filePath);
     var ciAidProjectService = CIAidProjectService.getInstance(project);
     FileUtils.getVirtualFile(sanitizedYamlPath, project)
-            .ifPresent(includeVirtualFile -> ciAidProjectService.readGitlabCIYamlData(project, includeVirtualFile, userMarked));
+            .ifPresent(includeVirtualFile -> ciAidProjectService.readGitlabCIYamlData(includeVirtualFile, userMarked, false));
   }
 }

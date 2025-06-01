@@ -36,7 +36,7 @@ public class CIAidCacheUtils {
       if (virtualFile != null) {
         GitlabCIYamlUtils.markAsCIYamlFile(virtualFile);
         var projectService = CIAidProjectService.getInstance(project);
-        projectService.readGitlabCIYamlData(project, virtualFile, false);
+        projectService.readGitlabCIYamlData(virtualFile, false, false);
       }
       ApplicationManager.getApplication().invokeLater(() -> PsiManager.getInstance(project).dropPsiCaches());
     });

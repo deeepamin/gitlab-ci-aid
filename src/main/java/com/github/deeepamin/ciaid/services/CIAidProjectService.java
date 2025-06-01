@@ -55,6 +55,7 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DEFAU
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DESCRIPTION;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE_POSSIBLE_CHILD_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INPUTS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.LOCAL;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NUMBER;
@@ -76,9 +77,12 @@ import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_DEFAU
 @Service(Service.Level.PROJECT)
 public final class CIAidProjectService implements DumbAware, Disposable {
   private static final Logger LOG = Logger.getInstance(CIAidProjectService.class);
+  private final Project project;
   private final Map<VirtualFile, CIAidYamlData> pluginData;
 
-  public CIAidProjectService() {
+
+  public CIAidProjectService(Project project) {
+    this.project = project;
     pluginData = new ConcurrentHashMap<>();
   }
 
@@ -98,34 +102,30 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     pluginData.clear();
   }
 
-  public void processOpenedFile(Project project, VirtualFile file) {
+  public void processOpenedFile(VirtualFile file) {
     if (!GitlabCIYamlUtils.isValidGitlabCIYamlFile(file)) {
       return;
     }
-    readGitlabCIYamlData(project, file, GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file));
+    readGitlabCIYamlData(file, GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file), false);
   }
 
-  public void readGitlabCIYamlData(Project project, VirtualFile file, boolean userMarked) {
-    if (pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
+  public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
+    if (!forceRead && pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
       return;
     }
     ApplicationManager.getApplication().runReadAction(() -> {
-      var gitlabCIYamlData = new CIAidYamlData(file, file.getModificationStamp());
-      doReadGitlabCIYamlData(project, file, gitlabCIYamlData, userMarked);
+      var ciAidYamlData = new CIAidYamlData(file, file.getModificationStamp());
+      if (userMarked) {
+        GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
+      } else {
+        GitlabCIYamlUtils.markAsCIYamlFile(file);
+      }
+      parseGitlabCIYamlData(file, ciAidYamlData);
+      readIncludes(ciAidYamlData, userMarked);
     });
   }
 
-  private void doReadGitlabCIYamlData(Project project, VirtualFile file, CIAidYamlData ciAidYamlData, boolean userMarked) {
-    if (userMarked) {
-      GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
-    } else {
-      GitlabCIYamlUtils.markAsCIYamlFile(file);
-    }
-    parseGitlabCIYamlData(project, file, ciAidYamlData);
-    readIncludes(project, ciAidYamlData, userMarked);
-  }
-
-  private void readIncludes(Project project, CIAidYamlData ciAidYamlData, boolean userMarked) {
+  private void readIncludes(CIAidYamlData ciAidYamlData, boolean userMarked) {
     ciAidYamlData.getIncludes()
             .forEach(include -> {
               var includeType = include.getFileType();
@@ -149,7 +149,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             });
   }
 
-  public void parseGitlabCIYamlData(final Project project, final VirtualFile file, final CIAidYamlData ciAidYamlData) {
+  public void parseGitlabCIYamlData(final VirtualFile file, final CIAidYamlData ciAidYamlData) {
     var psiManager = PsiManager.getInstance(project);
     var psiFile = psiManager.findFile(file);
     if (psiFile == null) {
@@ -182,7 +182,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
               ciAidYamlData.addStagesItem(scalar);
             }
             var isChildOfInclude = PsiUtils.isChild(scalar, List.of(INCLUDE));
-            var isNotChildOfOtherIncludes = !PsiUtils.isChild(scalar, List.of(LOCAL, REMOTE, TEMPLATE, COMPONENT, PROJECT, REF, FILE));
+            var isNotChildOfOtherIncludes = !PsiUtils.isChild(scalar, INCLUDE_POSSIBLE_CHILD_KEYWORDS);
             if (isChildOfInclude && isNotChildOfOtherIncludes) {
               // this is a top-level include which means local/remote
               var include = new IncludeFile();
@@ -358,7 +358,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             .toList();
   }
 
-  public String getFileName(Project project, Predicate<Map.Entry<VirtualFile, CIAidYamlData>> predicate) {
+  public String getFileName(Predicate<Map.Entry<VirtualFile, CIAidYamlData>> predicate) {
      String filePath = pluginData.entrySet().stream()
              .filter(predicate)
              .map(Map.Entry::getKey)
@@ -376,8 +376,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return "";
   }
 
-  public String getJobFileName(Project project, String job) {
-    return getFileName(project,
+  public String getJobFileName(String job) {
+    return getFileName(
             (entry) -> entry.getValue().getJobElements()
             .stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
@@ -385,8 +385,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             .anyMatch(pointerText -> pointerText.equals(job)));
   }
 
-  public String getJobStageFileName(Project project, String stage) {
-    return getFileName(project,
+  public String getJobStageFileName(String stage) {
+    return getFileName(
             (entry) -> entry.getValue().getJobStageElements()
                     .stream()
                     .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
@@ -394,8 +394,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
                     .anyMatch(pointerText -> pointerText.equals(stage)));
   }
 
-  public String getStagesItemFileName(Project project, String stagesItem) {
-    return getFileName(project,
+  public String getStagesItemFileName(String stagesItem) {
+    return getFileName(
             (entry) -> entry.getValue().getStagesItemElements()
                     .stream()
                     .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
@@ -419,18 +419,18 @@ public final class CIAidProjectService implements DumbAware, Disposable {
             ));
   }
 
-  public void afterStartup(@NotNull Project project) {
-    readDefaultGitlabCIYaml(project);
-    readUserMarkedYamls(project);
+  public void afterStartup() {
+    readDefaultGitlabCIYaml();
+    readUserMarkedYamls();
   }
 
-  private void readDefaultGitlabCIYaml(@NotNull Project project) {
+  private void readDefaultGitlabCIYaml() {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
     if (!ciAidSettingsState.getDefaultGitlabCIYamlPath().isBlank()) {
       final var defaultGitlabCIYamlPath = ciAidSettingsState.getDefaultGitlabCIYamlPath();
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(defaultGitlabCIYamlPath);
       if (gitlabCIYamlFile != null) {
-        readGitlabCIYamlData(project, gitlabCIYamlFile, false);
+        readGitlabCIYamlData(gitlabCIYamlFile, false, false);
         return;
       }
     }
@@ -441,13 +441,13 @@ public final class CIAidProjectService implements DumbAware, Disposable {
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(gitlabCIYamlPath);
       if (gitlabCIYamlFile != null) {
         LOG.info("Found " + yamlFile + " in " + gitlabCIYamlPath);
-        readGitlabCIYamlData(project, gitlabCIYamlFile, false);
+        readGitlabCIYamlData(gitlabCIYamlFile, false, false);
         break;
       }
     }
   }
 
-  private void readUserMarkedYamls(@NotNull Project project) {
+  private void readUserMarkedYamls() {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
     ciAidSettingsState.getYamlToUserMarkings().forEach((path, ignore) -> {
       final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(path);
@@ -456,7 +456,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
           GitlabCIYamlUtils.ignoreCIYamlFile(gitlabCIYamlFile, project);
           return;
         }
-        readGitlabCIYamlData(project, gitlabCIYamlFile, true);
+        readGitlabCIYamlData(gitlabCIYamlFile, true, false);
       }
     });
   }

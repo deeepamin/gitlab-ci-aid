@@ -27,7 +27,7 @@ public class ReferenceUtilsTest extends BaseTest {
     var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "");
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
     var project = getProject();
-    project.getService(CIAidProjectService.class).readGitlabCIYamlData(project, ciYamlFile, false);
+    project.getService(CIAidProjectService.class).readGitlabCIYamlData(ciYamlFile, false, false);
     psiYaml = getPsiGitlabCiYaml(rootDir);
   }
 

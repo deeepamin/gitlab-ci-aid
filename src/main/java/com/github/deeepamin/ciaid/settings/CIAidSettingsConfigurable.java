@@ -227,7 +227,7 @@ public class CIAidSettingsConfigurable implements Configurable {
       projectService.getPluginData().remove(virtualFile);
     } else {
       GitlabCIYamlUtils.markAsUserCIYamlFile(virtualFile, project);
-      projectService.readGitlabCIYamlData(project, virtualFile, true);
+      projectService.readGitlabCIYamlData(virtualFile, true, false);
     }
     refreshVirtualFile(virtualFile);
   }

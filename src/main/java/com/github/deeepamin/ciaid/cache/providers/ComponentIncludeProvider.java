@@ -50,7 +50,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
-  protected String getProjectPath() {
+  public String getProjectPath() {
     return componentProjectPath;
   }
 
@@ -127,23 +127,21 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
         versions.add(name);
       }
       if (versions.contains(versionRef)) {
-        return versionRef; // Exact match e.g. v1.0.0
+        return versionRef; // Exact match e.g. v1.0.0 or v1.0.0-rc
       }
 
-      List<String> matching;
+      var nonPreReleaseVersions = versions.stream()
+              .filter(v -> !v.contains("-")) // skip pre-releases
+              .sorted(Comparator.reverseOrder())
+              .toList();
       if (versionRef.equals("~latest")) {
-        matching = versions.stream()
-                .filter(v -> !v.contains("-")) // skip pre-releases
-                .sorted(Comparator.reverseOrder())
-                .toList();
+        return nonPreReleaseVersions.isEmpty() ? null : nonPreReleaseVersions.getFirst();
       } else {
-        matching = versions.stream()
+        return nonPreReleaseVersions.stream()
                 .filter(v -> v.startsWith(versionRef + "."))
-                .sorted(Comparator.reverseOrder())
-                .toList();
+                .max(Comparator.naturalOrder())
+                .orElse(null);
       }
-
-      return matching.isEmpty() ? null : matching.getFirst();
     } catch (JsonProcessingException e) {
       LOG.debug("Error while reading component tags " + e.getMessage());
     }
