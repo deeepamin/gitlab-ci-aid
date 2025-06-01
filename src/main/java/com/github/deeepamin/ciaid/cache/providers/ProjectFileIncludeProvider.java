@@ -1,6 +1,5 @@
 package com.github.deeepamin.ciaid.cache.providers;
 
-import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.project.Project;
@@ -18,6 +17,11 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
     super(project, filePath);
     this.projectPath = projectPath;
     this.ref = ref;
+  }
+
+  @Override
+  protected String getProjectPath() {
+    return projectPath;
   }
 
   @Override
@@ -47,7 +51,6 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
 
     var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, projectPath, filePath, ref);
     var cacheKey = getProjectFileCacheKey(projectPath, filePath, ref);
-    var accessToken = CIAidSettingsState.getInstance(project).getGitLabAccessToken(projectPath);
-    validateAndCacheRemoteFile(downloadUrl, cacheKey, cacheFilePath.toString(), accessToken);
+    validateAndCacheRemoteFile(downloadUrl, cacheKey, cacheFilePath.toString());
   }
 }

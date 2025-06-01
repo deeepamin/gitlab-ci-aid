@@ -50,13 +50,17 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
+  protected String getProjectPath() {
+    return componentProjectPath;
+  }
+
+  @Override
   protected void readRemoteIncludeFile() {
     if (componentProjectPath == null || componentName == null) {
       LOG.debug("Component project path or component name is null for " + this.getClass().getSimpleName());
       return;
     }
-    var accessToken = CIAidSettingsState.getInstance(project).getGitLabAccessToken(componentProjectPath);
-    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, accessToken);
+    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, getAccessTokenForMatchingProject(componentProjectPath));
 
     // one of the possible paths for component file in GitLab will be found
     var possiblePaths = List.of(
@@ -72,7 +76,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
               path.replaceAll("/", File.separator);
 
       var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(projectFilePath).toString();
-      validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath, accessToken);
+      validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath);
     }
   }
 

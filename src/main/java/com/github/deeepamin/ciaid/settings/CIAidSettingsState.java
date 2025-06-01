@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.deeepamin.ciaid.utils.GitLabUtils.DEFAULT_GITLAB_SERVER_API_URL;
+import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_PREFIX;
 
 @Service(Service.Level.PROJECT)
 @State(
@@ -67,7 +68,7 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public String getGitLabApiUrl(String projectPath) {
     var remoteOptional = state.remotes.stream()
-            .filter(remote -> remote.getProject().equals(projectPath))
+            .filter(remote -> remote.getProjectPath().equals(projectPath))
             .findFirst();
     if (remoteOptional.isPresent()) {
       return remoteOptional.get().getApiUrl();
@@ -84,6 +85,9 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   }
 
   public String getGitLabAccessToken(String projectPath) {
+    if (projectPath == null) {
+      return null;
+    }
     var credentialAttributes = getCredentialAttributes(project, projectPath);
     return PasswordSafe.getInstance().getPassword(credentialAttributes);
   }
@@ -94,7 +98,7 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   private CredentialAttributes getCredentialAttributes(Project project, String projectPath) {
     var projectLocationHash = project.getLocationHash();
-    return new CredentialAttributes("CIAidGitlabAccessToken-" + projectLocationHash, projectPath);
+    return new CredentialAttributes(SERVICE_NAME_PREFIX + " CIAidGitlabAccessToken - " + projectLocationHash, projectPath);
   }
 
   public String getDefaultGitlabCIYamlPath() {

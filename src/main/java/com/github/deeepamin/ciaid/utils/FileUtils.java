@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -115,6 +116,11 @@ public class FileUtils {
   public static String sanitizeFilePath(String filePath) {
     if (filePath == null) {
       return null;
+    }
+    if (ApplicationManager.getApplication().isUnitTestMode()) {
+      if (filePath.contains("<caret>")) {
+        filePath = filePath.replaceAll("<caret>", "");
+      }
     }
     if (filePath.startsWith("\"") && filePath.endsWith("\"")) {
       filePath = filePath.replaceAll("\"", "");

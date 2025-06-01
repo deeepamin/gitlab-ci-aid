@@ -8,7 +8,7 @@ public class Remote implements Serializable {
   private String apiUrl;
   @Transient
   private String token;
-  private String project;
+  private String projectPath;
 
   public Remote apiUrl(String apiUrl) {
     this.apiUrl = apiUrl;
@@ -29,16 +29,12 @@ public class Remote implements Serializable {
     return token;
   }
 
-  public void setProject(String project) {
-    this.project = project;
-  }
-
-  public Remote project(String project) {
-    this.project = project;
+  public Remote projectPath(String projectPath) {
+    this.projectPath = projectPath;
     return this;
   }
 
-  public String getProject() {
-    return project;
+  public String getProjectPath() {
+    return projectPath;
   }
 }

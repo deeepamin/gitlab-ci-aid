@@ -35,5 +35,5 @@ public class ComponentIncludeProviderTest extends BaseTest {
       assertEquals(expectedOutput.component(), actualOutput.component());
       assertEquals(expectedOutput.version(), actualOutput.version());
     });
-    }
+  }
 }

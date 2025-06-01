@@ -4,8 +4,10 @@ import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.NlsContexts;
@@ -14,9 +16,11 @@ import com.intellij.ui.ContextHelpLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.fields.IntegerField;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.FormBuilder;
@@ -28,13 +32,19 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class CIAidRemotesConfigurable implements Configurable {
+  private static final int HOURS_IN_MONTH = 720;
   private final Project project;
 
   private final List<Remote> remotes = new ArrayList<>();
@@ -48,7 +58,7 @@ public class CIAidRemotesConfigurable implements Configurable {
   private JPanel cachingSettingsPanel;
   private JBCheckBox cachingEnabledCheckBox;
   private JLabel cacheExpiryTimeLabel;
-  private JBTextField cacheExpiryTimeTextField;
+  private IntegerField cacheExpiryTimeTextField;
   private JButton clearCacheButton;
 
   public CIAidRemotesConfigurable(Project project) {
@@ -97,13 +107,19 @@ public class CIAidRemotesConfigurable implements Configurable {
   @Override
   public boolean isModified() {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
+    long cacheExpiryTime;
+    try {
+      cacheExpiryTime = Long.parseLong(cacheExpiryTimeTextField.getText().trim());
+    } catch (NumberFormatException e) {
+      return false;
+    }
     return !ciaidSettingsState.getRemotes().equals(remotes)
             || ciaidSettingsState.getGitlabTemplatesProject() != null
                   && !ciaidSettingsState.getGitlabTemplatesProject().equals(gitlabTemplatesProjectField.getText().trim())
             || ciaidSettingsState.getGitlabTemplatesPath() != null
                   && !ciaidSettingsState.getGitlabTemplatesPath().equals(gitlabTemplatesPathField.getText().trim())
             || ciaidSettingsState.isCachingEnabled() != cachingEnabledCheckBox.isSelected()
-            || !ciaidSettingsState.getCacheExpiryTime().equals(Long.valueOf(cacheExpiryTimeTextField.getText().trim()));
+            || !ciaidSettingsState.getCacheExpiryTime().equals(cacheExpiryTime);
   }
 
   @Override
@@ -137,7 +153,18 @@ public class CIAidRemotesConfigurable implements Configurable {
     var tableModel = getRemotesListTableModel();
     remotesTable = new JBTable(tableModel);
     remotesTable.setSelectionMode(SINGLE_SELECTION);
-    remotesTable.getColumnModel().getColumn(2).setCellRenderer(new AccessTokenCellRenderer());
+    var accessTokenColumn = remotesTable.getColumnModel().getColumn(2);
+    accessTokenColumn.setCellRenderer(new AccessTokenCellRenderer());
+    accessTokenColumn.setHeaderRenderer(new DefaultTableCellRenderer() {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                     boolean hasFocus, int row, int column) {
+        var helpLabel = new JBLabel(value.toString(), AllIcons.General.ContextHelp, JLabel.LEFT);
+        helpLabel.setToolTipText(CIAidBundle.message("settings.remotes.table.access-token.column.info-text"));
+        helpLabel.setHorizontalAlignment(JBLabel.LEFT);
+        return helpLabel;
+      }
+    });
     remotesTableScrollPane = new JBScrollPane(ToolbarDecorator.createDecorator(remotesTable)
             .setAddAction(button -> {
               var remoteDialog = new RemoteDialog(project, false, null);
@@ -180,10 +207,10 @@ public class CIAidRemotesConfigurable implements Configurable {
                 return remote.getApiUrl();
               }
             },
-            new ColumnInfo<Remote, String>(CIAidBundle.message("settings.remotes.table.project-column")) {
+            new ColumnInfo<Remote, String>(CIAidBundle.message("settings.remotes.table.group-or-project-column")) {
               @Override
               public String valueOf(Remote remote) {
-                return remote.getProject();
+                return remote.getProjectPath();
               }
             },
             new ColumnInfo<Remote, String>(CIAidBundle.message("settings.remotes.table.access-token-column")) {
@@ -205,11 +232,43 @@ public class CIAidRemotesConfigurable implements Configurable {
       clearCacheButton.setEnabled(isSelected);
       cacheExpiryTimeLabel.setEnabled(isSelected);
     });
-    cacheExpiryTimeTextField = new JBTextField();
-    cacheExpiryTimeTextField.setText(String.valueOf(CIAidSettingsState.getInstance(project).getCacheExpiryTime()));
+
+    cacheExpiryTimeTextField = new IntegerField(String.valueOf(CIAidSettingsState.getInstance(project).getCacheExpiryTime()), 0, HOURS_IN_MONTH);
     cacheExpiryTimeTextField.setEnabled(cachingEnabledCheckBox.isSelected());
     cacheExpiryTimeTextField.getEmptyText().setText(CIAidBundle.message("settings.remotes.caching.expiry-time.empty-text"));
     cacheExpiryTimeTextField.setToolTipText(CIAidBundle.message("settings.remotes.caching.expiry-time.tooltip-text"));
+    var expiryTimeNumberValidator = new ComponentValidator(() -> {})
+            .withValidator(() -> {
+              String text = cacheExpiryTimeTextField.getText();
+              try {
+                var value = Long.parseLong(text);
+                if (value <= 0 || value > HOURS_IN_MONTH)  {
+                  return new ValidationInfo(CIAidBundle.message("settings.remotes.caching.expiry-time.validation.error"), cacheExpiryTimeTextField);
+                }
+              } catch (NumberFormatException e) {
+                return new ValidationInfo(CIAidBundle.message("settings.remotes.caching.expiry-time.validation.error"), cacheExpiryTimeTextField);
+              }
+
+              return null;
+            })
+            .installOn(cacheExpiryTimeTextField);
+
+    cacheExpiryTimeTextField.getDocument().addDocumentListener(new DocumentListener() {
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        expiryTimeNumberValidator.revalidate();
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        expiryTimeNumberValidator.revalidate();
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        expiryTimeNumberValidator.revalidate();
+      }
+    });
 
     clearCacheButton = new JButton(CIAidBundle.message("settings.remotes.caching.clear-cache"));
     clearCacheButton.setEnabled(cachingEnabledCheckBox.isSelected());
@@ -255,7 +314,7 @@ public class CIAidRemotesConfigurable implements Configurable {
 
       return FormBuilder.createFormBuilder()
               .addLabeledComponent(new JLabel(CIAidBundle.message("settings.remotes.table.gitlab-api-url-column") + ":"), gitlabApiUrlPanel)
-              .addLabeledComponent(new JLabel(CIAidBundle.message("settings.remotes.table.project-column") + ":"), gitlabProjectPanel)
+              .addLabeledComponent(new JLabel(CIAidBundle.message("settings.remotes.table.group-or-project-column") + ":"), gitlabProjectPanel)
               .addLabeledComponent(new JLabel(CIAidBundle.message("settings.remotes.table.access-token-column") + ":"), gitlabAccessTokenPanel)
               .addComponentFillVertically(new JPanel(), 0)
               .getPanel();
@@ -270,7 +329,7 @@ public class CIAidRemotesConfigurable implements Configurable {
       var projectPath = gitlabProjectTextField.getText().trim();
       var accessToken = new String(gitlabAccessTokenField.getPassword()).trim();
       if (projectPath.isEmpty()) {
-        return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.project.validation.error"), gitlabProjectTextField);
+        return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.group-or-project.validation.error"), gitlabProjectTextField);
       }
       if (accessToken.isEmpty()) {
         return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.access-token.validation.error"), gitlabAccessTokenField);
@@ -284,9 +343,10 @@ public class CIAidRemotesConfigurable implements Configurable {
         remote = new Remote();
       }
       var projectPath = gitlabProjectTextField.getText().trim();
+      projectPath = projectPath.startsWith("/") ? projectPath.substring(1) : projectPath;
       remote.apiUrl(gitlabApiUrlTextField.getText().trim())
               .token(new String(gitlabAccessTokenField.getPassword()))
-              .project(projectPath);
+              .projectPath(projectPath);
       CIAidSettingsState.getInstance(project).saveGitLabAccessToken(projectPath, new String(gitlabAccessTokenField.getPassword()));
       super.doOKAction();
     }
@@ -309,8 +369,8 @@ public class CIAidRemotesConfigurable implements Configurable {
       gitlabApiUrlTextField = gitLabApiUrlTextFieldAndPanel.first;
       gitlabApiUrlPanel = gitLabApiUrlTextFieldAndPanel.second;
 
-      var gitLabProjectTextFieldAndPanel = getTextFieldWithHelp(CIAidBundle.message("settings.remotes.dialog.project.empty-text"),
-              CIAidBundle.message("settings.remotes.dialog.project.comment-text"));
+      var gitLabProjectTextFieldAndPanel = getTextFieldWithHelp(CIAidBundle.message("settings.remotes.dialog.group-or-project.empty-text"),
+              CIAidBundle.message("settings.remotes.dialog.group-or-project.comment-text"));
       gitlabProjectTextField = gitLabProjectTextFieldAndPanel.first;
       gitlabProjectPanel = gitLabProjectTextFieldAndPanel.second;
 

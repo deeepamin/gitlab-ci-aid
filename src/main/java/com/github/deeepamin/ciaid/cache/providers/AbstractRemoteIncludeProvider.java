@@ -2,6 +2,8 @@ package com.github.deeepamin.ciaid.cache.providers;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
+import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.github.deeepamin.ciaid.settings.remotes.Remote;
 import com.github.deeepamin.ciaid.utils.GitLabHttpConnectionUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -11,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Comparator;
 
 import static com.github.deeepamin.ciaid.cache.CIAidCacheService.getCiAidCacheDir;
 import static com.github.deeepamin.ciaid.cache.CIAidCacheUtils.getOrCreateDir;
@@ -26,6 +29,11 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
       LOG.debug("File path is null for " + this.getClass().getSimpleName());
       return;
     }
+    var isCachingEnabled = CIAidSettingsState.getInstance(project).isCachingEnabled();
+    if (!isCachingEnabled) {
+      LOG.debug("Caching is disabled for " + this.getClass().getSimpleName());
+      return;
+    }
     readRemoteIncludeFile();
   }
 
@@ -33,11 +41,41 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
 
   protected abstract String getCacheDirName();
 
+  protected abstract String getProjectPath();
+
   protected File getCacheDir() {
     return getOrCreateDir(getCiAidCacheDir().getPath(), getCacheDirName());
   }
 
-  protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath, String accessToken) {
+  protected String getAccessTokenForMatchingProject(String projectPath) {
+    var matchingProjectPath = getMatchingProjectPath(projectPath);
+    if (matchingProjectPath == null) {
+      LOG.debug("No matching project path found for " + projectPath);
+      return null;
+    }
+    return CIAidSettingsState.getInstance(project).getGitLabAccessToken(matchingProjectPath);
+  }
+
+  public String getMatchingProjectPath(String projectPath) {
+    // separate public method for testing purposes
+    if (projectPath == null) {
+      return null;
+    }
+    var sanitizedProjectPath = projectPath.startsWith("/") ? projectPath.substring(1) : projectPath;
+    var ciAidSettings = CIAidSettingsState.getInstance(project);
+    var settingsPaths = ciAidSettings.getRemotes().stream()
+            .map(Remote::getProjectPath)
+            .toList();
+    if (settingsPaths.contains(sanitizedProjectPath)) {
+      return sanitizedProjectPath;
+    }
+    return settingsPaths.stream()
+            .filter(sanitizedProjectPath::startsWith)
+            .max(Comparator.comparingInt(String::length)) // Get the longest matching path
+            .orElse(null);
+  }
+
+  protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
     var isCacheExpired = CIAidCacheService.getInstance().isCacheExpired(cacheFilePath);
     var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
     if (includePath != null && !isCacheExpired) {
@@ -48,6 +86,7 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
       LOG.debug("Download URL is null or empty for " + this.getClass().getSimpleName());
       return;
     }
+    var accessToken = getAccessTokenForMatchingProject(getProjectPath());
     cacheRemoteFile(downloadUrl, cacheKey, cacheFilePath, accessToken);
   }
 

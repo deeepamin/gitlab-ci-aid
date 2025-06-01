@@ -18,11 +18,17 @@ public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   @Override
-  public void readRemoteIncludeFile() {
+  protected String getProjectPath() {
     var templatesProject = CIAidSettingsState.getInstance(project).getGitlabTemplatesProject();
     if (templatesProject == null) {
       templatesProject = DEFAULT_GITLAB_TEMPLATE_PROJECT;
     }
+    return templatesProject;
+  }
+
+  @Override
+  public void readRemoteIncludeFile() {
+    var templatesProject = getProjectPath();
     var templatesPath = CIAidSettingsState.getInstance(project).getGitlabTemplatesPath();
     if (templatesPath == null) {
       templatesPath = DEFAULT_GITLAB_TEMPLATE_PATH;
@@ -31,7 +37,6 @@ public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
     var templatesPathInGitLabUrl = templatesPath + "/" + filePath;
     var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, templatesProject, templatesPathInGitLabUrl, null);
     var cacheFilePath = getCacheDir().toPath().resolve(templatesPath).resolve(filePath).toString();
-    var accessToken = CIAidSettingsState.getInstance(project).getGitLabAccessToken(templatesProject);
-    validateAndCacheRemoteFile(downloadUrl, templatesPathInGitLabUrl, cacheFilePath, accessToken);
+    validateAndCacheRemoteFile(downloadUrl, templatesPathInGitLabUrl, cacheFilePath);
   }
 }
