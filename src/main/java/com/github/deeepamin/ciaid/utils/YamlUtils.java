@@ -34,6 +34,10 @@ public class YamlUtils {
   }
 
   public static boolean isYamlFile(VirtualFile file) {
-    return file != null && file.isValid() && !file.isDirectory() && (file.getPath().endsWith(".yml") || file.getPath().endsWith(".yaml"));
+    return file != null && file.isValid() && !file.isDirectory() && hasYamlExtension(file.getPath());
+  }
+
+  public static boolean hasYamlExtension(String filePath) {
+    return filePath != null && (filePath.endsWith(".yml") || filePath.endsWith(".yaml"));
   }
 }

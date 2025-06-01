@@ -80,7 +80,7 @@ public class FileUtils {
     }
   }
 
-  public static Path getFilePath(String textContainingFilePath, Project project) throws InvalidPathException {
+  public static Path getFilePath(String textContainingFilePath, Project project) {
     var basePath = project.getBasePath();
     var filePathIndexes = getFilePathAndIndexes(textContainingFilePath);
     if (filePathIndexes.isEmpty()) {
@@ -93,7 +93,12 @@ public class FileUtils {
       pathBuilder.append(File.separator);
     }
     pathBuilder.append(filePathIndex.path().trim());
-    return Path.of(pathBuilder.toString());
+    try {
+      return Path.of(pathBuilder.toString());
+    } catch (InvalidPathException e) {
+      LOG.debug("Invalid file path: " + pathBuilder, e);
+    }
+    return null;
   }
 
   public static List<StringWithStartEndRange> getFilePathAndIndexes(String elementText) {

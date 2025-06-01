@@ -14,16 +14,29 @@
     <resource-bundle>messages.CIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlScalarReferenceContributor"/>
-        <psi.referenceContributor language="yaml" implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlPsiElementReferenceContributor"/>
-        <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
-        <annotator language="yaml" implementationClass="com.github.deeepamin.ciaid.services.annotators.CIAidYamlAnnotator"/>
+        <psi.referenceContributor language="yaml"
+                                  implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlScalarReferenceContributor"/>
+        <psi.referenceContributor language="yaml"
+                                  implementation="com.github.deeepamin.ciaid.services.contributors.CIAidYamlPsiElementReferenceContributor"/>
         <fileType name="GitLab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
+        <annotator language="yaml"
+                   implementationClass="com.github.deeepamin.ciaid.services.annotators.CIAidYamlAnnotator"/>
+        <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.CIAidYamlAsyncListener"/>
         <editorNotificationProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidEditorNotificationProvider"/>
         <platform.backend.documentation.targetProvider implementation="com.github.deeepamin.ciaid.services.providers.CIAidDocumentationTargetProvider"/>
-        <projectConfigurable parentId="tools" instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable" bundle="messages.CIAid" key="settings.display.name" nonDefaultProject="true"/>
+        <projectConfigurable parentId="tools"
+                             instance="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable"
+                             id="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable"
+                             bundle="messages.CIAid"
+                             key="settings.display.name"
+                             nonDefaultProject="true"/>
+        <projectConfigurable parentId="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable"
+                             instance="com.github.deeepamin.ciaid.settings.remotes.CIAidRemotesConfigurable"
+                             bundle="messages.CIAid"
+                             key="settings.remotes.display.name"
+                             nonDefaultProject="true"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.services.providers.CIAidYamlSchemaProviderFactory"/>

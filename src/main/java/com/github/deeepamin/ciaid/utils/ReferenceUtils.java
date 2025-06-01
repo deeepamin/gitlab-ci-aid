@@ -1,5 +1,7 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
+import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.services.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.InputsReferenceResolver;
@@ -9,23 +11,36 @@ import com.github.deeepamin.ciaid.services.resolvers.RefTagReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.StagesToJobStageReferenceResolver;
 import com.github.deeepamin.ciaid.services.resolvers.VariablesReferenceResolver;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
+import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
+
 public class ReferenceUtils {
+  private static final Logger LOG = Logger.getInstance(ReferenceUtils.class);
+
   public static Optional<PsiReference[]> getReferences(PsiElement psiElement) {
     if (PsiUtils.isScriptElement(psiElement)) {
       return referencesScripts(psiElement);
-    } else if (PsiUtils.isIncludeLocalFileElement(psiElement)) {
-      return referencesIncludeLocalFiles(psiElement);
+    } else if (PsiUtils.isIncludeElement(psiElement)) {
+      return referencesIncludes(psiElement);
     } else if (PsiUtils.isNeedsElement(psiElement) || PsiUtils.isExtendsElement(psiElement)) {
       return referencesNeedsOrExtendsToJob(psiElement);
     } else if (PsiUtils.isStagesElement(psiElement)) {
@@ -56,9 +71,23 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  private static Optional<PsiReference[]> referencesIncludeLocalFiles(PsiElement element) {
+  private static Optional<PsiReference[]> referencesIncludes(PsiElement element) {
     if (YamlUtils.isYamlTextElement(element)) {
-      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element) });
+      var isNonLocalInclude = PsiUtils.isChild(element, NON_LOCAL_INCLUDE_KEYWORDS);
+      if (isNonLocalInclude) {
+        var includePathCacheKey = getIncludeCacheKey(element);
+        var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
+        if (includePath != null) {
+          try {
+            return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element, Path.of(includePath))});
+          } catch (InvalidPathException e) {
+            LOG.warn("Invalid path for include file: " + includePath, e);
+          }
+        }
+      } else {
+        var filePath = FileUtils.getFilePath(handleQuotedText(element.getText()), element.getProject());
+        return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePath) });
+      }
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
@@ -187,13 +216,29 @@ public class ReferenceUtils {
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
 
-  public static String handleQuotedText(String text) {
-    if (text.startsWith("\"") && text.endsWith("\"")) {
-      text = text.replaceAll("\"", "");
-    } else if (text.startsWith("'") && text.endsWith("'")) {
-      text = text.replaceAll("'", "");
+  public static String getIncludeCacheKey(@NotNull PsiElement element) {
+    var isChildOfFile = PsiUtils.isChild(element, List.of(FILE));
+    if (isChildOfFile) {
+      var blockMappingOptional = PsiUtils.findParentOfType(element, YAMLBlockMappingImpl.class);
+      if (blockMappingOptional.isPresent()) {
+        var blockMapping = blockMappingOptional.get();
+        var keyValues = blockMapping.getKeyValues();
+        String projectName = null;
+        String filePath = null;
+        String ref = null;
+        for (YAMLKeyValue keyValue : keyValues) {
+          var keyText = keyValue.getKeyText();
+          switch (keyText) {
+            case PROJECT -> projectName = handleQuotedText(keyValue.getValueText());
+            case FILE -> filePath = handleQuotedText(element.getText());
+            case REF -> ref = handleQuotedText(keyValue.getValueText());
+          }
+        }
+        if (projectName != null && filePath != null) {
+          return CIAidCacheUtils.getProjectFileCacheKey(projectName, filePath, ref);
+        }
+      }
     }
-    return text;
+    return handleQuotedText(element.getText());
   }
-
 }

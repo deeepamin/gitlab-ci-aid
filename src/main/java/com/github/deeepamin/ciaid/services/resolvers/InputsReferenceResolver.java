@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.model.Icons;
-import com.github.deeepamin.ciaid.model.gitlab.Input;
+import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -9,7 +9,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class InputsReferenceResolver extends SingleTargetReferenceResolver {
   private static final String INPUT_APPEND_STRING = " ]]";

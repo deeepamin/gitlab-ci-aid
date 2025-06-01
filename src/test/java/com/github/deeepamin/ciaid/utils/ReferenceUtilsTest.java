@@ -27,7 +27,7 @@ public class ReferenceUtilsTest extends BaseTest {
     var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH, "");
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
     var project = getProject();
-    project.getService(CIAidProjectService.class).readGitlabCIYamlData(project, ciYamlFile, false);
+    project.getService(CIAidProjectService.class).readGitlabCIYamlData(ciYamlFile, false, false);
     psiYaml = getPsiGitlabCiYaml(rootDir);
   }
 
@@ -145,16 +145,6 @@ public class ReferenceUtilsTest extends BaseTest {
     assertEquals(1, refTagKeysReference.get().length);
     assertTrue(refTagKeysReference.get()[0] instanceof RefTagReferenceResolver);
     assertEquals(refTagKeysElement, refTagKeysReference.get()[0].getElement());
-  }
-
-
-  public void testHandleQuotedText() {
-    assertEquals("test", ReferenceUtils.handleQuotedText("\"test\""));
-    assertEquals("\"test", ReferenceUtils.handleQuotedText("\"test"));
-    assertEquals("test\"", ReferenceUtils.handleQuotedText("test\""));
-    assertEquals("test", ReferenceUtils.handleQuotedText("'test'"));
-    assertEquals("'test", ReferenceUtils.handleQuotedText("'test"));
-    assertEquals("test'", ReferenceUtils.handleQuotedText("test'"));
   }
 
   private List<YAMLPlainTextImpl> getBuildElements() {

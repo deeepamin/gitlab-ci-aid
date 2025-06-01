@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.services;
 
-import com.intellij.openapi.application.ApplicationManager;
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
@@ -17,20 +17,20 @@ public class CIAidPostStartup implements ProjectActivity {
   @Override
   public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
     final var projectService = CIAidProjectService.getInstance(project);
-    executeOnThreadPool(() -> projectService.afterStartup(project));
+    CIAidProjectService.executeOnThreadPool(() -> {
+      CIAidCacheService.getInstance().loadCacheFromDisk(project);
+      projectService.afterStartup();
+    });
 
     final MessageBusConnection connection = project.getMessageBus().connect();
     connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
       @Override
       public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-        executeOnThreadPool(() -> projectService.processOpenedFile(project, file));
+        CIAidProjectService.executeOnThreadPool(() -> projectService.processOpenedFile(file));
       }
     });
     Disposer.register(DisposerService.getInstance(project), projectService);
     return null;
   }
 
-  public static void executeOnThreadPool(final Runnable runnable) {
-    ApplicationManager.getApplication().executeOnPooledThread(runnable);
-  }
 }

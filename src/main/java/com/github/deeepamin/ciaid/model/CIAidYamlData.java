@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.model;
 
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
-import com.github.deeepamin.ciaid.utils.ReferenceUtils;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.SmartPointerManager;
@@ -12,11 +12,13 @@ import org.jetbrains.yaml.psi.YAMLPsiElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
+
 public class CIAidYamlData {
   //.gitlab-ci.yml path to data mapping, also for included files
   private final VirtualFile file;
-  private final List<String> includedYamls;
   private final long modificationStamp;
+  private final List<IncludeFile> includes;
   private final List<SmartPsiElementPointer<PsiElement>> jobStageElements;
   private final List<SmartPsiElementPointer<YAMLKeyValue>> jobElements;
   private final List<SmartPsiElementPointer<YAMLPsiElement>> stagesItemElements;
@@ -26,9 +28,9 @@ public class CIAidYamlData {
   public CIAidYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
     this.modificationStamp = modificationStamp;
+    this.includes = new ArrayList<>();
     this.jobStageElements = new ArrayList<>();
     this.jobElements = new ArrayList<>();
-    this.includedYamls = new ArrayList<>();
     this.stagesItemElements = new ArrayList<>();
     this.inputs = new ArrayList<>();
     this.variables = new ArrayList<>();
@@ -36,6 +38,16 @@ public class CIAidYamlData {
 
   public VirtualFile getFile() {
     return file;
+  }
+
+  public void addInclude(IncludeFile includeFile) {
+    if (includeFile != null) {
+      includes.add(includeFile);
+    }
+  }
+
+  public List<IncludeFile> getIncludes() {
+    return includes;
   }
 
   public List<SmartPsiElementPointer<PsiElement>> getJobStageElements() {
@@ -66,14 +78,6 @@ public class CIAidYamlData {
     jobElements.add(jobPointer);
   }
 
-  public void addIncludedYaml(String yaml) {
-    includedYamls.add(yaml);
-  }
-
-  public List<String> getIncludedYamls() {
-    return includedYamls;
-  }
-
   public void addInput(YAMLKeyValue input) {
     if (input != null) {
       SmartPointerManager pointerManager = SmartPointerManager.getInstance(input.getProject());
@@ -91,7 +95,7 @@ public class CIAidYamlData {
   }
 
   public void addStagesItem(YAMLPsiElement stagesItemElement) {
-    var stagesItemName = ReferenceUtils.handleQuotedText(stagesItemElement.getText());
+    var stagesItemName = handleQuotedText(stagesItemElement.getText());
     if (GitlabCIYamlUtils.isAnInputsString(stagesItemName)) {
       return;
     }

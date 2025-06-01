@@ -19,7 +19,7 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.List;
 
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 
 /**
  * Base class to allow injecting a shell script language into GitLab YAML elements.
