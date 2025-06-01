@@ -7,7 +7,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.ui.panel.ComponentPanelBuilder;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,7 +19,6 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
@@ -50,11 +48,6 @@ public class CIAidSettingsConfigurable implements Configurable {
 
   private JBTextField defaultGitlabCIYamlPathField;
   private JPanel defaultGitlabCIYamlPathFieldWithHelpPanel;
-  private JBCheckBox ignoreUndefinedJobCheckBox;
-  private JLabel ignoreUndefinedJobOrStageCommentLabel;
-  private JBCheckBox ignoreUndefinedStageCheckBox;
-  private JBCheckBox ignoreUndefinedScriptCheckBox;
-  private JBCheckBox ignoreUndefinedIncludeCheckBox;
   private JBTable userMarkedFilesTable;
   private JBScrollPane userMarkedFilesScrollPane;
 
@@ -68,7 +61,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   @Override
   public @Nullable JComponent createComponent() {
     configureDefaultYamlPathTextField();
-    configureInspectionCheckboxes();
     configureUserMarkedFilesTable();
 
     //noinspection DialogTitleCapitalization
@@ -76,14 +68,6 @@ public class CIAidSettingsConfigurable implements Configurable {
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.general.separator")))
             .setFormLeftIndent(20)
             .addLabeledComponent(new JLabel(CIAidBundle.message("settings.general.ci.yaml.path") + ":"), defaultGitlabCIYamlPathFieldWithHelpPanel)
-            .setFormLeftIndent(0)
-            .addComponent(new TitledSeparator(CIAidBundle.message("settings.inspections.separator")))
-            .setFormLeftIndent(20)
-            .addComponent(ignoreUndefinedJobCheckBox)
-            .addComponent(ignoreUndefinedStageCheckBox)
-            .addComponent(ignoreUndefinedJobOrStageCommentLabel)
-            .addComponent(ignoreUndefinedScriptCheckBox)
-            .addComponent(ignoreUndefinedIncludeCheckBox)
             .setFormLeftIndent(0)
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.user.yamls.separator")), 6)
             .setFormLeftIndent(20)
@@ -142,19 +126,6 @@ public class CIAidSettingsConfigurable implements Configurable {
     });
   }
 
-  private void configureInspectionCheckboxes() {
-    ignoreUndefinedJobCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-undefined-job"));
-    ignoreUndefinedStageCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-undefined-stage"));
-    ignoreUndefinedScriptCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-script-unavailable"));
-    ignoreUndefinedIncludeCheckBox = new JBCheckBox(CIAidBundle.message("settings.inspections.ignore-include-unavailable"));
-
-    ignoreUndefinedJobCheckBox.setSelected(CIAidSettingsState.getInstance(project).isIgnoreUndefinedJob());
-    ignoreUndefinedStageCheckBox.setSelected(CIAidSettingsState.getInstance(project).isIgnoreUndefinedStage());
-    ignoreUndefinedJobOrStageCommentLabel = getCommentLabel(CIAidBundle.message("settings.inspections.ignore-undefined-job-stage-comment"));
-    ignoreUndefinedScriptCheckBox.setSelected(CIAidSettingsState.getInstance(project).isIgnoreUndefinedScript());
-    ignoreUndefinedIncludeCheckBox.setSelected(CIAidSettingsState.getInstance(project).isIgnoreUndefinedInclude());
-  }
-
   private void configureUserMarkedFilesTable() {
     DefaultTableModel tableModel = new DefaultTableModel(new Object[]{CIAidBundle.message("settings.user.yamls.table.path-column"), CIAidBundle.message("settings.user.yamls.table.ignore-column")}, 0) {
     };
@@ -200,13 +171,6 @@ public class CIAidSettingsConfigurable implements Configurable {
             .createPanel());
   }
 
-  @SuppressWarnings("deprecation")
-  private JLabel getCommentLabel(String comment) {
-    var commentComponent = ComponentPanelBuilder.createCommentComponent(comment, true);
-    commentComponent.setBorder(JBUI.Borders.empty(0, 25, 5, 0));
-    return commentComponent;
-  }
-
   private Map<String, Boolean> getYamlToUserMarkings() {
     DefaultTableModel tableModel = (DefaultTableModel) userMarkedFilesTable.getModel();
     Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
@@ -241,10 +205,6 @@ public class CIAidSettingsConfigurable implements Configurable {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
 
     return !defaultGitlabCIYamlPathField.getText().equals(ciaidSettingsState.getDefaultGitlabCIYamlPath())
-            || ignoreUndefinedJobCheckBox.isSelected() != ciaidSettingsState.isIgnoreUndefinedJob()
-            || ignoreUndefinedStageCheckBox.isSelected() != ciaidSettingsState.isIgnoreUndefinedStage()
-            || ignoreUndefinedScriptCheckBox.isSelected() != ciaidSettingsState.isIgnoreUndefinedScript()
-            || ignoreUndefinedIncludeCheckBox.isSelected() != ciaidSettingsState.isIgnoreUndefinedInclude()
             || !getYamlToUserMarkings().equals(ciaidSettingsState.getYamlToUserMarkings());
   }
 
@@ -252,10 +212,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   public void apply() {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
     ciaidSettingsState.setDefaultGitlabCIYamlPath(defaultGitlabCIYamlPathField.getText());
-    ciaidSettingsState.setIgnoreUndefinedJob(ignoreUndefinedJobCheckBox.isSelected());
-    ciaidSettingsState.setIgnoreUndefinedStage(ignoreUndefinedStageCheckBox.isSelected());
-    ciaidSettingsState.setIgnoreUndefinedScript(ignoreUndefinedScriptCheckBox.isSelected());
-    ciaidSettingsState.setIgnoreUndefinedInclude(ignoreUndefinedIncludeCheckBox.isSelected());
 
     PsiManager.getInstance(project).dropPsiCaches();
     removedFiles.forEach(path -> {
@@ -291,10 +247,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   public void reset() {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
     defaultGitlabCIYamlPathField.setText(ciaidSettingsState.getDefaultGitlabCIYamlPath());
-    ignoreUndefinedJobCheckBox.setSelected(ciaidSettingsState.isIgnoreUndefinedJob());
-    ignoreUndefinedStageCheckBox.setSelected(ciaidSettingsState.isIgnoreUndefinedStage());
-    ignoreUndefinedScriptCheckBox.setSelected(ciaidSettingsState.isIgnoreUndefinedScript());
-    ignoreUndefinedIncludeCheckBox.setSelected(ciaidSettingsState.isIgnoreUndefinedInclude());
     DefaultTableModel tableModel = (DefaultTableModel) userMarkedFilesTable.getModel();
     tableModel.setRowCount(0);
     removedFiles.clear();
@@ -305,11 +257,6 @@ public class CIAidSettingsConfigurable implements Configurable {
   public void disposeUIResources() {
     defaultGitlabCIYamlPathField = null;
     defaultGitlabCIYamlPathFieldWithHelpPanel = null;
-    ignoreUndefinedJobCheckBox = null;
-    ignoreUndefinedJobOrStageCommentLabel = null;
-    ignoreUndefinedStageCheckBox = null;
-    ignoreUndefinedScriptCheckBox = null;
-    ignoreUndefinedIncludeCheckBox = null;
     userMarkedFilesTable = null;
     userMarkedFilesScrollPane = null;
   }

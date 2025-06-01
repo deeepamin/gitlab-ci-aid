@@ -8,11 +8,14 @@
 
 - Support for components, templates and remote files
 - Configurable caching support for remote GitLab CI Yaml files
+- Inspections for GitLab CI Yaml files (Editor > Inspections > Gitlab CI inspections)
 
 ### Changed
 
 - Multiple inputs in a single line shows documentation for each input
-- 
+- Errors in yaml files can be configured in inspections
+- Undefined stage in job errors will not be reported anymore
+
 ### Fixed
 
 - Inputs with arrays show empty value in documentation
