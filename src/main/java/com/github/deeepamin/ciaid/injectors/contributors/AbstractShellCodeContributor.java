@@ -3,7 +3,6 @@ package com.github.deeepamin.ciaid.injectors.contributors;
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.model.Icons;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
@@ -48,7 +47,7 @@ abstract class AbstractShellCodeContributor extends CompletionContributor {
         }
 
         var originalFile = injectionHost.getContainingFile().getOriginalFile();
-        if (GitlabCIYamlUtils.isValidGitlabCIYamlFile(originalFile.getVirtualFile())) {
+        if (CIAidProjectService.isValidGitlabCIYamlFile(originalFile.getVirtualFile())) {
           var psiElement = parameters.getPosition();
           if (psiElement.getLanguage() == language) {
             var isVariable = isVariableString(psiElement);

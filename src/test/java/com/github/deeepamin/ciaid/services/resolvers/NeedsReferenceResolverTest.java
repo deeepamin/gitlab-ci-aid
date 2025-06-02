@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import org.jetbrains.yaml.psi.impl.YAMLKeyValueImpl;
 
 import java.io.File;
@@ -15,8 +15,8 @@ public class NeedsReferenceResolverTest extends BaseTest {
     super.setUp();
     var needToJobDirPipelineYml = myFixture.configureByFile(TEST_DIR_PATH_NEEDS + File.separator + "ci" + PIPELINE_YML_PATH);
     var extendsToJobDirPipelineYml = myFixture.configureByFile(TEST_DIR_PATH_EXTENDS + File.separator + "ci" + PIPELINE_YML_PATH);
-    GitlabCIYamlUtils.markAsCIYamlFile(needToJobDirPipelineYml.getVirtualFile());
-    GitlabCIYamlUtils.markAsCIYamlFile(extendsToJobDirPipelineYml.getVirtualFile());
+    CIAidProjectService.markAsCIYamlFile(needToJobDirPipelineYml.getVirtualFile());
+    CIAidProjectService.markAsCIYamlFile(extendsToJobDirPipelineYml.getVirtualFile());
   }
 
   @Override

@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.deeepamin.ciaid.services.CIAidProjectService.getCIAidProjectService;
 import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getCIAidProjectService;
 
 public class NeedsReferenceResolver extends SingleTargetReferenceResolver {
   // From Needs element to Job

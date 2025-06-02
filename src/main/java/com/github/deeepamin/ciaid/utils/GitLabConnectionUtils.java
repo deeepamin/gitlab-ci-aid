@@ -1,23 +1,30 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
-public class GitLabHttpConnectionUtils {
-  private static final Logger LOG = Logger.getInstance(GitLabHttpConnectionUtils.class);
+public class GitLabConnectionUtils {
+  private static final Logger LOG = Logger.getInstance(GitLabConnectionUtils.class);
+  public static final String DEFAULT_GITLAB_SERVER_API_URL = "https://gitlab.com/api/v4";
+  public static final String GITLAB_PROJECT_TAGS_PATH = "%s/projects/%s/repository/tags";
   private static final String GITLAB_PRIVATE_TOKEN_HEADER = "PRIVATE-TOKEN";
+  private static final String GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH = "%s/projects/%s/repository/files/%s/raw";
 
   public static String downloadContent(final String urlString, final String accessToken) {
     try (var httpClient = HttpClient.newBuilder()
@@ -51,6 +58,25 @@ public class GitLabHttpConnectionUtils {
       LOG.debug("Exception while calling URL" + urlString + " " + e);
     }
     return null;
+  }
+
+  public static String getRepositoryFileDownloadUrl(Project project, String projectName, String file, String ref) {
+    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(projectName);
+    if (projectName.startsWith("/")) {
+      projectName = projectName.substring(1);
+    }
+    String encodedProject = URLEncoder.encode(projectName, StandardCharsets.UTF_8);
+    if (file.startsWith("/")) {
+      file = file.substring(1);
+    }
+    String encodedFile = URLEncoder.encode(file, StandardCharsets.UTF_8);
+    var downloadUrl = String.format(GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH, gitlabApiUrl, encodedProject, encodedFile);
+    var refPlaceholder = "?ref=%s";
+    if (ref != null && !ref.isBlank()) {
+      ref = String.format(refPlaceholder, ref);
+      downloadUrl = downloadUrl.concat(ref);
+    }
+    return downloadUrl;
   }
 
   private static String getUserAgent() {

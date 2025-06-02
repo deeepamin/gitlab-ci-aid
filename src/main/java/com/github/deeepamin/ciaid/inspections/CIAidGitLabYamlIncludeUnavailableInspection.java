@@ -3,9 +3,9 @@ package com.github.deeepamin.ciaid.inspections;
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.highlighter.quickfix.CreateIncludeFileQuickFix;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.codeInspection.LocalInspectionTool;
@@ -25,7 +25,7 @@ public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspection
     return new PsiElementVisitor() {
       @Override
       public void visitElement(@NotNull PsiElement element) {
-        if (GitlabCIYamlUtils.hasGitlabYamlFile(element) && YamlUtils.isYamlTextElement(element)) {
+        if (CIAidProjectService.hasGitlabYamlFile(element) && YamlUtils.isYamlTextElement(element)) {
           var isChildOfIncludeElement = PsiUtils.isChild(element, List.of(INCLUDE));
           if (isChildOfIncludeElement) {
             var isNonLocalInclude = PsiUtils.isChild(element, NON_LOCAL_INCLUDE_KEYWORDS);

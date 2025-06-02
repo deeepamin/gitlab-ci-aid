@@ -2,7 +2,7 @@ package com.github.deeepamin.ciaid.references.contributors;
 
 import com.github.deeepamin.ciaid.references.providers.AbstractReferenceProvider;
 import com.github.deeepamin.ciaid.references.providers.ReferenceProviderFactory;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -28,7 +28,7 @@ public class CIAidYamlPsiElementReferenceContributor extends PsiReferenceContrib
             new PsiReferenceProvider() {
               @Override
               public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext context) {
-                if (!GitlabCIYamlUtils.hasGitlabYamlFile(psiElement)) {
+                if (!CIAidProjectService.hasGitlabYamlFile(psiElement)) {
                   return PsiReference.EMPTY_ARRAY;
                 }
                 var referenceProviders = ReferenceProviderFactory.getYamlPsiElementReferenceProviders(psiElement);

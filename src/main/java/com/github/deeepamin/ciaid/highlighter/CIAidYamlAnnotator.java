@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.highlighter;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.references.providers.IncludeReferenceProvider;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getCIAidProjectService;
+import static com.github.deeepamin.ciaid.services.CIAidProjectService.getCIAidProjectService;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.NUMBER;
@@ -41,7 +42,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (!GitlabCIYamlUtils.hasGitlabYamlFile(element)) {
+    if (!CIAidProjectService.hasGitlabYamlFile(element)) {
       LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", element.getText()));
       return;
     }
@@ -79,7 +80,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightStage(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(PsiUtils::isJobStageElement)
+            .filter(GitlabCIYamlUtils::isJobStageElement)
             .ifPresent(stage -> {
               var allStages = getCIAidProjectService(psiElement).getDataProvider().getStageNamesDefinedAtStagesLevel();
               var stageName = CIAidUtils.handleQuotedText(psiElement.getText());
@@ -115,7 +116,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightStages(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(PsiUtils::isStagesElement)
+            .filter(GitlabCIYamlUtils::isStagesElement)
             .ifPresent(stage -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                     .textAttributes(STAGE_HIGHLIGHTER)
                     .create());
@@ -123,7 +124,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightNeedsJob(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(PsiUtils::isNeedsElement)
+            .filter(GitlabCIYamlUtils::isNeedsElement)
             .ifPresent(job -> {
               var allJobs = getCIAidProjectService(psiElement).getDataProvider().getJobNames();
               var jobName = CIAidUtils.handleQuotedText(psiElement.getText());
@@ -141,7 +142,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightScript(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(PsiUtils::isScriptElement)
+            .filter(GitlabCIYamlUtils::isScriptElement)
             .ifPresent(scriptElement -> {
               var filePath = CIAidUtils.handleQuotedText(scriptElement.getText());
               var scriptPathIndexes = FileUtils.getFilePathAndIndexes(filePath);
@@ -162,7 +163,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightIncludeFile(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(PsiUtils::isIncludeElement)
+            .filter(GitlabCIYamlUtils::isIncludeElement)
             .ifPresent(includeElement -> {
               var isNonLocalInclude = PsiUtils.isChild(includeElement, NON_LOCAL_INCLUDE_KEYWORDS);
               if (isNonLocalInclude) {

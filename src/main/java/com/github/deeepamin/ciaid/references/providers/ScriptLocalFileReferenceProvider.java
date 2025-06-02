@@ -2,7 +2,7 @@ package com.github.deeepamin.ciaid.references.providers;
 
 import com.github.deeepamin.ciaid.references.resolvers.ScriptReferenceResolver;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.PsiUtils;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -24,7 +24,7 @@ public class ScriptLocalFileReferenceProvider extends AbstractReferenceProvider 
   protected boolean isReferenceAvailable() {
     var isYamlTextElement = YamlUtils.isYamlTextElement(element);
     var isYamlScalarListOrScalarTextElement = YamlUtils.isYamlScalarListOrYamlScalarTextElement(element);
-    var isScriptElement = PsiUtils.isScriptElement(element);
+    var isScriptElement = GitlabCIYamlUtils.isScriptElement(element);
     return isScriptElement && (isYamlTextElement || isYamlScalarListOrScalarTextElement);
   }
 

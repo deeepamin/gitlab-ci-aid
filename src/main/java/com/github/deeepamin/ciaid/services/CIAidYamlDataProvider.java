@@ -11,7 +11,6 @@ import com.github.deeepamin.ciaid.model.gitlab.include.IncludeProject;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
 import com.github.deeepamin.ciaid.parser.CIAidGitLabYamlParser;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -45,7 +44,6 @@ public class CIAidYamlDataProvider {
   public CIAidYamlDataProvider(Project project) {
     this.project = project;
     pluginData = new ConcurrentHashMap<>();
-
   }
 
   public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
@@ -54,9 +52,9 @@ public class CIAidYamlDataProvider {
     }
     ApplicationManager.getApplication().runReadAction(() -> {
       if (userMarked) {
-        GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
+        CIAidProjectService.markAsUserCIYamlFile(file, project);
       } else {
-        GitlabCIYamlUtils.markAsCIYamlFile(file);
+        CIAidProjectService.markAsCIYamlFile(file);
       }
       var parser = new CIAidGitLabYamlParser(project);
       var ciAidYamlData = parser.parseGitlabCIYamlData(file);
@@ -207,8 +205,7 @@ public class CIAidYamlDataProvider {
     return getFileName(
             (entry) -> entry.getValue().getJobElements()
             .stream()
-            .map(jobKeyValue -> handleQuotedText(jobKeyValue.getKeyText()))
-            .anyMatch(jobText -> jobText.equals(job)));
+            .anyMatch(jobKeyValue -> handleQuotedText(jobKeyValue.getKeyText()).equals(job)));
   }
 
   public String getJobStageFileName(String stage) {

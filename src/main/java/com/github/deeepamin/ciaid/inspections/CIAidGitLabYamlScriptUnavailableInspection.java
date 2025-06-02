@@ -2,9 +2,9 @@ package com.github.deeepamin.ciaid.inspections;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.highlighter.quickfix.CreateScriptQuickFix;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.codeInspection.LocalInspectionTool;
@@ -14,7 +14,7 @@ import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 
 public class CIAidGitLabYamlScriptUnavailableInspection extends LocalInspectionTool {
   @Override
@@ -22,7 +22,7 @@ public class CIAidGitLabYamlScriptUnavailableInspection extends LocalInspectionT
     return new PsiElementVisitor() {
       @Override
       public void visitElement(@NotNull PsiElement element) {
-        if (GitlabCIYamlUtils.hasGitlabYamlFile(element) &&
+        if (CIAidProjectService.hasGitlabYamlFile(element) &&
                 (YamlUtils.isYamlTextElement(element) || YamlUtils.isYamlScalarListOrYamlScalarTextElement(element))) {
           var isChildOfScriptElements = PsiUtils.isChild(element, SCRIPT_KEYWORDS);
           if (isChildOfScriptElements) {

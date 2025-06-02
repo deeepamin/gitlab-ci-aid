@@ -8,44 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.EXTENDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INPUTS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
-
 public class PsiUtils {
-  public static boolean isScriptElement(PsiElement element) {
-    return isChild(element, SCRIPT_KEYWORDS);
-  }
-
-  public static boolean isIncludeElement(PsiElement element) {
-    return isChild(element, List.of(INCLUDE));
-  }
-
-  public static boolean isNeedsElement(PsiElement element) {
-    return isChild(element, List.of(NEEDS)) && !isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS) && isNotSpecInputsElement(element);
-  }
-
-  public static boolean isStagesElement(PsiElement element) {
-    return isChild(element, List.of(STAGES)) && isNotSpecInputsElement(element);
-  }
-
-  public static boolean isJobStageElement(PsiElement element) {
-    return isChild(element, List.of(STAGE)) && isNotSpecInputsElement(element);
-  }
-
-  public static boolean isExtendsElement(PsiElement element) {
-    return isChild(element, List.of(EXTENDS)) && isNotSpecInputsElement(element);
-  }
-
-  public static boolean isNotSpecInputsElement(PsiElement element) {
-    return !isChild(element, List.of(SPEC, INPUTS));
-  }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
     Optional<YAMLKeyValue> parent = findParent(element, parentKeys);

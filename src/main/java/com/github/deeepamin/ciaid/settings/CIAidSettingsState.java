@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.settings;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.remotes.Remote;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.application.ApplicationManager;
@@ -20,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.deeepamin.ciaid.utils.GitLabUtils.DEFAULT_GITLAB_SERVER_API_URL;
+import static com.github.deeepamin.ciaid.utils.GitLabConnectionUtils.DEFAULT_GITLAB_SERVER_API_URL;
 import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_PREFIX;
 
 @Service(Service.Level.PROJECT)
@@ -190,7 +189,7 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
       if (ciAidProjectService != null) {
         var pluginData = ciAidProjectService.getPluginData();
         pluginData.keySet().forEach(file -> {
-          var isUserMarked = GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file);
+          var isUserMarked = CIAidProjectService.isMarkedAsUserCIYamlFile(file);
           ciAidProjectService.readGitlabCIYamlData(file, isUserMarked, true);
         });
       }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
-import com.github.deeepamin.ciaid.utils.GitLabUtils;
+import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
@@ -69,7 +69,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
     );
 
     for (String path : possiblePaths) {
-      var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, resolvedComponentVersion);
+      var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, resolvedComponentVersion);
       var projectFilePath = componentProjectPath.replaceAll("/", "_") +
               File.separator +
               (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + File.separator : "") +
@@ -88,7 +88,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
     String encodedProject = URLEncoder.encode(componentProjectPath, StandardCharsets.UTF_8);
     var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(componentProjectPath);
 
-    String url = String.format(GitLabUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
+    String url = String.format(GitLabConnectionUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
     try (var httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build()) {

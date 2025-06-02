@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.injectors;
 
 import com.github.deeepamin.ciaid.references.providers.RefTagReferenceProvider;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.lang.Language;
 import com.intellij.lang.injection.MultiHostInjector;
@@ -20,7 +20,7 @@ import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.List;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 
 /**
  * Base class to allow injecting a shell script language into GitLab YAML elements.
@@ -40,7 +40,7 @@ abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
       return;
     }
 
-    if (!GitlabCIYamlUtils.hasGitlabYamlFile(context)) {
+    if (!CIAidProjectService.hasGitlabYamlFile(context)) {
       LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", context.getText()));
       return;
     }

@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.references.providers;
 
 import com.github.deeepamin.ciaid.references.resolvers.NeedsReferenceResolver;
-import com.github.deeepamin.ciaid.utils.PsiUtils;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -17,7 +17,7 @@ public class NeedsReferenceProvider extends AbstractReferenceProvider {
 
   @Override
   protected boolean isReferenceAvailable() {
-    var isNeedsElement = PsiUtils.isNeedsElement(element);
+    var isNeedsElement = GitlabCIYamlUtils.isNeedsElement(element);
     var isTextElement = YamlUtils.isYamlTextElement(element);
     return isNeedsElement && isTextElement;
   }

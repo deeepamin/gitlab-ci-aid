@@ -4,6 +4,7 @@ import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.references.resolvers.IncludeFileReferenceResolver;
 import com.github.deeepamin.ciaid.utils.FileUtils;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
@@ -17,10 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.FILE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.PROJECT;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.REF;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class IncludeReferenceProvider extends AbstractReferenceProvider {
@@ -30,7 +28,7 @@ public class IncludeReferenceProvider extends AbstractReferenceProvider {
 
   @Override
   protected boolean isReferenceAvailable() {
-    var isIncludeElement = PsiUtils.isIncludeElement(element);
+    var isIncludeElement = GitlabCIYamlUtils.isIncludeElement(element);
     var isYamlTextElement = YamlUtils.isYamlTextElement(element);
     return isIncludeElement && isYamlTextElement;
   }

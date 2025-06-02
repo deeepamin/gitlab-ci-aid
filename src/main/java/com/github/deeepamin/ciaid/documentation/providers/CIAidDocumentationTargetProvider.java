@@ -3,7 +3,7 @@ package com.github.deeepamin.ciaid.documentation.providers;
 import com.github.deeepamin.ciaid.documentation.targets.InputDocumentationTarget;
 import com.github.deeepamin.ciaid.documentation.targets.MultipleInputsDocumentationTarget;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.platform.backend.documentation.DocumentationTarget;
 import com.intellij.platform.backend.documentation.DocumentationTargetProvider;
 import com.intellij.psi.PsiFile;
@@ -18,7 +18,7 @@ public class CIAidDocumentationTargetProvider implements DocumentationTargetProv
   public @NotNull List<? extends @NotNull DocumentationTarget> documentationTargets(@NotNull PsiFile file, int offset) {
     var documentationTargets = new ArrayList<DocumentationTarget>();
     if (file.getVirtualFile() != null) {
-      var isGitlabCIYaml = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file.getVirtualFile());
+      var isGitlabCIYaml = CIAidProjectService.isValidGitlabCIYamlFile(file.getVirtualFile());
       if (isGitlabCIYaml) {
         var elementAtOffset = file.findElementAt(offset);
         if (elementAtOffset != null) {

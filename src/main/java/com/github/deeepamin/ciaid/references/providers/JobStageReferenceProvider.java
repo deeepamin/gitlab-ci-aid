@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.references.providers;
 
 import com.github.deeepamin.ciaid.references.resolvers.JobStageReferenceResolver;
-import com.github.deeepamin.ciaid.utils.PsiUtils;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -17,7 +17,7 @@ public class JobStageReferenceProvider extends AbstractReferenceProvider {
 
   @Override
   protected boolean isReferenceAvailable() {
-    var isJobStageElement = PsiUtils.isJobStageElement(element);
+    var isJobStageElement = GitlabCIYamlUtils.isJobStageElement(element);
     var isYamlTextElement = YamlUtils.isYamlTextElement(element);
     return isJobStageElement && isYamlTextElement;
   }

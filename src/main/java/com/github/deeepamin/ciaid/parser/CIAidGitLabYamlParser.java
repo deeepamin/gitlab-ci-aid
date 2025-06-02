@@ -5,6 +5,7 @@ import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeProject;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -56,7 +57,7 @@ public class CIAidGitLabYamlParser {
 
       @Override
       public void visitScalar(@NotNull YAMLScalar scalar) {
-        if (PsiUtils.isNotSpecInputsElement(scalar)) {
+        if (GitlabCIYamlUtils.isNotSpecInputsElement(scalar)) {
           if (YamlUtils.isYamlTextElement(scalar)) {
             readStages(scalar);
             readIncludes(scalar);
@@ -67,7 +68,7 @@ public class CIAidGitLabYamlParser {
 
       @Override
       public void visitValue(@NotNull YAMLValue value) {
-        if (PsiUtils.isNotSpecInputsElement(value)) {
+        if (GitlabCIYamlUtils.isNotSpecInputsElement(value)) {
           readJobStage(value);
         }
         super.visitValue(value);
@@ -89,7 +90,7 @@ public class CIAidGitLabYamlParser {
   // read methods below
 
   private void readFile(@NotNull PsiFile file) {
-    var isYamlFile = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file.getVirtualFile());
+    var isYamlFile = CIAidProjectService.isValidGitlabCIYamlFile(file.getVirtualFile());
     if (isYamlFile && file instanceof YAMLFile yamlFile) {
       var topLevelKeys = YamlUtils.getTopLevelKeysForAllDocuments(yamlFile);
 
@@ -199,7 +200,7 @@ public class CIAidGitLabYamlParser {
   }
 
   private void readVariables(@NotNull YAMLKeyValue keyValue) {
-    if (PsiUtils.isNotSpecInputsElement(keyValue)) {
+    if (GitlabCIYamlUtils.isNotSpecInputsElement(keyValue)) {
       var value = keyValue.getValue();
       if (value instanceof YAMLBlockMappingImpl blockMapping) {
         blockMapping.getKeyValues()

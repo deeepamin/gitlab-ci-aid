@@ -1,7 +1,6 @@
 package com.github.deeepamin.ciaid.services.listeners;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.ProjectLocator;
 import com.intellij.openapi.vfs.AsyncFileListener;
@@ -19,7 +18,7 @@ public class CIAidYamlAsyncListener implements AsyncFileListener {
   public @Nullable ChangeApplier prepareChange(@NotNull List<? extends @NotNull VFileEvent> events) {
     for (VFileEvent event : events) {
       var file = event.getFile();
-      var isGitlabCIYaml = GitlabCIYamlUtils.isValidGitlabCIYamlFile(file);
+      var isGitlabCIYaml = CIAidProjectService.isValidGitlabCIYamlFile(file);
       if (!isGitlabCIYaml) {
         return null;
       }
@@ -33,7 +32,7 @@ public class CIAidYamlAsyncListener implements AsyncFileListener {
         return new ChangeApplier() {
           @Override
           public void afterVfsChange() {
-            boolean userMarked = GitlabCIYamlUtils.isMarkedAsUserCIYamlFile(file);
+            boolean userMarked = CIAidProjectService.isMarkedAsUserCIYamlFile(file);
             projectService.readGitlabCIYamlData(file, userMarked, false);
           }
         };

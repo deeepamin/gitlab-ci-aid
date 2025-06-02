@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.schema;
 
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -39,7 +39,7 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
     if (virtualFile instanceof LightVirtualFile) {
       LOG.debug("LightVirtualFile" + virtualFile.getPath());
     }
-    return GitlabCIYamlUtils.isValidGitlabCIYamlFile(virtualFile);
+    return CIAidProjectService.isValidGitlabCIYamlFile(virtualFile);
   }
 
   @Override
