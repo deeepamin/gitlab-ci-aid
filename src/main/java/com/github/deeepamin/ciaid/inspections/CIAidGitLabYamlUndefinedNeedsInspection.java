@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getCIAidProjectService;
 
 public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool {
@@ -28,7 +27,7 @@ public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool
           if (isChildOfNeeds) {
             var notOtherNeeds =  !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS);
             if (notOtherNeeds) {
-              var allJobs = getCIAidProjectService(element).getJobNames();
+              var allJobs = getCIAidProjectService(element).getDataProvider().getJobNames();
               var jobName = CIAidUtils.handleQuotedText(element.getText());
               var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
               if (isInputsString) {

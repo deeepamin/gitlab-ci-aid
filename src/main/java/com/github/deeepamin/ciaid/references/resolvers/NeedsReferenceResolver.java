@@ -29,7 +29,7 @@ public class NeedsReferenceResolver extends SingleTargetReferenceResolver {
     }
 
     var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    var allJobs = getCIAidProjectService(myElement).getJobNames();
+    var allJobs = getCIAidProjectService(myElement).getDataProvider().getJobNames();
     var parentJob = PsiUtils.findParent(myElement, allJobs);
     List<String> filteredJobs = new ArrayList<>(allJobs);
     parentJob.ifPresent(job -> filteredJobs.remove(handleQuotedText(job.getKeyText())));
@@ -43,7 +43,7 @@ public class NeedsReferenceResolver extends SingleTargetReferenceResolver {
             .map(job -> LookupElementBuilder.create(job)
                     .bold()
                     .withIcon(Icons.ICON_NEEDS.getIcon())
-                    .withTypeText(projectService.getJobFileName(job)))
+                    .withTypeText(projectService.getDataProvider().getJobFileName(job)))
             .toArray(LookupElement[]::new);
   }
 

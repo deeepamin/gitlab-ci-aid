@@ -81,8 +81,7 @@ public class InputDocumentationTarget implements DocumentationTarget {
       return null;
     }
     var inputName = inputTextWithStartEndRange.path();
-    return CIAidProjectService.getInstance(project)
-            .getInputs().stream()
+    return CIAidProjectService.getInstance(project).getDataProvider().getInputs().stream()
             .filter(inputInner -> inputInner.name().equals(inputName)).findFirst().orElse(null);
   }
 

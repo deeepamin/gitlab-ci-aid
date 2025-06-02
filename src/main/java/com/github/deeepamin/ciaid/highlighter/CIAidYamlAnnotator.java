@@ -20,10 +20,7 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.DEFAULT_STAGES;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.getCIAidProjectService;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
@@ -83,7 +80,7 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(PsiUtils::isJobStageElement)
             .ifPresent(stage -> {
-              var allStages = getCIAidProjectService(psiElement).getStageNamesDefinedAtStagesLevel();
+              var allStages = getCIAidProjectService(psiElement).getDataProvider().getStageNamesDefinedAtStagesLevel();
               var stageName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = GitlabCIYamlUtils.isAnInputsString(stageName);
               if (isInputsString) {
@@ -107,7 +104,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightJobs(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(element -> getCIAidProjectService(psiElement).getJobNames().contains(element.getText()))
+            .filter(element -> getCIAidProjectService(psiElement).getDataProvider().getJobNames().contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
             .ifPresent(job -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                   .textAttributes(JOB_HIGHLIGHTER)
@@ -127,7 +124,7 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(PsiUtils::isNeedsElement)
             .ifPresent(job -> {
-              var allJobs = getCIAidProjectService(psiElement).getJobNames();
+              var allJobs = getCIAidProjectService(psiElement).getDataProvider().getJobNames();
               var jobName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
               if (isInputsString) {

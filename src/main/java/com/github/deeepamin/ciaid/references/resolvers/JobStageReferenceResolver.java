@@ -22,13 +22,12 @@ public class JobStageReferenceResolver extends SingleTargetReferenceResolver {
     }
 
     var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    return projectService
-            .getStageNamesDefinedAtStagesLevel()
+    return projectService.getDataProvider().getStageNamesDefinedAtStagesLevel()
             .stream()
             .map(stagesItem -> LookupElementBuilder.create(stagesItem)
                     .bold()
                     .withIcon(Icons.ICON_STAGE.getIcon())
-                    .withTypeText(projectService.getStagesItemFileName(stagesItem)))
+                    .withTypeText(projectService.getDataProvider().getStagesItemFileName(stagesItem)))
             .toArray(LookupElement[]::new);
   }
 }

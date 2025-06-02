@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.github.deeepamin.ciaid.utils.FileUtils.StringWithStartEndRange;
 
+@SuppressWarnings("UnstableApiUsage")
 public class MultipleInputsDocumentationTarget extends InputDocumentationTarget {
   // for cases where multiple inputs are defined in the same line e.g. $[[ inputs.input1 ]] / $[[ inputs.input2 ]]
   private final Project project;

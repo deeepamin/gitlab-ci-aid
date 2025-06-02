@@ -48,7 +48,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                     .map(ref -> LookupElementBuilder.create(ref)
                             .bold()
                             .withIcon(Icons.ICON_NEEDS.getIcon())
-                            .withTypeText(ciAidProjectService.getJobFileName(ref))
+                            .withTypeText(ciAidProjectService.getDataProvider().getJobFileName(ref))
                     ).toArray(LookupElement[]::new);
           } else {
             var referenceText = handleQuotedText(children[0].getText());
@@ -67,7 +67,7 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
                           .map(CIAidUtils::handleQuotedText)
                           .map(ref -> LookupElementBuilder.create(ref)
                                   .bold()
-                                  .withTypeText(ciAidProjectService.getJobFileName(referenceText))
+                                  .withTypeText(ciAidProjectService.getDataProvider().getJobFileName(referenceText))
                           ).toArray(LookupElement[]::new);
                 }
               }
