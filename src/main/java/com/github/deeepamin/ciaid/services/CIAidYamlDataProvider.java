@@ -180,8 +180,8 @@ public class CIAidYamlDataProvider {
             });
   }
 
-  public @NotNull Map<String, List<VirtualFile>> getVariableAndContainingFiles(CIAidProjectService ciAidProjectService) {
-    return ciAidProjectService.getPluginData()
+  public @NotNull Map<String, List<VirtualFile>> getVariableAndContainingFiles() {
+    return getPluginData()
             .entrySet()
             .stream()
             .flatMap(entry -> entry.getValue().getVariables().stream()

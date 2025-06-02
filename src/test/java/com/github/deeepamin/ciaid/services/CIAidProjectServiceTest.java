@@ -172,7 +172,7 @@ public class CIAidProjectServiceTest extends BaseTest {
 
   public void testGetVariables() {
     var projectService = getProject().getService(CIAidProjectService.class);
-    var variablesAndContainingFiles = projectService.getDataProvider().getVariableAndContainingFiles(projectService);
+    var variablesAndContainingFiles = projectService.getDataProvider().getVariableAndContainingFiles();
     assertNotNull(variablesAndContainingFiles);
     assertTrue(variablesAndContainingFiles.containsKey("TEST_VAR1"));
     assertTrue(variablesAndContainingFiles.containsKey("DOCKER_TAG"));

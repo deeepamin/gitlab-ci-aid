@@ -22,7 +22,8 @@ public class JobStageReferenceResolver extends SingleTargetReferenceResolver {
     }
 
     var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    return projectService.getDataProvider().getStageNamesDefinedAtStagesLevel()
+    return projectService.getDataProvider()
+            .getStageNamesDefinedAtStagesLevel()
             .stream()
             .map(stagesItem -> LookupElementBuilder.create(stagesItem)
                     .bold()

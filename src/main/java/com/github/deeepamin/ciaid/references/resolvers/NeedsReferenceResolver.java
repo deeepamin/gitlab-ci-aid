@@ -29,7 +29,9 @@ public class NeedsReferenceResolver extends SingleTargetReferenceResolver {
     }
 
     var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    var allJobs = getCIAidProjectService(myElement).getDataProvider().getJobNames();
+    var allJobs = getCIAidProjectService(myElement)
+            .getDataProvider()
+            .getJobNames();
     var parentJob = PsiUtils.findParent(myElement, allJobs);
     List<String> filteredJobs = new ArrayList<>(allJobs);
     parentJob.ifPresent(job -> filteredJobs.remove(handleQuotedText(job.getKeyText())));

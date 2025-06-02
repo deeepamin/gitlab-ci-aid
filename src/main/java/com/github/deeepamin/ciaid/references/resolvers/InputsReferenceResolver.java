@@ -22,7 +22,9 @@ public class InputsReferenceResolver extends SingleTargetReferenceResolver {
 
   @Override
   public Object @NotNull [] getVariants() {
-    return CIAidProjectService.getInstance(myElement.getProject()).getDataProvider().getInputs()
+    return CIAidProjectService.getInstance(myElement.getProject())
+            .getDataProvider()
+            .getInputs()
             .stream()
             .map(input -> LookupElementBuilder.create(input.name())
                             .bold()

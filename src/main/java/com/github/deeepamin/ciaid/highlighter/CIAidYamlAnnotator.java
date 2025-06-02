@@ -82,7 +82,9 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(GitlabCIYamlUtils::isJobStageElement)
             .ifPresent(stage -> {
-              var allStages = getCIAidProjectService(psiElement).getDataProvider().getStageNamesDefinedAtStagesLevel();
+              var allStages = getCIAidProjectService(psiElement)
+                      .getDataProvider()
+                      .getStageNamesDefinedAtStagesLevel();
               var stageName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = InputsReferenceProvider.isAnInputsString(stageName);
               if (isInputsString) {
@@ -106,7 +108,10 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightJobs(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
     Optional.of(psiElement)
-            .filter(element -> getCIAidProjectService(psiElement).getDataProvider().getJobNames().contains(element.getText()))
+            .filter(element -> getCIAidProjectService(psiElement)
+                    .getDataProvider()
+                    .getJobNames()
+                    .contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
             .ifPresent(job -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                   .textAttributes(JOB_HIGHLIGHTER)
@@ -126,7 +131,9 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(GitlabCIYamlUtils::isNeedsElement)
             .ifPresent(job -> {
-              var allJobs = getCIAidProjectService(psiElement).getDataProvider().getJobNames();
+              var allJobs = getCIAidProjectService(psiElement)
+                      .getDataProvider()
+                      .getJobNames();
               var jobName = CIAidUtils.handleQuotedText(psiElement.getText());
               var isInputsString = InputsReferenceProvider.isAnInputsString(jobName);
               if (isInputsString) {

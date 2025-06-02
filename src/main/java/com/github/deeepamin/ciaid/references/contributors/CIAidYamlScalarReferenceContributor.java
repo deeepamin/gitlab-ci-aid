@@ -35,7 +35,6 @@ public class CIAidYamlScalarReferenceContributor extends PsiReferenceContributor
                 return referenceProviders.stream()
                         .map(AbstractReferenceProvider::getElementReferences)
                         .flatMap(Optional::stream)
-                        .filter(reference -> reference != null && reference.length > 0)
                         .flatMap(Arrays::stream)
                         .toArray(PsiReference[]::new);
               }

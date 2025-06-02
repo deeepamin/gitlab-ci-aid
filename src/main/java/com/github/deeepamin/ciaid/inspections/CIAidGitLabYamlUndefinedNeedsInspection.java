@@ -28,7 +28,9 @@ public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool
           if (isChildOfNeeds) {
             var notOtherNeeds =  !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS);
             if (notOtherNeeds) {
-              var allJobs = getCIAidProjectService(element).getDataProvider().getJobNames();
+              var allJobs = getCIAidProjectService(element)
+                      .getDataProvider()
+                      .getJobNames();
               var jobName = CIAidUtils.handleQuotedText(element.getText());
               var isInputsString = InputsReferenceProvider.isAnInputsString(jobName);
               if (isInputsString) {

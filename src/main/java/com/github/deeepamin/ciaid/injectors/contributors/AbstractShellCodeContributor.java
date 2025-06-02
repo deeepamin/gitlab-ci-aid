@@ -53,7 +53,9 @@ abstract class AbstractShellCodeContributor extends CompletionContributor {
             var isVariable = isVariableString(psiElement);
             if (isVariable) {
               result = result.withPrefixMatcher(CompletionUtil.findReferenceOrAlphanumericPrefix(parameters));
-              var varsToCompleteWithFileNames = CIAidProjectService.getInstance(project).getDataProvider().getVariableAndContainingFiles(CIAidProjectService.getInstance(project));
+              var varsToCompleteWithFileNames = CIAidProjectService.getInstance(project)
+                      .getDataProvider()
+                      .getVariableAndContainingFiles();
 
               for (Map.Entry<String, List<VirtualFile>> variableAndFileName : varsToCompleteWithFileNames.entrySet()) {
                 var variable = variableAndFileName.getKey();

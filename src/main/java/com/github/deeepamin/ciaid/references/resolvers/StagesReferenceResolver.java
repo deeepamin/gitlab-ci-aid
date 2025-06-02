@@ -58,7 +58,8 @@ public class StagesReferenceResolver extends PsiReferenceBase<PsiElement> implem
     }
 
     var projectService = CIAidProjectService.getInstance(myElement.getProject());
-    return projectService.getDataProvider().getStageNamesDefinedAtJobLevel()
+    return projectService.getDataProvider()
+            .getStageNamesDefinedAtJobLevel()
             .stream()
             .map(stage -> LookupElementBuilder.create(stage)
                     .bold()

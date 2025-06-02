@@ -121,7 +121,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   }
 
   public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
-    getDataProvider().readGitlabCIYamlData(file, userMarked, forceRead);
+    dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);
   }
 
   private void readDefaultGitlabCIYaml() {
@@ -163,6 +163,6 @@ public final class CIAidProjectService implements DumbAware, Disposable {
 
   @Override
   public void dispose() {
-    getDataProvider().clearPluginData();
+    dataProvider.clearPluginData();
   }
 }
