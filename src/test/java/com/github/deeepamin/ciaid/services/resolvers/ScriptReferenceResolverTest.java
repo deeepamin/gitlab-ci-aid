@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.references.resolvers.ScriptReferenceResolver;
 
 import java.io.File;
 

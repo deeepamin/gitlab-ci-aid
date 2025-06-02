@@ -71,7 +71,7 @@ public class CIAidProjectServiceTest extends BaseTest {
 
     var includedYamls = gitlabCIYamlData.getIncludes();
     assertEquals(1, includedYamls.size());
-    assertEquals(PIPELINE_YML, includedYamls.getFirst().getPath());
+    assertEquals(PIPELINE_YML_PATH, includedYamls.getFirst().getPath());
     var expectedStages = List.of("build", "test", "deploy");
     var stageNames = gitlabCIYamlData.getJobStageElements().stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
@@ -128,7 +128,7 @@ public class CIAidProjectServiceTest extends BaseTest {
             .stream()
             .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
             .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
-    assertTrue(jobFileName.contains(PIPELINE_YML));
+    assertTrue(jobFileName.contains(PIPELINE_YML_PATH));
     var stage = "build";
     var stageFileName = projectService.getFileName((entry) -> entry.getValue().getJobStageElements()
             .stream()
@@ -141,7 +141,7 @@ public class CIAidProjectServiceTest extends BaseTest {
   public void testGetJobFileName() {
     var job = "checkstyle";
     var fileName = getProject().getService(CIAidProjectService.class).getJobFileName(job);
-    assertTrue(fileName.contains(PIPELINE_YML));
+    assertTrue(fileName.contains(PIPELINE_YML_PATH));
   }
 
   public void testGetJobStageFileName() {

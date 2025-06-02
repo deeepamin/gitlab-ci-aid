@@ -12,6 +12,7 @@ import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.EXTEN
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INPUTS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NEEDS_POSSIBLE_CHILD_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
@@ -27,19 +28,19 @@ public class PsiUtils {
   }
 
   public static boolean isNeedsElement(PsiElement element) {
-    return isChild(element, List.of(NEEDS)) && isNotSpecInputsElement(element);
+    return isChild(element, List.of(NEEDS)) && !isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS) && isNotSpecInputsElement(element);
   }
 
   public static boolean isStagesElement(PsiElement element) {
     return isChild(element, List.of(STAGES)) && isNotSpecInputsElement(element);
   }
 
-  public static boolean isStageElement(PsiElement element) {
+  public static boolean isJobStageElement(PsiElement element) {
     return isChild(element, List.of(STAGE)) && isNotSpecInputsElement(element);
   }
 
   public static boolean isExtendsElement(PsiElement element) {
-    return isChild(element, List.of(EXTENDS));
+    return isChild(element, List.of(EXTENDS)) && isNotSpecInputsElement(element);
   }
 
   public static boolean isNotSpecInputsElement(PsiElement element) {

@@ -13,7 +13,7 @@ import java.util.List;
 
 public abstract class BaseTest extends BasePlatformTestCase {
   protected static final String GITLAB_CI_DEFAULT_YAML_FILE = getOsAgnosticPath(".gitlab-ci.yml");
-  protected static final String PIPELINE_YML = getOsAgnosticPath("/pipeline.yml");
+  protected static final String PIPELINE_YML_PATH = getOsAgnosticPath("/pipeline.yml");
 
   @Override
   public void setUp() throws Exception {
@@ -39,7 +39,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
 
   protected VirtualFile getCIPipelineYamlFile(VirtualFile rootDir) {
     return Arrays.stream(rootDir.getChildren())
-            .filter(file -> file.getPath().contains(PIPELINE_YML))
+            .filter(file -> file.getPath().contains(PIPELINE_YML_PATH))
             .findFirst()
             .orElse(null);
   }

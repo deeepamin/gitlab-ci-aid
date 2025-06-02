@@ -9,15 +9,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.yaml.psi.YAMLPsiElement;
-import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class GitlabCIYamlUtils {
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
@@ -51,10 +47,10 @@ public class GitlabCIYamlUtils {
             .filter(GitlabCIYamlUtils::isValidGitlabCIYamlFile);
   }
 
-  public static CIAidProjectService getGitlabCIYamlProjectService(PsiElement psiElement) {
+  public static CIAidProjectService getCIAidProjectService(PsiElement psiElement) {
     var service = CIAidProjectService.getInstance(psiElement.getProject());
     if (service == null) {
-      throw new IllegalStateException("Cannot find gitlab CI yaml project service: " + psiElement.getProject().getName());
+      throw new IllegalStateException("Cannot find CI Aid project service: " + psiElement.getProject().getName());
     }
     return service;
   }
@@ -106,53 +102,4 @@ public class GitlabCIYamlUtils {
     return inputs;
   }
 
-  public static List<StringWithStartEndRange> getInputNames(String input) {
-    if (input == null) {
-      return null;
-    }
-    var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.(\\w+)");
-    var matcher = pattern.matcher(input);
-    var inputs = new ArrayList<StringWithStartEndRange>();
-    while (matcher.find()) {
-      inputs.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
-    }
-    return inputs;
-  }
-
-  public static String getReferenceTag(YAMLPsiElement element) {
-    var parent = PsiUtils.findParentOfType(element, YAMLArrayImpl.class);
-    if (parent.isPresent()) {
-      var firstChild = parent.get().getFirstChild();
-      if (firstChild != null && firstChild.getText().equals(REFERENCE_TAG)) {
-        var children = parent.get().getChildren();
-        if (children.length > 0) {
-          var refersToText = handleQuotedText(children[0].getText());
-          if (element.getText() != null && element.getText().equals(refersToText)) {
-            return refersToText;
-          }
-          if (children.length > 1) {
-            var keyToReferToText = handleQuotedText(children[1].getText());
-            if (element.getText() != null && element.getText().equals(keyToReferToText)) {
-              // still return refersToText, as it is the reference tag and the key is resolved in resolver
-              return refersToText;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  public static List<StringWithStartEndRange> getVariables(String text) {
-    if (text == null) {
-      return null;
-    }
-    var vars = new ArrayList<StringWithStartEndRange>();
-    var pattern = Pattern.compile("\\$\\{?(\\w+)}?");
-    var matcher = pattern.matcher(text);
-    while (matcher.find()) {
-      vars.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
-    }
-    return vars;
-  }
 }

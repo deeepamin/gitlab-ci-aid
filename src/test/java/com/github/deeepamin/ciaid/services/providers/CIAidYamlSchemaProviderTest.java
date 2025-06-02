@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.schema.CIAidYamlSchemaProvider;
 
 public class CIAidYamlSchemaProviderTest extends BaseTest {
   private CIAidYamlSchemaProvider myProvider;

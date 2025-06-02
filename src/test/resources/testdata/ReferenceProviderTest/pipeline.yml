@@ -1,0 +1,53 @@
+spec:
+  inputs:
+    name:
+      type: string
+      default: build
+      description: Name of the job (must be a valid CI job name)
+    stage:
+      type: boolean
+      default: true
+      description: Pipeline stage to run this job in (e.g., "build")
+    context:
+      type: number
+      default: 1
+      description: Pipeline stage to run this job in (e.g., "build")
+    tag:
+      type: array
+      default: []
+      description: Pipeline stage to run this job in (e.g., "build")
+
+---
+
+$[[ inputs.name ]]:
+  stage: $[[ inputs.stage ]]
+  dependencies: []
+  needs: []
+  variables:
+    DOCKER_TAG: $[[ inputs.name ]]
+    DOCKER_CONTEXT: $[[ inputs.context ]]
+    TEST: $[[ inputs.stage ]]
+    TEST_VAR1: $[[ inputs.tag ]]
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+  script:
+    - docker build -t "$DOCKER_TAG" "$DOCKER_CONTEXT"
+    - docker push "$DOCKER_TAG"
+
+checkstyle:
+  stage: validate
+  image: checkstyle:latest
+  script: ./validate.sh
+  tags:
+    - test
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - ci/**/*
+
+.is_not_schedule:
+  conditions:
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+        when: always
+  script:
+      - echo "Not a scheduled pipeline"

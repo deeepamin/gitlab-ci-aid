@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid;
 
-import com.github.deeepamin.ciaid.services.resolvers.JobStageToStagesReferenceResolver;
+import com.github.deeepamin.ciaid.references.resolvers.JobStageReferenceResolver;
 
 public class RegressionTest extends BaseTest {
   public void testQuotedStageIssue86() {
@@ -25,7 +25,7 @@ public class RegressionTest extends BaseTest {
 
     var reference = myFixture.getFile().findReferenceAt(myFixture.getCaretOffset());
     assertNotNull(reference);
-    assertTrue(reference instanceof JobStageToStagesReferenceResolver);
+    assertTrue(reference instanceof JobStageReferenceResolver);
     var resolve = reference.resolve();
     assertNotNull(resolve);
     assertEquals("\"unittest\"", resolve.getText());

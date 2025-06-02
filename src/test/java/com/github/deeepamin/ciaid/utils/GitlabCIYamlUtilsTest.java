@@ -1,6 +1,8 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
+import com.github.deeepamin.ciaid.references.providers.VariablesReferenceProvider;
 import com.intellij.testFramework.LightVirtualFile;
 
 import java.util.List;
@@ -73,21 +75,21 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
   }
 
   public void testGetInputNameString() {
-    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[inputs.test]]").getFirst().path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[ inputs.test ]]").getFirst().path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[inputs.test ]]").getFirst().path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNames("$[[ inputs.test]]").getFirst().path());
-    assertEquals("test", GitlabCIYamlUtils.getInputNames("   $[[ inputs.test ]]  ").getFirst().path());
+    assertEquals("test", InputsReferenceProvider.getInputNames("$[[inputs.test]]").getFirst().path());
+    assertEquals("test", InputsReferenceProvider.getInputNames("$[[ inputs.test ]]").getFirst().path());
+    assertEquals("test", InputsReferenceProvider.getInputNames("$[[inputs.test ]]").getFirst().path());
+    assertEquals("test", InputsReferenceProvider.getInputNames("$[[ inputs.test]]").getFirst().path());
+    assertEquals("test", InputsReferenceProvider.getInputNames("   $[[ inputs.test ]]  ").getFirst().path());
 
-    assertEmpty(GitlabCIYamlUtils.getInputNames("$[[ input.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputNames("[[inputs.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputNames("$[ inputs.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputNames("$$[ output.test ]]"));
+    assertEmpty(InputsReferenceProvider.getInputNames("$[[ input.test ]]"));
+    assertEmpty(InputsReferenceProvider.getInputNames("[[inputs.test ]]"));
+    assertEmpty(InputsReferenceProvider.getInputNames("$[ inputs.test ]]"));
+    assertEmpty(InputsReferenceProvider.getInputNames("$$[ output.test ]]"));
   }
 
   public void testGetVariables() {
-    assertEquals("test", GitlabCIYamlUtils.getVariables("$test").getFirst().path());
-    assertEquals("test", GitlabCIYamlUtils.getVariables("${test}").getFirst().path());
-    assertTrue(List.of("test", "test2").containsAll(GitlabCIYamlUtils.getVariables("$test ${test2}").stream().map(FileUtils.StringWithStartEndRange::path).toList()));
+    assertEquals("test", VariablesReferenceProvider.getVariables("$test").getFirst().path());
+    assertEquals("test", VariablesReferenceProvider.getVariables("${test}").getFirst().path());
+    assertTrue(List.of("test", "test2").containsAll(VariablesReferenceProvider.getVariables("$test ${test2}").stream().map(FileUtils.StringWithStartEndRange::path).toList()));
   }
 }
