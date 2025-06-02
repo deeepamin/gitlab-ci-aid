@@ -44,9 +44,6 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
-## Limitations / Future Improvements
-* Only works with local files currently, no components, remote files or templates
-
 ## Support
 
 * Star the repository
