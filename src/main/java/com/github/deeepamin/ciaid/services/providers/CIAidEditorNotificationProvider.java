@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -20,18 +19,8 @@ import javax.swing.JComponent;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.AFTER_SCRIPT;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.BEFORE_SCRIPT;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.COMPONENT;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.EXTENDS;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SCRIPT;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.SPEC;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.STAGES;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.VARIABLES;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.WORKFLOW;
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.GITLAB_CI_YAML_USER_MARKED_KEY;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
+import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_YAML_USER_MARKED_KEY;
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
@@ -56,7 +45,7 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
     EditorNotificationPanel panel = new EditorNotificationPanel();
     panel.setText(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml-question"));
     panel.createActionLabel(CIAidBundle.message("editor.notification.mark-as-gitlab-yaml"), () -> {
-      GitlabCIYamlUtils.markAsUserCIYamlFile(file, project);
+      CIAidProjectService.markAsUserCIYamlFile(file, project);
       projectService.readGitlabCIYamlData(file, true, false);
       EditorNotifications.getInstance(project).updateNotifications(file);
       ApplicationManager.getApplication().runWriteAction(() -> {
@@ -68,7 +57,7 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
       });
     });
     panel.createActionLabel(CIAidBundle.message("editor.notification.ignore"), () -> {
-      GitlabCIYamlUtils.ignoreCIYamlFile(file, project);
+      CIAidProjectService.ignoreCIYamlFile(file, project);
       EditorNotifications.getInstance(project).updateNotifications(file);
       }
     );

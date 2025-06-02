@@ -1,9 +1,9 @@
 package com.github.deeepamin.ciaid.services.annotators;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlIncludeUnavailableInspection;
-import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlScriptUnavailableInspection;
-import com.github.deeepamin.ciaid.services.inspections.CIAidGitLabYamlUndefinedNeedsInspection;
+import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlIncludeUnavailableInspection;
+import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlScriptUnavailableInspection;
+import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlUndefinedNeedsInspection;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.vfs.VirtualFile;

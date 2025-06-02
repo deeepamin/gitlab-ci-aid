@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.cache.providers;
 
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
-import com.github.deeepamin.ciaid.utils.GitLabUtils;
+import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.project.Project;
 
 public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
@@ -35,7 +35,7 @@ public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
     }
 
     var templatesPathInGitLabUrl = templatesPath + "/" + filePath;
-    var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, templatesProject, templatesPathInGitLabUrl, null);
+    var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, templatesProject, templatesPathInGitLabUrl, null);
     var cacheFilePath = getCacheDir().toPath().resolve(templatesPath).resolve(filePath).toString();
     validateAndCacheRemoteFile(downloadUrl, templatesPathInGitLabUrl, cacheFilePath);
   }

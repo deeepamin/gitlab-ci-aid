@@ -7,6 +7,7 @@ import org.jetbrains.yaml.psi.YAMLDocument;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.YAMLQuotedText;
 import org.jetbrains.yaml.psi.YAMLScalarList;
 import org.jetbrains.yaml.psi.YAMLScalarText;
@@ -27,6 +28,10 @@ public class YamlUtils {
 
   public static boolean isYamlTextElement(PsiElement element) {
     return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
+  }
+
+  public static boolean isYamlPsiElement(PsiElement element) {
+    return element instanceof YAMLPsiElement;
   }
 
   public static boolean isYamlScalarListOrYamlScalarTextElement(PsiElement element) {

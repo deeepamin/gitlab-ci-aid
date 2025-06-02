@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Needs with job key references are not resolved sometimes
+- Needs with optional or other keys show jobs auto-completion
+
 ## [1.10.0] - 2025-06-01
 
 ### Added

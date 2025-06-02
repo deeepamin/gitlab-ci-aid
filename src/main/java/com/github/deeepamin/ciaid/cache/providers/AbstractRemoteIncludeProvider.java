@@ -3,7 +3,7 @@ package com.github.deeepamin.ciaid.cache.providers;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
-import com.github.deeepamin.ciaid.utils.GitLabHttpConnectionUtils;
+import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -75,7 +75,7 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
       @Override
       public void run(@NotNull final ProgressIndicator indicator) {
         File cacheFile = new File(cacheFilePath);
-        var content = GitLabHttpConnectionUtils.downloadContent(downloadUrl, accessToken);
+        var content = GitLabConnectionUtils.downloadContent(downloadUrl, accessToken);
         if (content == null) {
           LOG.debug("Failed to download content from " + downloadUrl);
           return;

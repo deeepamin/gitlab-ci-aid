@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.cache.providers;
 
-import com.github.deeepamin.ciaid.utils.GitLabUtils;
+import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.project.Project;
 
@@ -49,7 +49,7 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
             filePathWithoutFileName.replaceAll("/", File.separator);
     var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(cacheFileDirectoryString).resolve(fileName);
 
-    var downloadUrl = GitLabUtils.getRepositoryFileDownloadUrl(project, projectPath, filePath, ref);
+    var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, projectPath, filePath, ref);
     var cacheKey = getProjectFileCacheKey(projectPath, filePath, ref);
     validateAndCacheRemoteFile(downloadUrl, cacheKey, cacheFilePath.toString());
   }

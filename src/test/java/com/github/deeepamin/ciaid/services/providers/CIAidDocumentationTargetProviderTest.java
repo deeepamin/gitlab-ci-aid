@@ -1,7 +1,8 @@
 package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.services.targets.InputDocumentationTarget;
+import com.github.deeepamin.ciaid.documentation.providers.CIAidDocumentationTargetProvider;
+import com.github.deeepamin.ciaid.documentation.targets.InputDocumentationTarget;
 import com.intellij.platform.backend.documentation.DocumentationData;
 import com.intellij.platform.backend.documentation.DocumentationTargetProvider;
 import com.intellij.psi.PsiElement;

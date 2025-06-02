@@ -1,7 +1,6 @@
 package com.github.deeepamin.ciaid.cache;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -34,7 +33,7 @@ public class CIAidCacheUtils {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
       var virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
       if (virtualFile != null) {
-        GitlabCIYamlUtils.markAsCIYamlFile(virtualFile);
+        CIAidProjectService.markAsCIYamlFile(virtualFile);
         var projectService = CIAidProjectService.getInstance(project);
         projectService.readGitlabCIYamlData(virtualFile, false, false);
       }

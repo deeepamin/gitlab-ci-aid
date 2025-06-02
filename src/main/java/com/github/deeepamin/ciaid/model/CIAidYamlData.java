@@ -1,7 +1,7 @@
 package com.github.deeepamin.ciaid.model;
 
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.SmartPointerManager;
@@ -50,13 +50,16 @@ public class CIAidYamlData {
     return includes;
   }
 
-  public List<SmartPsiElementPointer<PsiElement>> getJobStageElements() {
-    return jobStageElements;
+  public List<PsiElement> getJobStageElements() {
+    return jobStageElements.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
   }
 
   public void addJobStage(YAMLPsiElement stage) {
     var stageName = stage.getText();
-    if (GitlabCIYamlUtils.isAnInputsString(stageName)) {
+    if (InputsReferenceProvider.isAnInputsString(stageName)) {
       return;
     }
     SmartPointerManager pointerManager = SmartPointerManager.getInstance(stage.getProject());
@@ -64,13 +67,16 @@ public class CIAidYamlData {
     jobStageElements.add(stagePointer);
   }
 
-  public List<SmartPsiElementPointer<YAMLKeyValue>> getJobElements() {
-    return jobElements;
+  public List<YAMLKeyValue> getJobElements() {
+    return jobElements.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
   }
 
   public void addJob(YAMLKeyValue job) {
     var jobName = job.getKeyText();
-    if (GitlabCIYamlUtils.isAnInputsString(jobName)) {
+    if (InputsReferenceProvider.isAnInputsString(jobName)) {
       return;
     }
     SmartPointerManager pointerManager = SmartPointerManager.getInstance(job.getProject());
@@ -86,17 +92,23 @@ public class CIAidYamlData {
     }
   }
 
-  public List<SmartPsiElementPointer<YAMLKeyValue>> getInputs() {
-    return inputs;
+  public List<YAMLKeyValue> getInputs() {
+    return inputs.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
   }
 
-  public List<SmartPsiElementPointer<YAMLPsiElement>> getStagesItemElements() {
-    return stagesItemElements;
+  public List<YAMLPsiElement> getStagesItemElements() {
+    return stagesItemElements.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
   }
 
   public void addStagesItem(YAMLPsiElement stagesItemElement) {
     var stagesItemName = handleQuotedText(stagesItemElement.getText());
-    if (GitlabCIYamlUtils.isAnInputsString(stagesItemName)) {
+    if (InputsReferenceProvider.isAnInputsString(stagesItemName)) {
       return;
     }
     SmartPointerManager pointerManager = SmartPointerManager.getInstance(stagesItemElement.getProject());
@@ -104,8 +116,11 @@ public class CIAidYamlData {
     stagesItemElements.add(stagesItemPointer);
   }
 
-  public List<SmartPsiElementPointer<YAMLKeyValue>> getVariables() {
-    return variables;
+  public List<YAMLKeyValue> getVariables() {
+    return variables.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
   }
 
   public void addVariable(YAMLKeyValue variable) {

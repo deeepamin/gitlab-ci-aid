@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.settings;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
@@ -187,10 +186,10 @@ public class CIAidSettingsConfigurable implements Configurable {
   private void handleFile(VirtualFile virtualFile, boolean ignore) {
     var projectService = CIAidProjectService.getInstance(project);
     if (ignore) {
-      GitlabCIYamlUtils.ignoreCIYamlFile(virtualFile, project);
+      CIAidProjectService.ignoreCIYamlFile(virtualFile, project);
       projectService.getPluginData().remove(virtualFile);
     } else {
-      GitlabCIYamlUtils.markAsUserCIYamlFile(virtualFile, project);
+      CIAidProjectService.markAsUserCIYamlFile(virtualFile, project);
       projectService.readGitlabCIYamlData(virtualFile, true, false);
     }
     refreshVirtualFile(virtualFile);
@@ -218,7 +217,7 @@ public class CIAidSettingsConfigurable implements Configurable {
       var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
       if (virtualFile != null) {
         var projectService = CIAidProjectService.getInstance(project);
-        GitlabCIYamlUtils.removeMarkingOfUserCIYamlFile(virtualFile);
+        CIAidProjectService.removeMarkingOfUserCIYamlFile(virtualFile);
         projectService.getPluginData().remove(virtualFile);
         refreshVirtualFile(virtualFile);
       }

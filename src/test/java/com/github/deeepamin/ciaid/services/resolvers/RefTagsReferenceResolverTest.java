@@ -26,13 +26,13 @@ public class RefTagsReferenceResolverTest extends BaseTest {
 
   public void testAnotherFileReference() {
     var testDir = getTestDirectoryName();
-    var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE, TEST_DIR_PATH + File.separator + testDir + PIPELINE_YML);
+    var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE, TEST_DIR_PATH + File.separator + testDir + PIPELINE_YML_PATH);
     assertNotNull(reference);
   }
 
   public void testAnotherFileReferenceKeys() {
     var testDir = getTestDirectoryName();
-    var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE, TEST_DIR_PATH + File.separator + testDir + PIPELINE_YML);
+    var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE, TEST_DIR_PATH + File.separator + testDir + PIPELINE_YML_PATH);
     assertNotNull(reference);
   }
 
