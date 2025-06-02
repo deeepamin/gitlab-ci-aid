@@ -6,7 +6,6 @@ import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.SmartPsiElementPointer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,27 @@ public class InputsReferenceProvider extends AbstractReferenceProvider {
       return null;
     }
     var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.(\\w+)");
+    var matcher = pattern.matcher(input);
+    var inputs = new ArrayList<FileUtils.StringWithStartEndRange>();
+    while (matcher.find()) {
+      inputs.add(new FileUtils.StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
+    }
+    return inputs;
+  }
+
+  public static boolean isAnInputsString(String input) {
+    if (input == null) {
+      return false;
+    }
+    var inputsWithStartEndRange = getInputs(input);
+    return inputsWithStartEndRange != null && !inputsWithStartEndRange.isEmpty();
+  }
+
+  public static List<FileUtils.StringWithStartEndRange> getInputs(String input) {
+    if (input == null) {
+      return null;
+    }
+    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
     var matcher = pattern.matcher(input);
     var inputs = new ArrayList<FileUtils.StringWithStartEndRange>();
     while (matcher.find()) {
@@ -53,8 +73,6 @@ public class InputsReferenceProvider extends AbstractReferenceProvider {
       var targetInput = ciAidProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getInputs().stream())
-              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-              .map(SmartPsiElementPointer::getElement)
               .filter(inputKeyValue -> inputKeyValue.getKeyText().equals(inputName))
               .findFirst()
               .orElse(null);

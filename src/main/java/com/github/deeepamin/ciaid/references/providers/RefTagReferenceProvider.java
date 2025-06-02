@@ -1,12 +1,11 @@
 package com.github.deeepamin.ciaid.references.providers;
 
+import com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords;
 import com.github.deeepamin.ciaid.references.resolvers.RefTagReferenceResolver;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
 
@@ -25,7 +24,7 @@ public class RefTagReferenceProvider extends AbstractReferenceProvider {
       return null;
     }
     var firstChild = parent.get().getFirstChild();
-    if (!GitlabCIYamlUtils.REFERENCE_TAG.equals(firstChild.getText())) {
+    if (!GitlabCIYamlKeywords.REFERENCE_TAG.equals(firstChild.getText())) {
       return null;
     }
     var children = parent.get().getChildren();
@@ -60,8 +59,6 @@ public class RefTagReferenceProvider extends AbstractReferenceProvider {
     var refersTo = ciAidProjectService.getPluginData().values()
             .stream()
             .flatMap(yamlData -> yamlData.getJobElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(SmartPsiElementPointer::getElement)
             .filter(job -> handleQuotedText(job.getKeyText()).equals(refTagText))
             .findFirst()
             .orElse(null);

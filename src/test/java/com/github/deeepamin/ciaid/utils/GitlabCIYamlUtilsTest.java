@@ -1,11 +1,7 @@
 package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
-import com.github.deeepamin.ciaid.references.providers.VariablesReferenceProvider;
 import com.intellij.testFramework.LightVirtualFile;
-
-import java.util.List;
 
 public class GitlabCIYamlUtilsTest extends BaseTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/UtilsTest");
@@ -60,36 +56,4 @@ public class GitlabCIYamlUtilsTest extends BaseTest {
     assertTrue(GitlabCIYamlUtils.hasGitlabYamlFile(psiYaml));
   }
 
-  public void testGetInputs() {
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[inputs.test]]").getFirst().path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[ inputs.test ]]").getFirst().path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[inputs.test ]]").getFirst().path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("$[[ inputs.test]]").getFirst().path());
-    assertEquals("inputs.test", GitlabCIYamlUtils.getInputs("   $[[ inputs.test ]]  ").getFirst().path());
-
-    assertEmpty(GitlabCIYamlUtils.getInputs("$[[ input.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputs("[[inputs.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputs("$[ inputs.test ]]"));
-    assertEmpty(GitlabCIYamlUtils.getInputs("$[[ inputs.test ]"));
-    assertEmpty(GitlabCIYamlUtils.getInputs("$$[ output.test ]]"));
-  }
-
-  public void testGetInputNameString() {
-    assertEquals("test", InputsReferenceProvider.getInputNames("$[[inputs.test]]").getFirst().path());
-    assertEquals("test", InputsReferenceProvider.getInputNames("$[[ inputs.test ]]").getFirst().path());
-    assertEquals("test", InputsReferenceProvider.getInputNames("$[[inputs.test ]]").getFirst().path());
-    assertEquals("test", InputsReferenceProvider.getInputNames("$[[ inputs.test]]").getFirst().path());
-    assertEquals("test", InputsReferenceProvider.getInputNames("   $[[ inputs.test ]]  ").getFirst().path());
-
-    assertEmpty(InputsReferenceProvider.getInputNames("$[[ input.test ]]"));
-    assertEmpty(InputsReferenceProvider.getInputNames("[[inputs.test ]]"));
-    assertEmpty(InputsReferenceProvider.getInputNames("$[ inputs.test ]]"));
-    assertEmpty(InputsReferenceProvider.getInputNames("$$[ output.test ]]"));
-  }
-
-  public void testGetVariables() {
-    assertEquals("test", VariablesReferenceProvider.getVariables("$test").getFirst().path());
-    assertEquals("test", VariablesReferenceProvider.getVariables("${test}").getFirst().path());
-    assertTrue(List.of("test", "test2").containsAll(VariablesReferenceProvider.getVariables("$test ${test2}").stream().map(FileUtils.StringWithStartEndRange::path).toList()));
-  }
 }

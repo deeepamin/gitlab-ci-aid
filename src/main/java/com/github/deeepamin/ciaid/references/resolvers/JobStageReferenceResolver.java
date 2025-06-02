@@ -1,8 +1,8 @@
 package com.github.deeepamin.ciaid.references.resolvers;
 
 import com.github.deeepamin.ciaid.model.Icons;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
@@ -16,7 +16,7 @@ public class JobStageReferenceResolver extends SingleTargetReferenceResolver {
 
   @Override
   public Object @NotNull [] getVariants() {
-    var isInputsString = GitlabCIYamlUtils.isAnInputsString(myElement.getText());
+    var isInputsString = InputsReferenceProvider.isAnInputsString(myElement.getText());
     if (isInputsString) {
       return new LookupElement[0];
     }

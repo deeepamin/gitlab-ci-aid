@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.services;
 import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 
 import java.io.File;
 import java.util.List;
@@ -39,8 +40,7 @@ public class CIAidYamlDataProviderTest extends BaseTest {
     assertEquals(1, yamlData.getIncludes().size());
     assertEquals(5, yamlData.getJobElements().size());
     var distinctJobStageNames = yamlData.getJobStageElements().stream()
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> pointer.getElement().getText())
+            .map(PsiElement::getText)
             .distinct()
             .toList();
     assertEquals(3, distinctJobStageNames.size());
@@ -82,14 +82,12 @@ public class CIAidYamlDataProviderTest extends BaseTest {
     var projectService = getProject().getService(CIAidProjectService.class);
     var jobFileName = projectService.getDataProvider().getFileName((entry) -> entry.getValue().getJobElements()
             .stream()
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .anyMatch(pointer -> pointer.getElement().getKeyText().equals(job)));
+            .anyMatch(jobKeyValue -> jobKeyValue.getKeyText().equals(job)));
     assertTrue(jobFileName.contains(PIPELINE_YML_PATH));
     var stage = "build";
     var stageFileName = projectService.getDataProvider().getFileName((entry) -> entry.getValue().getJobStageElements()
             .stream()
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .anyMatch(pointer -> pointer.getElement().getText().equals(stage)));
+            .anyMatch(jobStage -> jobStage.getText().equals(stage)));
     var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }

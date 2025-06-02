@@ -2,7 +2,6 @@ package com.github.deeepamin.ciaid.utils;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
-import com.github.deeepamin.ciaid.utils.FileUtils.StringWithStartEndRange;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,10 +9,8 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public class GitlabCIYamlUtils {
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
@@ -22,8 +19,6 @@ public class GitlabCIYamlUtils {
 
   public static final Key<Boolean> GITLAB_CI_YAML_MARKED_KEY = Key.create("CIAid.Gitlab.YAML");
   public static final Key<Boolean> GITLAB_CI_YAML_USER_MARKED_KEY = Key.create("CIAid.Gitlab.User.YAML");
-
-  public static final String REFERENCE_TAG = "!reference";
 
   public static boolean isValidGitlabCIYamlFile(final VirtualFile file) {
     return file != null && file.isValid() && file.exists()
@@ -79,27 +74,6 @@ public class GitlabCIYamlUtils {
 
   public static boolean isMarkedAsCIYamlFile(VirtualFile file) {
     return Boolean.TRUE.equals(file.getUserData(GITLAB_CI_YAML_MARKED_KEY));
-  }
-
-  public static boolean isAnInputsString(String input) {
-    if (input == null) {
-      return false;
-    }
-    var inputsWithStartEndRange = getInputs(input);
-    return inputsWithStartEndRange != null && !inputsWithStartEndRange.isEmpty();
-  }
-
-  public static List<StringWithStartEndRange> getInputs(String input) {
-    if (input == null) {
-      return null;
-    }
-    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
-    var matcher = pattern.matcher(input);
-    var inputs = new ArrayList<StringWithStartEndRange>();
-    while (matcher.find()) {
-      inputs.add(new StringWithStartEndRange(matcher.group(1), matcher.start(1), matcher.end(1)));
-    }
-    return inputs;
   }
 
 }

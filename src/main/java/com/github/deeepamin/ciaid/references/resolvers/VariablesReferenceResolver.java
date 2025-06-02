@@ -48,7 +48,9 @@ public class VariablesReferenceResolver extends PsiReferenceBase<PsiElement> imp
 
   @Override
   public Object @NotNull [] getVariants() {
-    var varsToCompleteWithFileNames = CIAidProjectService.getInstance(myElement.getProject()).getDataProvider().getVariableAndContainingFiles(CIAidProjectService.getInstance(myElement.getProject()));
+    var varsToCompleteWithFileNames = CIAidProjectService.getInstance(myElement.getProject())
+            .getDataProvider()
+            .getVariableAndContainingFiles(CIAidProjectService.getInstance(myElement.getProject()));
     return varsToCompleteWithFileNames.entrySet().stream()
             .map((variableAndFileName) -> {
               var variable = variableAndFileName.getKey();

@@ -5,7 +5,6 @@ import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.SmartPsiElementPointer;
 
 import java.util.Optional;
 
@@ -34,8 +33,6 @@ public class NeedsReferenceProvider extends AbstractReferenceProvider {
     return ciAidProjectService.getPluginData().values()
             .stream()
             .flatMap(yamlData -> yamlData.getJobElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(SmartPsiElementPointer::getElement)
             .filter(job -> handleQuotedText(job.getKeyText()).equals(targetName))
             .findFirst()
             .orElse(null);

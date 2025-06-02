@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.inspections;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.highlighter.quickfix.CreateIncludeFileQuickFix;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -15,8 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.NON_LOCAL_INCLUDE_KEYWORDS;
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 
 public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspectionTool {
@@ -31,7 +31,7 @@ public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspection
             var isNonLocalInclude = PsiUtils.isChild(element, NON_LOCAL_INCLUDE_KEYWORDS);
             if (!isNonLocalInclude) {
               var filePath = handleQuotedText(element.getText());
-              var inputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
+              var inputsFilePathString = InputsReferenceProvider.isAnInputsString(filePath);
               if (inputsFilePathString) {
                 return;
               }

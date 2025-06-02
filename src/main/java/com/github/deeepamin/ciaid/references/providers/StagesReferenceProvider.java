@@ -5,7 +5,6 @@ import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.SmartPsiElementPointer;
 
 import java.util.Optional;
 
@@ -30,8 +29,6 @@ public class StagesReferenceProvider extends AbstractReferenceProvider {
     var targetStages = ciAidProjectService.getPluginData().values()
             .stream()
             .flatMap(yamlData -> yamlData.getJobStageElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(SmartPsiElementPointer::getElement)
             .filter(stage -> handleQuotedText(stage.getText()).equals(stageName))
             .toList();
     return Optional.of(new PsiReference[]{ new StagesReferenceResolver(element, targetStages) });

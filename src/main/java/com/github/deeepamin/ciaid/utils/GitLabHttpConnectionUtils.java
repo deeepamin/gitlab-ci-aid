@@ -53,7 +53,6 @@ public class GitLabHttpConnectionUtils {
     return null;
   }
 
-
   private static String getUserAgent() {
     var applicationInfo = ApplicationInfo.getInstance();
     return applicationInfo.getBuild().getProductCode() + "/" + applicationInfo.getFullVersion();

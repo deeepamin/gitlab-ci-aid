@@ -6,7 +6,6 @@ import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.SmartPsiElementPointer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +51,6 @@ public class VariablesReferenceProvider extends AbstractReferenceProvider {
       var targetVariables = ciAidProjectService.getPluginData().values()
               .stream()
               .flatMap(yamlData -> yamlData.getVariables().stream())
-              .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-              .map(SmartPsiElementPointer::getElement)
               .filter(variableKeyValue -> variableKeyValue.getKeyText().equals(variableName))
               .toList();
       psiRefs.add(new VariablesReferenceResolver(element, targetVariables, TextRange.create(startOffset, endOffset)));

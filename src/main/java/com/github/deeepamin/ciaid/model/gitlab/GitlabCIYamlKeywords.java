@@ -68,4 +68,5 @@ public class GitlabCIYamlKeywords {
   public static final String DEPLOY_STAGE = "deploy";
   public static final String POST_STAGE = ".post";
   public static final List<String> DEFAULT_STAGES = List.of(PRE_STAGE, BUILD_STAGE, TEST_STAGE, DEPLOY_STAGE, POST_STAGE);
+  public static final String REFERENCE_TAG = "!reference";
 }

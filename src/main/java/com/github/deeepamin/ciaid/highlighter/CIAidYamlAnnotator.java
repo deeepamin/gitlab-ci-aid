@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.highlighter;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.references.providers.IncludeReferenceProvider;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
@@ -60,7 +61,7 @@ public class CIAidYamlAnnotator implements Annotator {
 
   private void highlightInputs(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
     var elementText = element.getText();
-    var inputsWithStartEndRange = GitlabCIYamlUtils.getInputs(elementText);
+    var inputsWithStartEndRange = InputsReferenceProvider.getInputs(elementText);
     if (inputsWithStartEndRange == null || inputsWithStartEndRange.isEmpty()) {
       return;
     }
@@ -82,7 +83,7 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(stage -> {
               var allStages = getCIAidProjectService(psiElement).getDataProvider().getStageNamesDefinedAtStagesLevel();
               var stageName = CIAidUtils.handleQuotedText(psiElement.getText());
-              var isInputsString = GitlabCIYamlUtils.isAnInputsString(stageName);
+              var isInputsString = InputsReferenceProvider.isAnInputsString(stageName);
               if (isInputsString) {
                 return;
               }
@@ -126,7 +127,7 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(job -> {
               var allJobs = getCIAidProjectService(psiElement).getDataProvider().getJobNames();
               var jobName = CIAidUtils.handleQuotedText(psiElement.getText());
-              var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
+              var isInputsString = InputsReferenceProvider.isAnInputsString(jobName);
               if (isInputsString) {
                 return;
               }
@@ -177,7 +178,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 return;
               }
               var filePath = CIAidUtils.handleQuotedText(includeElement.getText());
-              var inputsFilePathString = GitlabCIYamlUtils.isAnInputsString(filePath);
+              var inputsFilePathString = InputsReferenceProvider.isAnInputsString(filePath);
               if (inputsFilePathString) {
                 return;
               }

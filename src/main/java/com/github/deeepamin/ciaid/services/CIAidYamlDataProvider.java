@@ -76,24 +76,21 @@ public class CIAidYamlDataProvider {
   public List<String> getJobNames() {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getJobElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> handleQuotedText(pointer.getElement().getKeyText()))
+            .map(jobKeyValue -> handleQuotedText(jobKeyValue.getKeyText()))
             .toList();
   }
 
   public List<String> getStageNamesDefinedAtStagesLevel() {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getStagesItemElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> handleQuotedText(pointer.getElement().getText()))
+            .map(stage -> handleQuotedText(stage.getText()))
             .toList();
   }
 
   public List<String> getStageNamesDefinedAtJobLevel () {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getJobStageElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> handleQuotedText(pointer.getElement().getText()))
+            .map(jobStage -> handleQuotedText(jobStage.getText()))
             .distinct()
             .toList();
   }
@@ -101,8 +98,6 @@ public class CIAidYamlDataProvider {
   public List<Input> getInputs() {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getInputs().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(SmartPsiElementPointer::getElement)
             .map(inputsKeyValue -> {
                 var inputName = inputsKeyValue.getKeyText();
                 var inputValue = inputsKeyValue.getValue();
@@ -192,8 +187,6 @@ public class CIAidYamlDataProvider {
             .entrySet()
             .stream()
             .flatMap(entry -> entry.getValue().getVariables().stream()
-                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .map(SmartPsiElementPointer::getElement)
                     .map(YAMLKeyValue::getKeyText)
                     .map(variable -> new AbstractMap.SimpleEntry<>(variable, entry.getKey()))
             )
@@ -207,26 +200,21 @@ public class CIAidYamlDataProvider {
     return getFileName(
             (entry) -> entry.getValue().getStagesItemElements()
                     .stream()
-                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .map(pointer -> handleQuotedText(pointer.getElement().getText()))
-                    .anyMatch(pointerText -> pointerText.equals(stagesItem)));
+                    .anyMatch(stage -> handleQuotedText(stage.getText()).equals(stagesItem)));
   }
 
   public String getJobFileName(String job) {
     return getFileName(
             (entry) -> entry.getValue().getJobElements()
             .stream()
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(pointer -> handleQuotedText(pointer.getElement().getKeyText()))
-            .anyMatch(pointerText -> pointerText.equals(job)));
+            .map(jobKeyValue -> handleQuotedText(jobKeyValue.getKeyText()))
+            .anyMatch(jobText -> jobText.equals(job)));
   }
 
   public String getJobStageFileName(String stage) {
     return getFileName(
             (entry) -> entry.getValue().getJobStageElements()
                     .stream()
-                    .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-                    .map(pointer -> handleQuotedText(pointer.getElement().getText()))
-                    .anyMatch(pointerText -> pointerText.equals(stage)));
+                    .anyMatch(jobStage -> handleQuotedText(jobStage.getText()).equals(stage)));
   }
 }

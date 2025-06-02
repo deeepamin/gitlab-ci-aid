@@ -7,7 +7,6 @@ import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.impl.YAMLArrayImpl;
@@ -15,8 +14,8 @@ import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
 import java.util.Arrays;
 
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
-import static com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils.REFERENCE_TAG;
 
 public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
   public RefTagReferenceResolver(@NotNull PsiElement element, PsiElement target) {
@@ -30,8 +29,6 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
             .values()
             .stream()
             .flatMap(ciAidYamlData -> ciAidYamlData.getJobElements().stream())
-            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
-            .map(SmartPsiElementPointer::getElement)
             .filter(keyValue -> handleQuotedText(keyValue.getKeyText()).startsWith("."))
             .toList();
     var parent = PsiUtils.findParentOfType(myElement, YAMLArrayImpl.class);

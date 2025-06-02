@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.inspections;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
@@ -29,7 +30,7 @@ public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool
             if (notOtherNeeds) {
               var allJobs = getCIAidProjectService(element).getDataProvider().getJobNames();
               var jobName = CIAidUtils.handleQuotedText(element.getText());
-              var isInputsString = GitlabCIYamlUtils.isAnInputsString(jobName);
+              var isInputsString = InputsReferenceProvider.isAnInputsString(jobName);
               if (isInputsString) {
                 return;
               }
