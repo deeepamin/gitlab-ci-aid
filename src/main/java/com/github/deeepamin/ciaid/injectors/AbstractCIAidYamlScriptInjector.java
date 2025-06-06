@@ -52,8 +52,15 @@ abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
       }
       injectShell(registrar, context, language);
     }
-    if (context instanceof YAMLScalarList || context instanceof YAMLScalarText) {
+    if (context instanceof YAMLScalarList) {
+      // for | multi line blocks
       injectShell(registrar, context, language);
+    } else if (context instanceof YAMLScalarText yamlScalarText) {
+      // for > multi line blocks injection doesn't work fine due to the way text is handled
+      var isFoldedLineBlock = isFoldedLineBlock(yamlScalarText);
+      if (!isFoldedLineBlock) {
+        injectShell(registrar, context, language);
+      }
     }
   }
 
@@ -69,6 +76,10 @@ abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
               .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
               .doneInjecting();
     }
+  }
+
+  private boolean isFoldedLineBlock(YAMLScalarText yamlScalarText) {
+    return yamlScalarText != null && yamlScalarText.getText().startsWith(">");
   }
 
   @Override

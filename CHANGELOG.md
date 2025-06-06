@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Intent action to convert folded (>) script blocks to literal (|) blocks
+
+### Changed
+
+- Script injection is not done in folded (>) script blocks 
+
 ### Fixed
 
 - Needs with job key references are not resolved sometimes
