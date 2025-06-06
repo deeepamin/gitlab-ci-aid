@@ -58,6 +58,10 @@
                          key="inspections.gitlab.ci.need.job.unavailable"
                          enabledByDefault="true"
                          implementationClass="com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlUndefinedNeedsInspection"/>
+        <intentionAction>
+            <language>yaml</language>
+            <className>com.github.deeepamin.ciaid.injectors.intentionActions.ConvertFoldedToLiteralScriptBlockIntention</className>
+        </intentionAction>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.schema.CIAidYamlSchemaProviderFactory"/>
