@@ -37,58 +37,17 @@ public class ConvertFoldedToLiteralScriptBlockIntention extends PsiElementBaseIn
     if (!(parent instanceof YAMLScalarText scalar)) {
       return;
     }
-    String parentText = scalar.getText();
-    if (parentText == null || !parentText.startsWith(">")) {
+    if (!isFoldedBlock(scalar)) {
       return;
     }
 
     var superParent = parent.getParent();
     if (superParent instanceof YAMLKeyValue) {
       // direct in script block
-      var scriptKeyValue = PsiTreeUtil.getParentOfType(element, YAMLKeyValue.class);
-      if (scriptKeyValue == null) {
-        return;
-      }
-      var key = scriptKeyValue.getKeyText();
-      var content = scalar.getTextValue();
-      var newTextBuilder = new StringBuilder(key + ": |\n");
-
-      String[] lines = content.split("\\R");
-      int last = lines.length - 1;
-      for (int i = 0; i < lines.length; i++) {
-        newTextBuilder.append("  ").append(lines[i]);
-        if (i < last) {
-          newTextBuilder.append("\n");
-        }
-      }
-      final var dummyYamlFile = YAMLElementGenerator.getInstance(element.getProject()).createDummyYamlWithText(newTextBuilder.toString());
-      var newKeyValue = PsiTreeUtil.findChildOfType(dummyYamlFile, YAMLKeyValue.class);
-      if (newKeyValue == null || newKeyValue.getValue() == null) {
-        return;
-      }
-      superParent.replace(newKeyValue);
+      replaceKeyValue(scalar, superParent);
     } else if (superParent instanceof YAMLSequenceItem) {
-      var newTextBuilder = new StringBuilder("|\n");
-      var content = scalar.getText();
-
-      String[] lines = content.split("\\R");
-      int last = lines.length - 1;
-      for (int i = 0; i < lines.length; i++) {
-        // scalar.getTextValue() returns correct string without > but removes line breaks so use scalar.getText() instead and filter out > lines
-        var spaceRemovedLine = lines[i].replaceFirst("^\\s+", "").trim();
-        if (spaceRemovedLine.equals(">")) {
-          continue;
-        }
-        newTextBuilder.append("  ").append(lines[i]);
-        if (i < last) {
-          newTextBuilder.append("\n");
-        }
-      }
-      var newSequenceItem = YAMLElementGenerator.getInstance(project).createSequenceItem(newTextBuilder.toString());
-      if (newSequenceItem.getValue() == null) {
-        return;
-      }
-      superParent.replace(newSequenceItem);
+      // multiple items, folded block is one of them
+      replaceSequenceItem(scalar, superParent);
     }
   }
 
@@ -103,11 +62,68 @@ public class ConvertFoldedToLiteralScriptBlockIntention extends PsiElementBaseIn
       return false;
     }
     var parent = element.getParent();
-    if (element instanceof YAMLScalarText) {
-      return element.getText().startsWith(">");
-    } else if (parent instanceof YAMLScalarText) {
-      return parent.getText().startsWith(">");
+    if (element instanceof YAMLScalarText scalarText) {
+      return isFoldedBlock(scalarText);
+    } else if (parent instanceof YAMLScalarText scalarText) {
+      return isFoldedBlock(scalarText);
     }
     return false;
+  }
+
+  private boolean isFoldedBlock(YAMLScalarText scalar) {
+    if (scalar == null) {
+      return false;
+    }
+    String text = scalar.getText();
+    return text != null && text.startsWith(">");
+  }
+
+  private void replaceKeyValue(YAMLScalarText scalar, PsiElement superParent) {
+    var scriptKeyValue = PsiTreeUtil.getParentOfType(scalar, YAMLKeyValue.class);
+    if (scriptKeyValue == null) {
+      return;
+    }
+    var key = scriptKeyValue.getKeyText();
+    var content = scalar.getTextValue();
+    var newTextBuilder = new StringBuilder(key + ": |\n");
+
+    String[] lines = content.split("\\R");
+    int last = lines.length - 1;
+    for (int i = 0; i < lines.length; i++) {
+      newTextBuilder.append("  ").append(lines[i]);
+      if (i < last) {
+        newTextBuilder.append("\n");
+      }
+    }
+    final var dummyYamlFile = YAMLElementGenerator.getInstance(scalar.getProject()).createDummyYamlWithText(newTextBuilder.toString());
+    var newKeyValue = PsiTreeUtil.findChildOfType(dummyYamlFile, YAMLKeyValue.class);
+    if (newKeyValue == null || newKeyValue.getValue() == null) {
+      return;
+    }
+    superParent.replace(newKeyValue);
+  }
+
+  private void replaceSequenceItem(YAMLScalarText scalar, PsiElement superParent) {
+    var newTextBuilder = new StringBuilder("|\n");
+    var content = scalar.getText();
+
+    String[] lines = content.split("\\R");
+    int last = lines.length - 1;
+    for (int i = 0; i < lines.length; i++) {
+      // scalar.getTextValue() returns correct string without > but removes line breaks so use scalar.getText() instead and filter out > lines
+      var spaceRemovedLine = lines[i].replaceFirst("^\\s+", "").trim();
+      if (spaceRemovedLine.equals(">")) {
+        continue;
+      }
+      newTextBuilder.append("  ").append(lines[i]);
+      if (i < last) {
+        newTextBuilder.append("\n");
+      }
+    }
+    var newSequenceItem = YAMLElementGenerator.getInstance(scalar.getProject()).createSequenceItem(newTextBuilder.toString());
+    if (newSequenceItem.getValue() == null) {
+      return;
+    }
+    superParent.replace(newSequenceItem);
   }
 }
