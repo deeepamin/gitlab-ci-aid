@@ -18,7 +18,10 @@
                                   implementation="com.github.deeepamin.ciaid.references.contributors.CIAidYamlScalarReferenceContributor"/>
         <psi.referenceContributor language="yaml"
                                   implementation="com.github.deeepamin.ciaid.references.contributors.CIAidYamlPsiElementReferenceContributor"/>
-        <fileType name="GitLab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType" patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml" order="first" fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
+        <fileType name="GitLab CI YAML" implementationClass="com.github.deeepamin.ciaid.language.GitlabCIYamlFileType"
+                  order="first"
+                  patterns="*.gitlab-ci.yml;*.gitlab-ci.yaml"
+                  fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
         <annotator language="yaml"
                    implementationClass="com.github.deeepamin.ciaid.highlighter.CIAidYamlAnnotator"/>
         <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
@@ -62,6 +65,8 @@
             <language>yaml</language>
             <className>com.github.deeepamin.ciaid.injectors.intentionActions.ConvertFoldedToLiteralScriptBlockIntention</className>
         </intentionAction>
+        <refactoring.moveHandler implementation="com.github.deeepamin.ciaid.refactor.moveHandlers.GitLabYamlJobMoveHandler"
+                                 order="last"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.schema.CIAidYamlSchemaProviderFactory"/>

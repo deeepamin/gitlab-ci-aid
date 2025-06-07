@@ -22,6 +22,9 @@ public class FileUtils {
   private static final Logger LOG = Logger.getInstance(FileUtils.class);
 
   public static Optional<VirtualFile> getVirtualFile(String fileRelativePathToRoot, Project project) {
+    if (fileRelativePathToRoot == null) {
+      return Optional.empty();
+    }
     var basePath = project.getBasePath();
     var pathBuilder = new StringBuilder();
     pathBuilder.append(basePath);
