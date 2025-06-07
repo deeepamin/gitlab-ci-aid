@@ -1,0 +1,129 @@
+package com.github.deeepamin.ciaid.refactor.actions;
+
+import com.github.deeepamin.ciaid.CIAidBundle;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.refactoring.util.CommonRefactoringUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.YAMLElementGenerator;
+import org.jetbrains.yaml.YAMLFileType;
+import org.jetbrains.yaml.psi.YAMLFile;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLMapping;
+
+import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
+
+public class GitLabCIYamlMoveToDefaultAction extends AnAction {
+  @Override
+  public void actionPerformed(@NotNull AnActionEvent e) {
+    var project = e.getProject();
+    var element = e.getData(CommonDataKeys.PSI_ELEMENT);
+    if (project == null || !isAvailable(element)) {
+      return;
+    }
+    var isGitLabCIYaml = CIAidProjectService.hasGitlabYamlFile(element);
+    if (!isGitLabCIYaml) {
+      return;
+    }
+    var keyValue = (YAMLKeyValue) element;
+    var file = (YAMLFile) element.getContainingFile();
+
+    var topLevelValue = file.getDocuments().getFirst().getTopLevelValue();
+    if (!(topLevelValue instanceof YAMLMapping rootMapping)) {
+      return;
+    }
+
+    WriteCommandAction.runWriteCommandAction(project, () -> {
+      var defaultKeyValue = rootMapping.getKeyValueByKey(DEFAULT);
+      if (defaultKeyValue == null) {
+        var newDefaultKey = YAMLElementGenerator.getInstance(project).createYamlKeyValue(DEFAULT, "");
+        var defaultMapping = createYamlMapping(project, keyValue);
+        if (defaultMapping == null) {
+          return;
+        }
+        newDefaultKey.setValue(defaultMapping);
+        defaultKeyValue = (YAMLKeyValue) newDefaultKey.copy();
+        insertKeyAtTop(rootMapping, defaultKeyValue);
+      } else {
+        // check if default value already contains the key
+        if (defaultKeyValue.getValue() instanceof YAMLMapping existingMapping) {
+          if (existingMapping.getKeyValues()
+                  .stream()
+                  .anyMatch(kv -> kv.getKeyText().equals(keyValue.getKeyText()))) {
+            CommonRefactoringUtil.showErrorHint(
+                    project,
+                    e.getData(CommonDataKeys.EDITOR),
+                    CIAidBundle.message("refactoring.key-value.already.exists.in.default", keyValue.getKeyText()),
+                    CIAidBundle.message("refactoring.cannot.refactor"),
+                    null
+            );
+            return;
+          }
+        }
+      }
+      if (!(defaultKeyValue.getValue() instanceof YAMLMapping defaultMapping)) {
+        return;
+      }
+       defaultMapping.putKeyValue((YAMLKeyValue) keyValue.copy());
+      element.delete();
+    });
+  }
+
+  @Override
+  public void update(@NotNull AnActionEvent e) {
+    PsiElement element = e.getData(CommonDataKeys.PSI_ELEMENT);
+    e.getPresentation().setEnabledAndVisible(isAvailable(element));
+  }
+
+  @Override
+  public @NotNull ActionUpdateThread getActionUpdateThread() {
+    return ActionUpdateThread.BGT;
+  }
+
+  private boolean isAvailable(PsiElement element) {
+    if (!(element instanceof YAMLKeyValue keyValue)) {
+      return  false;
+    }
+    return DEFAULT_ALLOWED_KEYWORDS.contains(keyValue.getKeyText());
+  }
+
+  private static YAMLMapping createYamlMapping(Project project, YAMLKeyValue keyValue) {
+    var keyValueText = keyValue.getText();
+    var dummyFile = (YAMLFile) PsiFileFactory.getInstance(project)
+            .createFileFromText("dummy.yaml", YAMLFileType.YML, keyValueText);
+
+    var dummyDoc = dummyFile.getDocuments().getFirst();
+    if (dummyDoc == null || !(dummyDoc.getTopLevelValue() instanceof YAMLMapping yamlMapping)) {
+      return null;
+    }
+    return yamlMapping;
+  }
+
+
+  public static void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
+    var existingKeys = rootMapping.getKeyValues().stream().toList();
+    if (!existingKeys.isEmpty()) {
+      YAMLKeyValue firstKey = existingKeys.getFirst();
+      var inserted = rootMapping.addBefore(newKeyValue, firstKey);
+      if (inserted != null) {
+        var newLine = createNewLine(newKeyValue.getProject());
+        rootMapping.addAfter(newLine, inserted);
+      }
+    } else {
+      rootMapping.add(newKeyValue);
+    }
+  }
+
+  private static PsiElement createNewLine(Project project) {
+    var dummyFile = (YAMLFile) PsiFileFactory.getInstance(project)
+            .createFileFromText("dummy.yaml", YAMLFileType.YML, "\n");
+    return dummyFile.getFirstChild();
+  }
+}

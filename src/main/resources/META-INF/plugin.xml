@@ -66,4 +66,11 @@
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="com.github.deeepamin.ciaid.schema.CIAidYamlSchemaProviderFactory"/>
     </extensions>
+    <actions resource-bundle="messages.CIAid">
+        <action id="MoveToDefault"
+                class="com.github.deeepamin.ciaid.refactor.actions.GitLabCIYamlMoveToDefaultAction"
+        >
+            <add-to-group group-id="RefactoringMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
