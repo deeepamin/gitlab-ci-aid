@@ -15,6 +15,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLElementGenerator;
 import org.jetbrains.yaml.YAMLFileType;
+import org.jetbrains.yaml.YAMLTokenTypes;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
@@ -76,7 +77,13 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
             return;
           }
           // otherwise, move the key to the default section
-          keyValue = getNewKeyValue(project, keyValue);
+          var nextSibling = defaultKeyValue.getNextSibling();
+          var newLineAtEnd = false;
+          if (nextSibling != null) {
+            var tokenType = nextSibling.getNode().getElementType();
+            newLineAtEnd = tokenType != YAMLTokenTypes.EOL;
+          }
+          keyValue = getNewKeyValue(project, keyValue, newLineAtEnd);
         }
       }
       if (!(defaultKeyValue.getValue() instanceof YAMLMapping defaultMapping)) {
@@ -137,10 +144,11 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
   private static void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
     var existingKeys = rootMapping.getKeyValues().stream().toList();
     if (!existingKeys.isEmpty()) {
-      YAMLKeyValue firstKey = existingKeys.getFirst();
-      var inserted = rootMapping.addBefore(newKeyValue, firstKey);
+      var firstChild = rootMapping.getFirstChild();
+      var newLine = YAMLElementGenerator.getInstance(rootMapping.getProject()).createEol();
+      var inserted = rootMapping.addBefore(newKeyValue, firstChild);
+      rootMapping.addBefore(newLine, firstChild);
       if (inserted != null) {
-        var newLine = createNewLine(newKeyValue.getProject());
         rootMapping.addAfter(newLine, inserted);
       }
     } else {
@@ -148,13 +156,7 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     }
   }
 
-  private static PsiElement createNewLine(Project project) {
-    var dummyFile = (YAMLFile) PsiFileFactory.getInstance(project)
-            .createFileFromText("dummy.yaml", YAMLFileType.YML, "\n");
-    return dummyFile.getFirstChild();
-  }
-
-  private YAMLKeyValue getNewKeyValue(Project project, YAMLKeyValue keyValue) {
+  private YAMLKeyValue getNewKeyValue(Project project, YAMLKeyValue keyValue, boolean newLineAtEnd) {
     var value = keyValue.getValue();
     var keyText = keyValue.getKeyText();
     if (value == null) {
@@ -168,6 +170,6 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     } else {
       newKeyValueText = value.getText().trim();
     }
-    return YAMLElementGenerator.getInstance(project).createYamlKeyValue(keyText, newKeyValueText);
+    return YAMLElementGenerator.getInstance(project).createYamlKeyValue(keyText, newKeyValueText + (newLineAtEnd ? "\n" : ""));
   }
 }
