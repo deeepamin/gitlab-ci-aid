@@ -44,6 +44,10 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
+## Known Issues
+- Script injection is disabled for folded (>) blocks, as it is not handled well by Intellij YAML parser in Edit script fragment. 
+  Use literal (|) blocks instead (Plugin provides intent action to convert folded block to literal block).
+
 ## Support
 
 * Star the repository
