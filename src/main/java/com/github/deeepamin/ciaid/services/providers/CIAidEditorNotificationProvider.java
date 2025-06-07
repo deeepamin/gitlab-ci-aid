@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.services.providers;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -24,11 +25,15 @@ import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
-  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, SPEC, COMPONENT, EXTENDS);
+  private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, COMPONENT, EXTENDS);
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
     return fileEditor -> {
+      var isEditorNotificationDisabled = CIAidSettingsState.getInstance(project).isEditorNotificationDisabled();
+      if (isEditorNotificationDisabled) {
+        return null;
+      }
       var projectService = CIAidProjectService.getInstance(project);
       if (file.getUserData(GITLAB_CI_YAML_USER_MARKED_KEY) != null || projectService.getPluginData().containsKey(file)) {
         // already read/marked file: true/false
@@ -59,8 +64,11 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
     panel.createActionLabel(CIAidBundle.message("editor.notification.ignore"), () -> {
       CIAidProjectService.ignoreCIYamlFile(file, project);
       EditorNotifications.getInstance(project).updateNotifications(file);
-      }
-    );
+    });
+    panel.createActionLabel(CIAidBundle.message("editor.notification.disable"), () -> {
+      CIAidSettingsState.getInstance(project).setEditorNotificationDisabled(true);
+      EditorNotifications.getInstance(project).updateNotifications(file);
+    });
     return panel;
   }
 

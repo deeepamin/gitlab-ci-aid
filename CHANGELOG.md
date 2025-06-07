@@ -7,6 +7,7 @@
 ### Added
 
 - Intent action to convert folded (>) script blocks to literal (|) blocks
+- Editor notification to mark yaml files as GitLab CI Yaml files can be disabled
 
 ### Changed
 
