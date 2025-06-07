@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.refactor.actions;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,6 +18,10 @@ import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLSequence;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 
@@ -32,47 +37,66 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     if (!isGitLabCIYaml) {
       return;
     }
-    var keyValue = (YAMLKeyValue) element;
-    var file = (YAMLFile) element.getContainingFile();
-
-    var topLevelValue = file.getDocuments().getFirst().getTopLevelValue();
-    if (!(topLevelValue instanceof YAMLMapping rootMapping)) {
-      return;
-    }
 
     WriteCommandAction.runWriteCommandAction(project, () -> {
+      var keyValue = (YAMLKeyValue) element;
+      var file = (YAMLFile) element.getContainingFile();
+
+      var topLevelValue = file.getDocuments().getFirst().getTopLevelValue();
+      if (!(topLevelValue instanceof YAMLMapping rootMapping)) {
+        return;
+      }
       var defaultKeyValue = rootMapping.getKeyValueByKey(DEFAULT);
       if (defaultKeyValue == null) {
+        // if the default section does not exist, create it
         var newDefaultKey = YAMLElementGenerator.getInstance(project).createYamlKeyValue(DEFAULT, "");
         var defaultMapping = createYamlMapping(project, keyValue);
         if (defaultMapping == null) {
           return;
         }
+        // set the new default section with the being moved key
         newDefaultKey.setValue(defaultMapping);
         defaultKeyValue = (YAMLKeyValue) newDefaultKey.copy();
         insertKeyAtTop(rootMapping, defaultKeyValue);
       } else {
-        // check if default value already contains the key
+        // check if default section already contains the key
         if (defaultKeyValue.getValue() instanceof YAMLMapping existingMapping) {
-          if (existingMapping.getKeyValues()
+          var keyText = keyValue.getKeyText();
+          var keyExists = existingMapping.getKeyValues()
                   .stream()
-                  .anyMatch(kv -> kv.getKeyText().equals(keyValue.getKeyText()))) {
+                  .anyMatch(kv -> kv.getKeyText().equals(keyText));
+          if (keyExists) {
+            // show error if the key already exists in the default section
             CommonRefactoringUtil.showErrorHint(
                     project,
                     e.getData(CommonDataKeys.EDITOR),
                     CIAidBundle.message("refactoring.key-value.already.exists.in.default", keyValue.getKeyText()),
                     CIAidBundle.message("refactoring.cannot.refactor"),
-                    null
-            );
+                    null);
             return;
           }
+          // otherwise, move the key to the default section
+          keyValue = getNewKeyValue(project, keyValue);
         }
       }
       if (!(defaultKeyValue.getValue() instanceof YAMLMapping defaultMapping)) {
         return;
       }
-       defaultMapping.putKeyValue((YAMLKeyValue) keyValue.copy());
+      defaultMapping.putKeyValue(keyValue);
+      var parentMapping = ((YAMLKeyValue) element).getParentMapping();
       element.delete();
+
+      // check if the job is empty after moving the key to default
+      if (parentMapping != null) {
+        var isParentJobEmpty = parentMapping.getKeyValues().isEmpty();
+        if (isParentJobEmpty) {
+          var parentJob = parentMapping.getParent();
+          if (!(parentJob instanceof YAMLKeyValue jobKeyValue)) {
+            return;
+          }
+          jobKeyValue.delete();
+        }
+      }
     });
   }
 
@@ -91,6 +115,10 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     if (!(element instanceof YAMLKeyValue keyValue)) {
       return  false;
     }
+    var isChildOfDefault = PsiUtils.isChild(element, List.of(DEFAULT));
+    if (isChildOfDefault) {
+      return false;
+    }
     return DEFAULT_ALLOWED_KEYWORDS.contains(keyValue.getKeyText());
   }
 
@@ -106,8 +134,7 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     return yamlMapping;
   }
 
-
-  public static void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
+  private static void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
     var existingKeys = rootMapping.getKeyValues().stream().toList();
     if (!existingKeys.isEmpty()) {
       YAMLKeyValue firstKey = existingKeys.getFirst();
@@ -125,5 +152,22 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     var dummyFile = (YAMLFile) PsiFileFactory.getInstance(project)
             .createFileFromText("dummy.yaml", YAMLFileType.YML, "\n");
     return dummyFile.getFirstChild();
+  }
+
+  private YAMLKeyValue getNewKeyValue(Project project, YAMLKeyValue keyValue) {
+    var value = keyValue.getValue();
+    var keyText = keyValue.getKeyText();
+    if (value == null) {
+      return keyValue;
+    }
+    String newKeyValueText;
+    if (value instanceof YAMLSequence sequence) {
+      newKeyValueText = sequence.getItems().stream()
+              .map(item -> "- " + item.getText().replaceFirst("^-\\s*", "").trim())
+              .collect(Collectors.joining("\n"));
+    } else {
+      newKeyValueText = value.getText().trim();
+    }
+    return YAMLElementGenerator.getInstance(project).createYamlKeyValue(keyText, newKeyValueText);
   }
 }
