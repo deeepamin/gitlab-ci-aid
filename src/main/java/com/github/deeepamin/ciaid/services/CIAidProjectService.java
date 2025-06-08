@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
+import com.github.deeepamin.ciaid.services.listeners.CIAidPsiTreeChangeListener;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -14,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 
 import java.io.File;
 import java.util.List;
@@ -34,6 +36,8 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   public CIAidProjectService(Project project) {
     this.project = project;
     this.dataProvider = new CIAidYamlDataProvider(project);
+    PsiManager.getInstance(project)
+            .addPsiTreeChangeListener(new CIAidPsiTreeChangeListener(project), DisposerService.getInstance(project));
   }
 
   public static CIAidProjectService getInstance(Project project) {
