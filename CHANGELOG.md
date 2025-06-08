@@ -7,15 +7,17 @@
 ### Added
 
 - Intent action to convert folded (>) script blocks to literal (|) blocks
+- Editor notification to mark yaml files as GitLab CI Yaml files can be disabled
 
 ### Changed
 
-- Script injection is not done in folded (>) script blocks 
+- Script injection is not done in folded (>) script blocks
 
 ### Fixed
 
 - Needs with job key references are not resolved sometimes
 - Needs with optional or other keys show jobs auto-completion
+- Undo/redo, deleting and re-adding elements lose references and highlighting
 
 ## [1.10.0] - 2025-06-01
 

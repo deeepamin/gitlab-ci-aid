@@ -30,6 +30,7 @@ import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_P
 public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState.State> {
     public static class State {
     public String defaultGitlabCIYamlPath = "";
+    public boolean isEditorNotificationDisabled = false;
     public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
 
     // Remotes settings
@@ -136,6 +137,14 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   public void setDefaultGitlabCIYamlPath(String defaultGitlabCIYamlPath) {
     this.state.defaultGitlabCIYamlPath = defaultGitlabCIYamlPath;
+  }
+
+  public boolean isEditorNotificationDisabled() {
+    return state.isEditorNotificationDisabled;
+  }
+
+  public void setEditorNotificationDisabled(boolean editorNotificationDisabled) {
+    this.state.isEditorNotificationDisabled = editorNotificationDisabled;
   }
 
   public Map<String, Boolean> getYamlToUserMarkings() {

@@ -48,6 +48,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   private JBTextField defaultGitlabCIYamlPathField;
   private JPanel defaultGitlabCIYamlPathFieldWithHelpPanel;
   private JBTable userMarkedFilesTable;
+  private JBCheckBox editorNotificationDisabledCheckBox;
   private JBScrollPane userMarkedFilesScrollPane;
 
   private final List<String> removedFiles = new ArrayList<>();
@@ -60,7 +61,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   @Override
   public @Nullable JComponent createComponent() {
     configureDefaultYamlPathTextField();
-    configureUserMarkedFilesTable();
+    configureUserMarkedFiles();
 
     //noinspection DialogTitleCapitalization
     return FormBuilder.createFormBuilder()
@@ -70,6 +71,7 @@ public class CIAidSettingsConfigurable implements Configurable {
             .setFormLeftIndent(0)
             .addComponent(new TitledSeparator(CIAidBundle.message("settings.user.yamls.separator")), 6)
             .setFormLeftIndent(20)
+            .addComponent(editorNotificationDisabledCheckBox)
             .addComponent(userMarkedFilesScrollPane)
             .addComponentFillVertically(new JPanel(), 0)
             .getPanel();
@@ -125,7 +127,11 @@ public class CIAidSettingsConfigurable implements Configurable {
     });
   }
 
-  private void configureUserMarkedFilesTable() {
+  private void configureUserMarkedFiles() {
+    editorNotificationDisabledCheckBox = new JBCheckBox(CIAidBundle.message("settings.user.yamls.editor.notification.disabled"));
+    editorNotificationDisabledCheckBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+    editorNotificationDisabledCheckBox.setSelected(CIAidSettingsState.getInstance(project).isEditorNotificationDisabled());
+
     DefaultTableModel tableModel = new DefaultTableModel(new Object[]{CIAidBundle.message("settings.user.yamls.table.path-column"), CIAidBundle.message("settings.user.yamls.table.ignore-column")}, 0) {
     };
 
@@ -204,6 +210,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
 
     return !defaultGitlabCIYamlPathField.getText().equals(ciaidSettingsState.getDefaultGitlabCIYamlPath())
+            || editorNotificationDisabledCheckBox.isSelected() != ciaidSettingsState.isEditorNotificationDisabled()
             || !getYamlToUserMarkings().equals(ciaidSettingsState.getYamlToUserMarkings());
   }
 
@@ -211,6 +218,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   public void apply() {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
     ciaidSettingsState.setDefaultGitlabCIYamlPath(defaultGitlabCIYamlPathField.getText());
+    ciaidSettingsState.setEditorNotificationDisabled(editorNotificationDisabledCheckBox.isSelected());
 
     PsiManager.getInstance(project).dropPsiCaches();
     removedFiles.forEach(path -> {
@@ -246,6 +254,7 @@ public class CIAidSettingsConfigurable implements Configurable {
   public void reset() {
     var ciaidSettingsState = CIAidSettingsState.getInstance(project);
     defaultGitlabCIYamlPathField.setText(ciaidSettingsState.getDefaultGitlabCIYamlPath());
+    editorNotificationDisabledCheckBox.setSelected(ciaidSettingsState.isEditorNotificationDisabled());
     DefaultTableModel tableModel = (DefaultTableModel) userMarkedFilesTable.getModel();
     tableModel.setRowCount(0);
     removedFiles.clear();
