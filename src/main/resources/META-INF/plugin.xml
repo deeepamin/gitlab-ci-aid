@@ -73,8 +73,7 @@
     </extensions>
     <actions resource-bundle="messages.CIAid">
         <action id="MoveToDefault"
-                class="com.github.deeepamin.ciaid.refactor.actions.GitLabCIYamlMoveToDefaultAction"
-        >
+                class="com.github.deeepamin.ciaid.refactor.actions.GitLabCIYamlMoveToDefaultAction">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>
         </action>
     </actions>

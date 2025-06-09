@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.services.listeners;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +26,10 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
     if (virtualFile == null) {
       return;
     }
-    var ciAidProjectService = CIAidProjectService.getInstance(project);ciAidProjectService.getDataProvider()
-            .readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
-    DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
+    PsiDocumentManager.getInstance(project).performLaterWhenAllCommitted(() -> {
+      var ciAidProjectService = CIAidProjectService.getInstance(project);ciAidProjectService.getDataProvider()
+              .readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
+      DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
+    });
   }
 }

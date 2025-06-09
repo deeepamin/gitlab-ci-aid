@@ -1,9 +1,11 @@
 package com.github.deeepamin.ciaid.refactor.moveHandlers;
 
+import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.panel.ComponentPanelBuilder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -26,6 +29,7 @@ public class MoveJobDialog extends DialogWrapper {
 
   private JBLabel moveJobLabel;
   private JPanel moveJobLabelAndComboBoxPanel;
+  private JLabel moveJobCommentLabel;
   private ComboBox<String> filePathComboBox;
   private JBCheckBox openFileCheckBox;
 
@@ -46,6 +50,9 @@ public class MoveJobDialog extends DialogWrapper {
     return FormBuilder.createFormBuilder()
             .addComponent(moveJobLabel)
             .addComponent(moveJobLabelAndComboBoxPanel)
+            .setFormLeftIndent(75)
+            .addComponent(moveJobCommentLabel)
+            .setFormLeftIndent(0)
             .addComponentFillVertically(new JPanel(), 0)
             .getPanel();
   }
@@ -55,7 +62,7 @@ public class MoveJobDialog extends DialogWrapper {
     JComponent defaultButtons = super.createSouthPanel();
 
     JPanel panel = new JPanel(new BorderLayout());
-    panel.add(openFileCheckBox, BorderLayout.WEST);
+    panel.add(openFileCheckBox, BorderLayout.CENTER);
     panel.add(defaultButtons, BorderLayout.EAST);
     panel.setBorder(defaultButtons.getBorder());
 
@@ -80,6 +87,7 @@ public class MoveJobDialog extends DialogWrapper {
     return selectedFilePath;
   }
 
+  @SuppressWarnings("deprecation")
   private void configureDialogContents() {
     moveJobLabel = new JBLabel("Move " + jobName);
     moveJobLabel.setFont(moveJobLabel.getFont().deriveFont(Font.BOLD));
@@ -103,5 +111,8 @@ public class MoveJobDialog extends DialogWrapper {
     moveJobLabelAndComboBoxPanel.add(toFileLabel, BorderLayout.WEST);
     moveJobLabelAndComboBoxPanel.add(filePathComboBox, BorderLayout.CENTER);
     openFileCheckBox = new JBCheckBox("Open in Editor");
+    var commentText = CIAidBundle.message("refactoring.move.job.dialog.comment.text");
+    moveJobCommentLabel = ComponentPanelBuilder.createCommentComponent(commentText, true);
   }
+
 }
