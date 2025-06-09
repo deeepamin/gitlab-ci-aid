@@ -40,8 +40,8 @@ public class MoveJobDialog extends DialogWrapper {
     this.filteredFiles = filteredFiles;
     init();
     setSize(600, 150);
-    setOKButtonText("Refactor");
-    setTitle("Move"); //TODO
+    setOKButtonText(CIAidBundle.message("refactoring.move.job.dialog.ok.text"));
+    setTitle(CIAidBundle.message("refactoring.move.job.dialog.title"));
   }
 
   @Override
@@ -89,12 +89,12 @@ public class MoveJobDialog extends DialogWrapper {
 
   @SuppressWarnings("deprecation")
   private void configureDialogContents() {
-    moveJobLabel = new JBLabel("Move " + jobName);
+    moveJobLabel = new JBLabel(CIAidBundle.message("refactoring.move.job.dialog.title") + " " + jobName);
     moveJobLabel.setFont(moveJobLabel.getFont().deriveFont(Font.BOLD));
     moveJobLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
     moveJobLabelAndComboBoxPanel = new JPanel(new BorderLayout());
-    var toFileLabel = new JBLabel("To file" + ": "); //TODO
+    var toFileLabel = new JBLabel(CIAidBundle.message("refactoring.move.job.dialog.to-file.text") + ": ");
     filePathComboBox = new ComboBox<>();
     filteredFiles.forEach(file -> {
       var basePath = project.getBasePath();
@@ -110,7 +110,7 @@ public class MoveJobDialog extends DialogWrapper {
     });
     moveJobLabelAndComboBoxPanel.add(toFileLabel, BorderLayout.WEST);
     moveJobLabelAndComboBoxPanel.add(filePathComboBox, BorderLayout.CENTER);
-    openFileCheckBox = new JBCheckBox("Open in Editor");
+    openFileCheckBox = new JBCheckBox(CIAidBundle.message("refactoring.move.job.dialog.open.in.editor"));
     var commentText = CIAidBundle.message("refactoring.move.job.dialog.comment.text");
     moveJobCommentLabel = ComponentPanelBuilder.createCommentComponent(commentText, true);
   }

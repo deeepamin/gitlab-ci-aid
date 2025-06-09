@@ -1,20 +1,15 @@
 package com.github.deeepamin.ciaid.refactor.actions;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
-import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLElementGenerator;
-import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.YAMLTokenTypes;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
@@ -26,19 +21,14 @@ import java.util.stream.Collectors;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 
-public class GitLabCIYamlMoveToDefaultAction extends AnAction {
+public class GitLabCIYamlMoveToDefaultAction extends BaseRefactorAction {
   @Override
-  public void actionPerformed(@NotNull AnActionEvent e) {
+  public void performRefactorAction(@NotNull AnActionEvent e) {
     var project = e.getProject();
     var element = e.getData(CommonDataKeys.PSI_ELEMENT);
-    if (project == null || !isAvailable(element)) {
+    if (project == null || element == null) {
       return;
     }
-    var isGitLabCIYaml = CIAidProjectService.hasGitlabYamlFile(element);
-    if (!isGitLabCIYaml) {
-      return;
-    }
-
     WriteCommandAction.runWriteCommandAction(project, () -> {
       var keyValue = (YAMLKeyValue) element;
       var file = (YAMLFile) element.getContainingFile();
@@ -77,11 +67,11 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
             return;
           }
           // otherwise, move the key to the default section
-          var nextSibling = defaultKeyValue.getNextSibling();
           var newLineAtEnd = false;
+          var nextSibling = defaultKeyValue.getNextSibling();
           if (nextSibling != null) {
-            var tokenType = nextSibling.getNode().getElementType();
-            newLineAtEnd = tokenType != YAMLTokenTypes.EOL;
+            var nextSiblingText = nextSibling.getText();
+            newLineAtEnd = !(nextSiblingText.contains("\n") || nextSibling.getNode().getElementType() == YAMLTokenTypes.EOL);
           }
           keyValue = getNewKeyValue(project, keyValue, newLineAtEnd);
         }
@@ -107,18 +97,7 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     });
   }
 
-  @Override
-  public void update(@NotNull AnActionEvent e) {
-    PsiElement element = e.getData(CommonDataKeys.PSI_ELEMENT);
-    e.getPresentation().setEnabledAndVisible(isAvailable(element));
-  }
-
-  @Override
-  public @NotNull ActionUpdateThread getActionUpdateThread() {
-    return ActionUpdateThread.BGT;
-  }
-
-  private boolean isAvailable(PsiElement element) {
+  protected boolean isAvailable(PsiElement element) {
     if (!(element instanceof YAMLKeyValue keyValue)) {
       return  false;
     }
@@ -129,19 +108,7 @@ public class GitLabCIYamlMoveToDefaultAction extends AnAction {
     return DEFAULT_ALLOWED_KEYWORDS.contains(keyValue.getKeyText());
   }
 
-  private static YAMLMapping createYamlMapping(Project project, YAMLKeyValue keyValue) {
-    var keyValueText = keyValue.getText();
-    var dummyFile = (YAMLFile) PsiFileFactory.getInstance(project)
-            .createFileFromText("dummy.yaml", YAMLFileType.YML, keyValueText);
-
-    var dummyDoc = dummyFile.getDocuments().getFirst();
-    if (dummyDoc == null || !(dummyDoc.getTopLevelValue() instanceof YAMLMapping yamlMapping)) {
-      return null;
-    }
-    return yamlMapping;
-  }
-
-  private static void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
+  private void insertKeyAtTop(YAMLMapping rootMapping, YAMLKeyValue newKeyValue) {
     var existingKeys = rootMapping.getKeyValues().stream().toList();
     if (!existingKeys.isEmpty()) {
       var firstChild = rootMapping.getFirstChild();

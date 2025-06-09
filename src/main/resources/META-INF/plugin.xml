@@ -76,5 +76,9 @@
                 class="com.github.deeepamin.ciaid.refactor.actions.GitLabCIYamlMoveToDefaultAction">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>
         </action>
+        <action id="ExtractReference"
+                class="com.github.deeepamin.ciaid.refactor.actions.GitLabCIYamlExtractReferenceAction">
+            <add-to-group group-id="RefactoringMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>
