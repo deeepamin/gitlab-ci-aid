@@ -7,7 +7,7 @@
 ### Added
 
 - Intent action to convert folded (>) script blocks to literal (|) blocks
-- Editor notification to mark yaml files as GitLab CI Yaml files can be disabled
+- Editor notification to mark files as GitLab CI Yaml files can be disabled
 
 ### Changed
 
@@ -15,8 +15,8 @@
 
 ### Fixed
 
-- Needs with job key references are not resolved sometimes
-- Needs with optional or other keys show jobs auto-completion
+- Needs with job key sometimes doesn't resolve to correct reference
+- Needs with optional or other keys except job, show jobs in auto-completion
 - Undo/redo, deleting and re-adding elements lose references and highlighting
 
 ## [1.10.0] - 2025-06-01
