@@ -64,7 +64,7 @@ abstract class AbstractCIAidYamlScriptInjector implements MultiHostInjector {
     }
   }
 
-  private void injectShell(MultiHostRegistrar registrar, PsiElement context, @NotNull Language language) {
+private void injectShell(MultiHostRegistrar registrar, PsiElement context, @NotNull Language language) {
     if (!(context instanceof YAMLPsiElement yamlPsiElement)) {
       return;
     }
