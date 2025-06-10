@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Remote edit doesn't populate the content in settings page
+- Empty API URL isn't allowed in remote settings
+
 ## [1.11.0] - 2025-06-09
 
 ### Added
