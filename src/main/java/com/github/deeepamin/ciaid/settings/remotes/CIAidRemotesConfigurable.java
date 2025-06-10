@@ -41,6 +41,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.deeepamin.ciaid.utils.GitLabConnectionUtils.DEFAULT_GITLAB_SERVER_API_URL;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class CIAidRemotesConfigurable implements Configurable {
@@ -153,6 +154,20 @@ public class CIAidRemotesConfigurable implements Configurable {
     var tableModel = getRemotesListTableModel();
     remotesTable = new JBTable(tableModel);
     remotesTable.setSelectionMode(SINGLE_SELECTION);
+    var apiUrlColumn = remotesTable.getColumnModel().getColumn(0);
+    apiUrlColumn.setCellRenderer(new DefaultTableCellRenderer() {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                     boolean hasFocus, int row, int column) {
+        if (value instanceof String && ((String) value).isBlank()) {
+          setText(DEFAULT_GITLAB_SERVER_API_URL);
+        } else {
+          setText(value != null ? value.toString() : "");
+        }
+        return this;
+      }
+    });
+
     var accessTokenColumn = remotesTable.getColumnModel().getColumn(2);
     accessTokenColumn.setCellRenderer(new AccessTokenCellRenderer());
     accessTokenColumn.setHeaderRenderer(new DefaultTableCellRenderer() {
@@ -192,7 +207,7 @@ public class CIAidRemotesConfigurable implements Configurable {
               }
               var remoteDialog = new RemoteDialog(project, false, remote);
               if (remoteDialog.showAndGet()) {
-                tableModel.addRow(remote);
+                tableModel.setItem(selectedRow, remote);
               }
             })
             .disableUpDownActions()
@@ -204,7 +219,8 @@ public class CIAidRemotesConfigurable implements Configurable {
             new ColumnInfo<Remote, String>(CIAidBundle.message("settings.remotes.table.gitlab-api-url-column")) {
               @Override
               public String valueOf(Remote remote) {
-                return remote.getApiUrl();
+                var apiUrl = remote.getApiUrl();
+                return apiUrl != null ? apiUrl : DEFAULT_GITLAB_SERVER_API_URL;
               }
             },
             new ColumnInfo<Remote, String>(CIAidBundle.message("settings.remotes.table.group-or-project-column")) {
@@ -326,7 +342,7 @@ public class CIAidRemotesConfigurable implements Configurable {
       var apiUrl = gitlabApiUrlTextField.getText().trim();
       if (!CIAidUtils.isValidUrl(apiUrl)) {
         return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.gitlab-api-url.validation.error"), gitlabApiUrlTextField);
-      } else if (!apiUrl.contains("api")) {
+      } else if (!apiUrl.isBlank() && !apiUrl.contains("api")) {
         return new ValidationInfo(CIAidBundle.message("settings.remotes.dialog.gitlab-api-url.validation.error.api"), gitlabApiUrlTextField);
       }
       var projectPath = gitlabProjectTextField.getText().trim();

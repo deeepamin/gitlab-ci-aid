@@ -21,8 +21,12 @@ public class CIAidUtils {
   }
 
   public static boolean isValidUrl(String input) {
-    if (input == null || input.isBlank()) {
+    if (input == null) {
       return false;
+    }
+    if (input.isBlank()) {
+      // allow empty URLs for default value
+      return true;
     }
     try {
       URL url = URI.create(input).toURL();
