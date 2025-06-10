@@ -296,6 +296,7 @@ public class CIAidRemotesConfigurable implements Configurable {
     public RemoteDialog(@Nullable Project project, boolean canBeParent, Remote remote) {
       super(project, canBeParent);
       this.project = project;
+      this.remote = remote;
       init();
       var isAdd = remote == null;
       var addOrEditText = isAdd ? CIAidBundle.message("settings.remotes.dialog.title.add") : CIAidBundle.message("settings.remotes.dialog.title.edit");

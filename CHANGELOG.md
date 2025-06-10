@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Remote edit doesn't populate the content in settings page
+
 ## [1.11.0] - 2025-06-09
 
 ### Added
