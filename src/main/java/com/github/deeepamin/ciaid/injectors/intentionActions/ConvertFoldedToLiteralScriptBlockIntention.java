@@ -104,25 +104,15 @@ public class ConvertFoldedToLiteralScriptBlockIntention extends PsiElementBaseIn
   }
 
   private void replaceSequenceItem(YAMLScalarText scalar, PsiElement superParent) {
-    var newTextBuilder = new StringBuilder("|\n");
-    var content = scalar.getText();
-
-    String[] lines = content.split("\\R");
-    int last = lines.length - 1;
-    for (int i = 0; i < lines.length; i++) {
-      // scalar.getTextValue() returns correct string without > but removes line breaks so use scalar.getText() instead and filter out > lines
-      var spaceRemovedLine = lines[i].replaceFirst("^\\s+", "").trim();
-      if (spaceRemovedLine.equals(">")) {
-        continue;
-      }
-      newTextBuilder.append("  ").append(lines[i]);
-      if (i < last) {
-        newTextBuilder.append("\n");
-      }
-    }
-    var newSequenceItem = YAMLElementGenerator.getInstance(scalar.getProject()).createSequenceItem(newTextBuilder.toString());
+    var newSequenceItem = YAMLElementGenerator.getInstance(scalar.getProject()).createSequenceItem("|\n  " + scalar.getTextValue());
     if (newSequenceItem.getValue() == null) {
       return;
+    }
+    var spNextSibling = superParent.getNextSibling();
+    if (spNextSibling != null) {
+      if (spNextSibling.getText().equals("\n")) {
+        spNextSibling.delete();
+      }
     }
     superParent.replace(newSequenceItem);
   }
