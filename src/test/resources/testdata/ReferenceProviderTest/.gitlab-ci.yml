@@ -62,3 +62,8 @@ deploy-job:
   tags:
     - deploy
   needs: ["test-job"]
+
+dependencies-job:
+  stage: deploy
+  dependencies:
+    - deploy-job

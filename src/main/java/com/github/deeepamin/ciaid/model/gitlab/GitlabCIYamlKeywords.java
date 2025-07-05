@@ -39,6 +39,7 @@ public class GitlabCIYamlKeywords {
   public static final String BOOLEAN = "boolean";
   public static final String NUMBER = "number";
   public static final String ARRAY = "array";
+  public static final String DEPENDENCIES = "dependencies";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,

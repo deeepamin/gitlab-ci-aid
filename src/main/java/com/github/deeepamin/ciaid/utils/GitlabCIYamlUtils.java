@@ -32,6 +32,10 @@ public class GitlabCIYamlUtils {
     return PsiUtils.isChild(element, List.of(EXTENDS)) && isNotSpecInputsElement(element);
   }
 
+  public static boolean isDependenciesElement(PsiElement element) {
+    return PsiUtils.isChild(element, List.of(DEPENDENCIES)) && isNotSpecInputsElement(element);
+  }
+
   public static boolean isNotSpecInputsElement(PsiElement element) {
     return !PsiUtils.isChild(element, List.of(SPEC, INPUTS));
   }
