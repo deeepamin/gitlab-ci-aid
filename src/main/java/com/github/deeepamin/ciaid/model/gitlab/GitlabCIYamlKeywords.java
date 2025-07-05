@@ -40,6 +40,14 @@ public class GitlabCIYamlKeywords {
   public static final String NUMBER = "number";
   public static final String ARRAY = "array";
   public static final String DEPENDENCIES = "dependencies";
+  public static final String REFERENCE_TAG = "!reference";
+  public static final String HOOKS = "hooks";
+  public static final String INTERRUPTIBLE = "interruptible";
+  private static final String ID_TOKENS = "id_tokens";
+  private static final String IDENTITY = "identity";
+  private static final String RETRY = "retry";
+  private static final String TAGS = "tags";
+  private static final String TIMEOUT = "timeout";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(
           AFTER_SCRIPT,
@@ -63,11 +71,27 @@ public class GitlabCIYamlKeywords {
   public static final List<String> NON_LOCAL_INCLUDE_KEYWORDS = List.of(COMPONENT, PROJECT, FILE, REF, REMOTE, TEMPLATE, INPUTS, RULES);
   public static final List<String> INCLUDE_POSSIBLE_CHILD_KEYWORDS = List.of(LOCAL, COMPONENT, PROJECT, FILE, REF, REMOTE, TEMPLATE, INPUTS, RULES);
 
+  public static final List<String> DEFAULT_ALLOWED_KEYWORDS = List.of(
+          AFTER_SCRIPT,
+          ARTIFACTS,
+          BEFORE_SCRIPT,
+          HOOKS,
+          CACHE,
+          IMAGE,
+          INTERRUPTIBLE,
+          ID_TOKENS,
+          IDENTITY,
+          RETRY,
+          SERVICES,
+          TAGS,
+          TIMEOUT,
+          REFERENCE_TAG
+  );
+
   public static final String PRE_STAGE = ".pre";
   public static final String BUILD_STAGE = "build";
   public static final String TEST_STAGE = "test";
   public static final String DEPLOY_STAGE = "deploy";
   public static final String POST_STAGE = ".post";
   public static final List<String> DEFAULT_STAGES = List.of(PRE_STAGE, BUILD_STAGE, TEST_STAGE, DEPLOY_STAGE, POST_STAGE);
-  public static final String REFERENCE_TAG = "!reference";
 }

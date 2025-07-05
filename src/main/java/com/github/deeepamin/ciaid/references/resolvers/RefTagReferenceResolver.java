@@ -75,5 +75,4 @@ public class RefTagReferenceResolver extends SingleTargetReferenceResolver {
     }
     return new LookupElement[0];
   }
-
 }

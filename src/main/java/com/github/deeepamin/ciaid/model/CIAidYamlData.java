@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.SmartPsiElementPointer;
+import org.jetbrains.yaml.psi.YAMLAnchor;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 
@@ -24,6 +25,7 @@ public class CIAidYamlData {
   private final List<SmartPsiElementPointer<YAMLPsiElement>> stagesItemElements;
   private final List<SmartPsiElementPointer<YAMLKeyValue>> inputs;
   private final List<SmartPsiElementPointer<YAMLKeyValue>> variables;
+  private final List<SmartPsiElementPointer<YAMLAnchor>> anchors;
 
   public CIAidYamlData(VirtualFile file, long modificationStamp) {
     this.file = file;
@@ -34,6 +36,7 @@ public class CIAidYamlData {
     this.stagesItemElements = new ArrayList<>();
     this.inputs = new ArrayList<>();
     this.variables = new ArrayList<>();
+    this.anchors = new ArrayList<>();
   }
 
   public VirtualFile getFile() {
@@ -128,6 +131,21 @@ public class CIAidYamlData {
       SmartPointerManager pointerManager = SmartPointerManager.getInstance(variable.getProject());
       SmartPsiElementPointer<YAMLKeyValue> variablePointer = pointerManager.createSmartPsiElementPointer(variable);
       variables.add(variablePointer);
+    }
+  }
+
+  public List<YAMLAnchor> getAnchors() {
+    return anchors.stream()
+            .filter(pointer -> pointer.getElement() != null && pointer.getElement().isValid())
+            .map(SmartPsiElementPointer::getElement)
+            .toList();
+  }
+
+  public void addAnchor(YAMLAnchor anchor) {
+    if (anchor != null) {
+      SmartPointerManager pointerManager = SmartPointerManager.getInstance(anchor.getProject());
+      SmartPsiElementPointer<YAMLAnchor> anchorPointer = pointerManager.createSmartPsiElementPointer(anchor);
+      anchors.add(anchorPointer);
     }
   }
 

@@ -1,7 +1,9 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLDocument;
 import org.jetbrains.yaml.psi.YAMLFile;
@@ -44,5 +46,25 @@ public class YamlUtils {
 
   public static boolean hasYamlExtension(String filePath) {
     return filePath != null && (filePath.endsWith(".yml") || filePath.endsWith(".yaml"));
+  }
+
+  public static YAMLMapping getRootMapping(Project project, String filePath) {
+    var virtualFile = FileUtils.getVirtualFile(filePath, project).orElse(null);
+    if (virtualFile == null) {
+      return null;
+    }
+    var psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+    if (!(psiFile instanceof YAMLFile yamlFile)) {
+      return null;
+    }
+    var documents = yamlFile.getDocuments();
+    if (documents == null || documents.isEmpty()) {
+      return null;
+    }
+    var topLevelValue = documents.getFirst().getTopLevelValue();
+    if (!(topLevelValue instanceof YAMLMapping rootMapping)) {
+      return null;
+    }
+    return rootMapping;
   }
 }

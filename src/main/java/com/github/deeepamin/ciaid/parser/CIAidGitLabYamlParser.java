@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLAnchor;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -53,6 +54,11 @@ public class CIAidGitLabYamlParser {
       public void visitFile(@NotNull PsiFile file) {
         readFile(file);
         super.visitFile(file);
+      }
+
+      @Override
+      public void visitAnchor(@NotNull YAMLAnchor anchor) {
+        ciAidYamlData.addAnchor(anchor);
       }
 
       @Override
