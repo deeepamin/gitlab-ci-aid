@@ -7,11 +7,17 @@
 ### Added
 
 - Navigation, autocompletion and highlighting support for "dependencies"
+- Support for moving allowed elements to default using "Move to Default" refactoring action
+- Move job to other files using Move refactoring
+- Extract keys to !reference tag using "Extract !reference" refactoring action
+
+### Changed
+
+- Empty API URL is allowed in remote settings
 
 ### Fixed
 
 - Remote edit doesn't populate the content in settings page
-- Empty API URL isn't allowed in remote settings
 - Literal block conversion results in error on GitLab
 - Smart pointers creation deferred until PSI changes are done
 - EmptyProgressIndicator exception while reading schema file

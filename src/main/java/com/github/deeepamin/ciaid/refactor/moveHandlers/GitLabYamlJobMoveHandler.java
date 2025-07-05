@@ -1,8 +1,10 @@
 package com.github.deeepamin.ciaid.refactor.moveHandlers;
 
+import com.github.deeepamin.ciaid.refactor.dialogs.MoveJobDialog;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
+import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
@@ -19,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLElementGenerator;
 import org.jetbrains.yaml.psi.YAMLAlias;
 import org.jetbrains.yaml.psi.YAMLAnchor;
-import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLValue;
@@ -67,20 +68,9 @@ public class GitLabYamlJobMoveHandler extends MoveHandlerDelegate {
 
   private void moveJob(PsiElement element, YAMLKeyValue jobToMove, String selectedFilePath, boolean showOpenFileInEditor) {
     var project = element.getProject();
-    var virtualFile = FileUtils.getVirtualFile(selectedFilePath, project).orElse(null);
-    if (virtualFile == null) {
-      return;
-    }
-    var psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-    if (!(psiFile instanceof YAMLFile yamlFile)) {
-      return;
-    }
-    var documents = yamlFile.getDocuments();
-    if (documents == null || documents.isEmpty()) {
-      return;
-    }
-    var topLevelValue = documents.getFirst().getTopLevelValue();
-    if (!(topLevelValue instanceof YAMLMapping rootMapping)) {
+
+    var rootMapping = YamlUtils.getRootMapping(project, selectedFilePath);
+    if (rootMapping == null) {
       return;
     }
     WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -96,6 +86,14 @@ public class GitLabYamlJobMoveHandler extends MoveHandlerDelegate {
       rootMapping.add(newLine);
       if (lastChild != null) {
         rootMapping.addAfter(newLine, lastChild);
+      }
+      var virtualFile = FileUtils.getVirtualFile(selectedFilePath, project).orElse(null);
+      if (virtualFile == null) {
+        return;
+      }
+      var psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+      if (psiFile == null) {
+        return;
       }
       var targetPsiFileDocument = PsiDocumentManager.getInstance(project).getDocument(psiFile);
       if (targetPsiFileDocument != null) {

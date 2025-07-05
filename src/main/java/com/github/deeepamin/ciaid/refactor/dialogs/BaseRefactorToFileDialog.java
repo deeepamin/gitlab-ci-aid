@@ -1,11 +1,10 @@
-package com.github.deeepamin.ciaid.refactor.moveHandlers;
+package com.github.deeepamin.ciaid.refactor.dialogs;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.panel.ComponentPanelBuilder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
@@ -14,47 +13,50 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
 
-public class MoveJobDialog extends DialogWrapper {
-  private final Project project;
-  private final String jobName;
-  private final List<VirtualFile> filteredFiles;
+public abstract class BaseRefactorToFileDialog extends DialogWrapper {
+  protected final Project project;
+  protected final String keyName;
+  protected final List<VirtualFile> files;
   private boolean showOpenFileInEditor;
   private String selectedFilePath;
 
-  private JBLabel moveJobLabel;
-  private JPanel moveJobLabelAndComboBoxPanel;
-  private JLabel moveJobCommentLabel;
+  private JBLabel refactorKeyLabel;
+  private JPanel toFileLabelAndComboBoxPanel;
   private ComboBox<String> filePathComboBox;
   private JBCheckBox openFileCheckBox;
 
-  public MoveJobDialog(Project project, String jobName, List<VirtualFile> filteredFiles) {
+  protected BaseRefactorToFileDialog(Project project, String keyName, List<VirtualFile> files) {
     super(project);
     this.project = project;
-    this.jobName = jobName;
-    this.filteredFiles = filteredFiles;
+    this.keyName = keyName;
+    this.files = files;
     init();
     setSize(600, 150);
-    setOKButtonText(CIAidBundle.message("refactoring.move.job.dialog.ok.text"));
-    setTitle(CIAidBundle.message("refactoring.move.job.dialog.title"));
+    setOKButtonText(CIAidBundle.message("refactoring.dialog.ok.text"));
+    setTitle(getRefactoringType());
   }
 
   @Override
   protected @Nullable JComponent createCenterPanel() {
+    return getCenterPanel();
+  }
+
+  private @Nullable JComponent getCenterPanel() {
     configureDialogContents();
-    return FormBuilder.createFormBuilder()
-            .addComponent(moveJobLabel)
-            .addComponent(moveJobLabelAndComboBoxPanel)
-            .setFormLeftIndent(75)
-            .addComponent(moveJobCommentLabel)
-            .setFormLeftIndent(0)
-            .addComponentFillVertically(new JPanel(), 0)
+    var formBuilder = FormBuilder.createFormBuilder();
+    customizeFormBuilder(formBuilder);
+    return formBuilder.addComponentFillVertically(new JPanel(), 0)
             .getPanel();
+  }
+
+  protected void customizeFormBuilder(FormBuilder formBuilder) {
+    formBuilder.addComponent(refactorKeyLabel)
+            .addComponent(toFileLabelAndComboBoxPanel);
   }
 
   @Override
@@ -87,16 +89,17 @@ public class MoveJobDialog extends DialogWrapper {
     return selectedFilePath;
   }
 
-  @SuppressWarnings("deprecation")
-  private void configureDialogContents() {
-    moveJobLabel = new JBLabel(CIAidBundle.message("refactoring.move.job.dialog.title") + " " + jobName);
-    moveJobLabel.setFont(moveJobLabel.getFont().deriveFont(Font.BOLD));
-    moveJobLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+  protected abstract String getRefactoringType();
 
-    moveJobLabelAndComboBoxPanel = new JPanel(new BorderLayout());
-    var toFileLabel = new JBLabel(CIAidBundle.message("refactoring.move.job.dialog.to-file.text") + ": ");
+  protected void configureDialogContents() {
+    refactorKeyLabel = new JBLabel(getRefactoringType() + " " + keyName);
+    refactorKeyLabel.setFont(refactorKeyLabel.getFont().deriveFont(Font.BOLD));
+    refactorKeyLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+    toFileLabelAndComboBoxPanel = new JPanel(new BorderLayout());
+    var toFileLabel = new JBLabel(CIAidBundle.message("refactoring.dialog.to-file.text") + ": ");
     filePathComboBox = new ComboBox<>();
-    filteredFiles.forEach(file -> {
+    files.forEach(file -> {
       var basePath = project.getBasePath();
       var filePath = file.getPath();
       String comboBoxPath = filePath;
@@ -108,11 +111,8 @@ public class MoveJobDialog extends DialogWrapper {
         filePathComboBox.addItem(comboBoxPath);
       }
     });
-    moveJobLabelAndComboBoxPanel.add(toFileLabel, BorderLayout.WEST);
-    moveJobLabelAndComboBoxPanel.add(filePathComboBox, BorderLayout.CENTER);
-    openFileCheckBox = new JBCheckBox(CIAidBundle.message("refactoring.move.job.dialog.open.in.editor"));
-    var commentText = CIAidBundle.message("refactoring.move.job.dialog.comment.text");
-    moveJobCommentLabel = ComponentPanelBuilder.createCommentComponent(commentText, true);
+    toFileLabelAndComboBoxPanel.add(toFileLabel, BorderLayout.WEST);
+    toFileLabelAndComboBoxPanel.add(filePathComboBox, BorderLayout.CENTER);
+    openFileCheckBox = new JBCheckBox(CIAidBundle.message("refactoring.dialog.open.in.editor"));
   }
-
 }

@@ -29,7 +29,8 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 * Autocomplete & Syntax Highlighting: Write GitLab CI YAML files with confidence. Autocompletion suggestions and multi 
   level syntax highlighting will make your code easy to navigate and work with.
 * Local Path Resolution: Effortless navigation with one-click access to scripts, included files, job needs and more.
-* Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly
+* Remote Includes Caching: Ability to cache remote includes e.g., components, templates etc. to seamlessly work with remote files as local files 
+* Errors and Quick fix: IDE integrated inspections for undefined needs, missing scripts/includes and quick fix to create files on the fly
 * Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 * Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords 
 
