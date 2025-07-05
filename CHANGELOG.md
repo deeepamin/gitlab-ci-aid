@@ -9,6 +9,9 @@
 - Remote edit doesn't populate the content in settings page
 - Empty API URL isn't allowed in remote settings
 - Literal block conversion results in error on GitLab
+- Smart pointers creation deferred until PSI changes are done
+- EmptyProgressIndicator exception while reading schema file
+- Include file path separator handling exceptions
 
 ## [1.11.0] - 2025-06-09
 

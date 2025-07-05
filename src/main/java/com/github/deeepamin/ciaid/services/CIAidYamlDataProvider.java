@@ -175,7 +175,7 @@ public class CIAidYamlDataProvider {
                 case COMPONENT -> includeProvider = new ComponentIncludeProvider(project, include.getPath());
               }
               if (includeProvider != null) {
-                CIAidProjectService.executeOnThreadPool(includeProvider::readIncludeFile);
+                CIAidProjectService.executeOnThreadPool(project, includeProvider::readIncludeFile);
               }
             });
   }
