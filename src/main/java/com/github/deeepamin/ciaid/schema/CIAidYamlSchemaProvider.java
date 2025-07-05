@@ -2,7 +2,7 @@ package com.github.deeepamin.ciaid.schema;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.injected.editor.VirtualFileWindow;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -21,14 +21,6 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final String SCHEMA_NAME = "Gitlab CI [Auto]";
   private static final String SCHEMA_PATH = "/schemas/gitlab-ci-yml.json";
   private VirtualFile schemaFile;
-
-  public CIAidYamlSchemaProvider() {
-    ApplicationManager.getApplication().runReadAction(() -> {
-      this.schemaFile = Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
-              .map(VfsUtil::findFileByURL)
-              .orElse(null);
-    });
-  }
 
   @Override
   public boolean isAvailable(@NotNull VirtualFile virtualFile) {
@@ -49,7 +41,7 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
 
   @Override
   public @Nullable VirtualFile getSchemaFile() {
-    return schemaFile;
+    return readSchemaFile();
   }
 
   @Override
@@ -60,5 +52,16 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
   @Override
   public JsonSchemaVersion getSchemaVersion() {
     return JsonSchemaVersion.SCHEMA_7;
+  }
+
+  private VirtualFile readSchemaFile() {
+    if (schemaFile != null && schemaFile.isValid()) {
+      return schemaFile;
+    }
+
+    this.schemaFile = ReadAction.compute(() -> Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
+            .map(VfsUtil::findFileByURL)
+            .orElse(null));
+    return schemaFile;
   }
 }

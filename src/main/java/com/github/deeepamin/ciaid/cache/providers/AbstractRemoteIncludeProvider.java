@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.cache.providers;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
+import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -56,6 +57,12 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
   }
 
   protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
+    var hasInputs = InputsReferenceProvider.isAnInputsString(downloadUrl);
+    if (hasInputs) {
+      LOG.debug("Contains inputs in download URL, skipping caching: " + downloadUrl);
+      return;
+    }
+
     var isCacheExpired = CIAidCacheService.getInstance().isCacheExpired(cacheFilePath);
     var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
     if (includePath != null && !isCacheExpired) {

@@ -36,17 +36,17 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
       return;
     }
 
-    var fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+    var fileName = filePath.contains("/") ? filePath.substring(filePath.lastIndexOf("/") + 1) : filePath;
     if (!YamlUtils.hasYamlExtension(fileName)) {
       LOG.debug("Not a YAML file: " + fileName);
       return;
     }
 
-    var filePathWithoutFileName = filePath.substring(0, filePath.lastIndexOf("/"));
-    var cacheFileDirectoryString = projectPath.replaceAll("/", "_") +
+    var filePathWithoutFileName = filePath.contains("/") ? filePath.substring(0, filePath.lastIndexOf("/")) : filePath;
+    var cacheFileDirectoryString = projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath +
             File.separator +
             (ref != null && !ref.isBlank() ? ref + File.separator : "") +
-            filePathWithoutFileName.replaceAll("/", File.separator);
+            (filePathWithoutFileName.contains("/") ? filePathWithoutFileName.replaceAll("/", File.separator) : filePathWithoutFileName);
     var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(cacheFileDirectoryString).resolve(fileName);
 
     var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, projectPath, filePath, ref);

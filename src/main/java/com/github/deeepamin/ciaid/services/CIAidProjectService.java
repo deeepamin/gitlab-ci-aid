@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -52,8 +53,9 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     return service;
   }
 
-  public static void executeOnThreadPool(final Runnable runnable) {
-    ApplicationManager.getApplication().executeOnPooledThread(runnable);
+  public static void executeOnThreadPool(final Project project, final Runnable runnable) {
+    DumbService.getInstance(project).runWhenSmart(() ->
+            ApplicationManager.getApplication().executeOnPooledThread(runnable));
   }
 
   public static void markAsUserCIYamlFile(VirtualFile file, Project project) {
