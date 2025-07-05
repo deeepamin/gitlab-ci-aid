@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Navigation, autocompletion and highlighting support for "dependencies"
+
 ### Fixed
 
 - Remote edit doesn't populate the content in settings page
