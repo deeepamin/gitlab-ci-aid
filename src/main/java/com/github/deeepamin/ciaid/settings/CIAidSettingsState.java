@@ -68,12 +68,15 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
 
   @Override
   public void initializeComponent() {
-    state.remotes = state.remotes.stream()
-            .peek(remote -> {
-              var accessToken = getGitLabAccessToken(remote.getProjectPath());
-              remote.setToken(accessToken);
-            })
-            .toList();
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
+      state.remotes = state.remotes.stream()
+              .peek(remote -> {
+                var accessToken = getGitLabAccessToken(remote.getProjectPath());
+                remote.setToken(accessToken);
+              })
+              .toList();
+    });
+
   }
 
   public String getMatchingProjectPath(String projectPath) {

@@ -8,6 +8,7 @@ public class ReferenceProviderFactory {
   public static List<AbstractReferenceProvider> getYamlScalarReferenceProviders(PsiElement element) {
     return List.of(
             new ExtendsReferenceProvider(element),
+            new DependenciesReferenceProvider(element),
             new IncludeReferenceProvider(element),
             new JobStageReferenceProvider(element),
             new NeedsReferenceProvider(element),
