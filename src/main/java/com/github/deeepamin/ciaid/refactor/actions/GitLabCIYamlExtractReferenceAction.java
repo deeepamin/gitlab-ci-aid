@@ -84,6 +84,9 @@ public class GitLabCIYamlExtractReferenceAction extends BaseRefactorAction {
   }
 
   public boolean isAvailable(PsiElement element) {
+    if (!(element instanceof YAMLKeyValue keyValue)) {
+      return false;
+    }
     var file = element.getContainingFile();
     if (!(file instanceof YAMLFile)) {
       return false;
@@ -91,11 +94,6 @@ public class GitLabCIYamlExtractReferenceAction extends BaseRefactorAction {
     var isYamlFile = CIAidProjectService.isValidGitlabCIYamlFile(file.getVirtualFile());
     if (isYamlFile) {
       var topLevelKeys = YAMLUtil.getTopLevelKeys((YAMLFile) element.getContainingFile());
-      var isYamlKeyValue = element instanceof YAMLKeyValue;
-      if (!(isYamlKeyValue)) {
-        return false;
-      }
-      var keyValue = (YAMLKeyValue) element;
       var isTopLevelKey = topLevelKeys.stream()
               .anyMatch(topLevelKeyValue -> topLevelKeyValue.getKeyText().equals(keyValue.getKeyText()));
       return !isTopLevelKey;
