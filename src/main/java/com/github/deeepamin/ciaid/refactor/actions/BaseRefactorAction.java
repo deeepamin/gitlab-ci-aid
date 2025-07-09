@@ -27,7 +27,7 @@ public abstract class BaseRefactorAction extends AnAction {
   public void actionPerformed(@NotNull AnActionEvent e) {
     var project = e.getProject();
     var element = e.getData(CommonDataKeys.PSI_ELEMENT);
-    if (project == null || !isAvailable(element)) {
+    if (project == null || element == null || !isAvailable(element)) {
       return;
     }
     var isGitLabCIYaml = CIAidProjectService.hasGitlabYamlFile(element);
