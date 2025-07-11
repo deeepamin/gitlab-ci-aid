@@ -4,6 +4,127 @@
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-07-05
+
+### Added
+
+- Navigation, autocompletion and highlighting support for "dependencies"
+- Support for moving allowed elements to default using "Move to Default" refactoring action
+- Move job to other files using Move refactoring
+- Extract keys to !reference tag using "Extract !reference" refactoring action
+
+### Changed
+
+- Empty API URL is allowed in remote settings
+
+### Fixed
+
+- Remote edit doesn't populate the content in settings page
+- Literal block conversion results in error on GitLab
+- Smart pointers creation deferred until PSI changes are done
+- EmptyProgressIndicator exception while reading schema file
+- Include file path separator handling exceptions
+
+## [1.11.0] - 2025-06-09
+
+### Added
+
+- Intent action to convert folded (>) script blocks to literal (|) blocks
+- Editor notification to mark files as GitLab CI Yaml files can be disabled
+
+### Changed
+
+- Script injection is not done in folded (>) script blocks
+
+### Fixed
+
+- Needs with job key sometimes doesn't resolve to correct reference
+- Needs with optional or other keys except job, show jobs in auto-completion
+- Undo/redo, deleting and re-adding elements lose references and highlighting
+
+## [1.10.0] - 2025-06-01
+
+### Added
+
+- Support for components, templates and remote files
+- Configurable caching support for remote GitLab CI Yaml files
+- Inspections for GitLab CI Yaml files (Editor > Inspections > Gitlab CI inspections)
+
+### Changed
+
+- Multiple inputs in a single line shows documentation for each input
+- Errors in yaml files can be configured in inspections
+- Undefined stage in job errors will not be reported anymore
+
+### Fixed
+
+- Inputs with arrays show empty value in documentation
+
+## [1.9.1] - 2025-05-29
+
+### Fixed
+
+- Settings page doesn't shrink with resizing
+- !reference tag with only one key doesn't resolve to correct reference
+- Documentation provider NPEs
+- Regex pattern error on WSL file names
+- Schema provider Progress Cancelled exception
+
+## [1.9.0] - 2025-05-22
+
+### Added
+
+- Variables navigation and autocompletion
+- !reference tag auto-completion in script blocks
+
+### Changed
+
+- Settings page visual improvements
+
+### Fixed
+
+- Auto-completion doesn't show file path for jobs
+- Stage/job with quoted strings doesn't resolve to correct reference
+
+## [1.8.0] - 2025-05-17
+
+### Added
+
+- __!reference__ tag navigation, autocompletion, renaming and more
+- Inputs highlighting
+
+### Changed
+
+- Uses latest version of compatible bash support pro plugin from marketplace
+- Code completions are provided using more robust implementation
+
+### Fixed
+
+- Renaming input or needs/extends job doesn't update the references
+- Unknown input renders empty documentation popup
+- Comment text in settings has small font
+
+## [1.7.0] - 2025-05-11
+
+### Added
+
+- CI Aid for Gitlab Settings page under Tools for configuring the plugin
+- Default Gitlab CI Yaml path can be configured in the settings
+- Errors about undefined stage, job can be ignored
+- User marked yaml files are configurable and plugin remembers them across restarts
+
+## [1.6.0] - 2025-05-09
+
+### Added
+
+- Support for [CI/CD Inputs](https://docs.gitlab.com/ci/inputs) 
+- Inputs are autocompleted and navigable
+- Quick documentation for inputs 
+
+### Fixed
+
+- Default keywords e.g., stage, stages in inputs generates unexpected errors
+
 ## [1.5.0] - 2025-05-06
 
 ### Added
@@ -123,7 +244,15 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.11.0...v1.12.0
+[1.11.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.1...v1.10.0
+[1.9.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.2.0...v1.3.0

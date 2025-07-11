@@ -26,8 +26,11 @@ build-dev:
   script: ./build.sh
   tags:
     - build-dev-tag
+  rules:
+    - !reference [ .is_not_schedule, conditions ]
   variables:
     ENV: dev
+    CONTEXT: $[[ inputs.context ]]
   needs:
     - checkstyle
 

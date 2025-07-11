@@ -2,46 +2,13 @@ package com.github.deeepamin.ciaid.utils;
 
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLQuotedText;
-import org.jetbrains.yaml.psi.YAMLScalarList;
-import org.jetbrains.yaml.psi.YAMLScalarText;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.EXTENDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.INCLUDE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.NEEDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.SCRIPT_KEYWORDS;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGE;
-import static com.github.deeepamin.ciaid.model.GitlabCIYamlKeywords.STAGES;
-
 public class PsiUtils {
-  public static boolean isScriptElement(PsiElement element) {
-    return isChild(element, SCRIPT_KEYWORDS);
-  }
-
-  public static boolean isIncludeLocalFileElement(PsiElement element) {
-    return isChild(element, List.of(INCLUDE));
-  }
-
-  public static boolean isNeedsElement(PsiElement element) {
-    return isChild(element, List.of(NEEDS));
-  }
-
-  public static boolean isStagesElement(PsiElement element) {
-    return isChild(element, List.of(STAGES));
-  }
-
-  public static boolean isStageElement(PsiElement element) {
-    return isChild(element, List.of(STAGE));
-  }
-
-  public static boolean isExtendsElement(PsiElement element) {
-    return isChild(element, List.of(EXTENDS));
-  }
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
     Optional<YAMLKeyValue> parent = findParent(element, parentKeys);
@@ -80,14 +47,6 @@ public class PsiUtils {
     }
   }
 
-  public static boolean isYamlTextElement(PsiElement element) {
-    return element instanceof YAMLPlainTextImpl || element instanceof YAMLQuotedText;
-  }
-
-  public static boolean isYamlScalarListOrYamlScalarTextElement(PsiElement element) {
-    return element instanceof YAMLScalarText || element instanceof YAMLScalarList;
-  }
-
   public static boolean hasChild(PsiElement element, String childKey) {
     if (element == null || childKey == null) {
       return false;
@@ -107,5 +66,37 @@ public class PsiUtils {
       }
     }
     return false;
+  }
+
+  public static PsiElement findChildWithKey(final PsiElement element, final String childKey) {
+    if (element == null) {
+      return null;
+    }
+    for (PsiElement child : element.getChildren()) {
+      if (child instanceof YAMLKeyValue keyValue) {
+        if (childKey.equals(keyValue.getKeyText())) {
+          return child;
+        }
+      } else if (child instanceof YAMLScalar yamlScalar) {
+        if (childKey.equals(yamlScalar.getTextValue())) {
+          return child;
+        }
+      }
+      var found = findChildWithKey(child, childKey);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
+  }
+
+  public static <T extends PsiElement>  Optional<T> findParentOfType(PsiElement element,  final Class<T> clazz) {
+    if (element == null) {
+      return Optional.empty();
+    }
+    if (clazz.isInstance(element)) {
+      return Optional.of(clazz.cast(element));
+    }
+    return findParentOfType(element.getParent(), clazz);
   }
 }

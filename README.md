@@ -18,8 +18,8 @@
 ## Why CI Aid for GitLab?
 
 <!-- Plugin description -->
-Do you frequently work with [GitLab](https://gitlab.com)<sup>™</sup> CI Yaml files in Intellij and find yourself constantly using `Shift Shift` to search 
-for stages, script files or included files? CI Aid for GitLab to the rescue. With this plugin, enjoy automatic GitLab schema 
+Do you frequently work with GitLab CI Yaml files in Intellij and find yourself constantly using `Shift Shift` to search 
+for stages, script files or included files? CI Aid for GitLab to the rescue. With this plugin, enjoy automatic [GitLab](https://gitlab.com)&trade; schema 
 provision, navigation across elements, stage/job autocompletion, and prominent error notifications when issues are detected 
 in configuration. Reduce errors and accelerate your pipeline development.
 
@@ -30,7 +30,8 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 * Autocomplete & Syntax Highlighting: Write GitLab CI YAML files with confidence. Autocompletion suggestions and multi 
   level syntax highlighting will make your code easy to navigate and work with.
 * Local Path Resolution: Effortless navigation with one-click access to scripts, included files, job needs and more.
-* Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly
+* Remote Includes Caching: Ability to cache remote includes e.g., components, templates etc. to seamlessly work with remote files as local files 
+* Errors and Quick fix: IDE integrated inspections for undefined needs, missing scripts/includes and quick fix to create files on the fly
 * Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 * Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords 
 
@@ -45,15 +46,23 @@ GITLAB is a trademark of GitLab Inc. in the United States and other countries an
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
-## Limitations / Future Improvements
-* Only works with default GitLab CI file name (.gitlab-ci.yml/yaml), GitLab supports name change but no API for getting the name
-* Only works with local files currently, no components, remote files or templates
-
 ## Known Issues
+- Script injection is disabled for folded (>) blocks, as it is not handled well by Intellij YAML parser in Edit script fragment. 
+  Use literal (|) blocks instead (Plugin provides intent action to convert folded block to literal block).
+
+## Support
+
+* Star the repository
+* [Rate and Share the plugin](https://plugins.jetbrains.com/plugin/25859-ci-aid-for-gitlab)
+* [Buy me a coffee](https://ko-fi.com/deeepamin)
 
 ## Notes
 * Some features may not work while IntelliJ is indexing the project
 * If there's an issue with some feature, reopening the file should help 
+
+## License
+
+Please see [LICENSE](LICENSE) for details.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].

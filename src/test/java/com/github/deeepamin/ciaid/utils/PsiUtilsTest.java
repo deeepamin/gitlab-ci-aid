@@ -36,31 +36,31 @@ public class PsiUtilsTest extends BaseTest {
     var quotedTextChildren = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class);
     assertEquals(4, quotedTextChildren.size());
     var plainTextChildren = PsiUtils.findChildren(psiYaml, YAMLPlainTextImpl.class);
-    assertEquals(32, plainTextChildren.size());
+    assertEquals(35, plainTextChildren.size());
 
     var pipelinePsiYml = getPsiCiPipelineYaml(rootDir);
     var quotedTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class);
-    assertEquals(1, quotedTextChildrenCI.size());
+    assertEquals(2, quotedTextChildrenCI.size());
     var plainTextChildrenCI = PsiUtils.findChildren(pipelinePsiYml, YAMLPlainTextImpl.class);
-    assertEquals(5, plainTextChildrenCI.size());
+    assertEquals(26, plainTextChildrenCI.size());
   }
 
   public void testIsYamlTextElement() {
     var psiYaml = getPsiGitlabCiYaml(rootDir);
     var quotedTextChild = PsiUtils.findChildren(psiYaml, YAMLQuotedText.class).getFirst();
-    assertTrue(PsiUtils.isYamlTextElement(quotedTextChild));
+    assertTrue(YamlUtils.isYamlTextElement(quotedTextChild));
     var plainTextChild = findFirstChild(psiYaml, YAMLPlainTextImpl.class);
-    assertTrue(PsiUtils.isYamlTextElement(plainTextChild));
+    assertTrue(YamlUtils.isYamlTextElement(plainTextChild));
     var keyValueChild = findFirstChild(psiYaml, YAMLKeyValue.class);
-    assertFalse(PsiUtils.isYamlTextElement(keyValueChild));
+    assertFalse(YamlUtils.isYamlTextElement(keyValueChild));
 
     var pipelinePsiYml = getPsiCiPipelineYaml(rootDir);
     var quotedTextChildCI = PsiUtils.findChildren(pipelinePsiYml, YAMLQuotedText.class).getFirst();
-    assertTrue(PsiUtils.isYamlTextElement(quotedTextChildCI));
+    assertTrue(YamlUtils.isYamlTextElement(quotedTextChildCI));
     var plainTextChildCI = findFirstChild(pipelinePsiYml, YAMLPlainTextImpl.class);
-    assertTrue(PsiUtils.isYamlTextElement(plainTextChildCI));
+    assertTrue(YamlUtils.isYamlTextElement(plainTextChildCI));
     var keyValueChildCI = findFirstChild(pipelinePsiYml, YAMLKeyValue.class);
-    assertFalse(PsiUtils.isYamlTextElement(keyValueChildCI));
+    assertFalse(YamlUtils.isYamlTextElement(keyValueChildCI));
   }
 
   public void testHasChild() {

@@ -7,26 +7,28 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLLanguage;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class GitlabCIYamlFileType extends LanguageFileType {
+  private static final String DEFAULT_FILE_NAME = "gitlab-ci.yml";
+  private static final String GITLAB_CI_YAML_FILE_NAME = "GitLab CI YAML";
   protected GitlabCIYamlFileType() {
     super(YAMLLanguage.INSTANCE, true);
   }
 
   @Override
   public @NonNls @NotNull String getName() {
-    return "Gitlab CI YAML";
+    return GITLAB_CI_YAML_FILE_NAME;
   }
 
   @Override
   public @NlsContexts.Label @NotNull String getDescription() {
-    return "Gitlab CI YAML";
+    return GITLAB_CI_YAML_FILE_NAME;
   }
 
   @Override
   public @NotNull String getDefaultExtension() {
-    return "gitlab-ci.yml";
+    return DEFAULT_FILE_NAME;
   }
 
   @Override

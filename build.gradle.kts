@@ -1,6 +1,8 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.extensions.IntelliJPlatformDependenciesExtension
+import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 
 plugins {
     id("java") // Java support
@@ -11,16 +13,6 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
-
-val pluginGroup = providers.gradleProperty("pluginGroup").get()
-val pluginName = providers.gradleProperty("pluginName").get()
-val pluginDescription = providers.gradleProperty("pluginDescription").get()
-val pluginVersion = providers.gradleProperty("pluginVersion").get()
-val pluginSinceBuild = providers.gradleProperty("pluginSinceBuild").get()
-val vendorName = providers.gradleProperty("vendorName").get()
-val vendorEmail = providers.gradleProperty("vendorEmail").get()
-val pluginRepositoryUrl = providers.gradleProperty("pluginRepositoryUrl").get()
-val platformVersion = providers.gradleProperty("platformVersion").get()
 
 // Configure project's dependencies
 repositories {
@@ -52,11 +44,33 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
+        pluginsInLatestCompatibleVersion("pro.bashsupport")
+
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
 }
+
+val IntelliJPlatformDependenciesExtension.pluginRepository by lazy {
+    PluginRepositoryFactory.create("https://plugins.jetbrains.com")
+}
+
+fun IntelliJPlatformDependenciesExtension.pluginsInLatestCompatibleVersion(vararg pluginIds: String) =
+    plugins(provider {
+        pluginIds.map { pluginId ->
+            val platformType = intellijPlatform.productInfo.productCode
+            val platformVersion = intellijPlatform.productInfo.buildNumber
+
+            val plugin = pluginRepository.pluginManager.searchCompatibleUpdates(
+                build = "$platformType-$platformVersion",
+                xmlIds = listOf(pluginId),
+            ).firstOrNull()
+                ?: throw GradleException("No plugin update with id='$pluginId' compatible with '$platformType-$platformVersion' found in JetBrains Marketplace")
+
+            "${plugin.pluginXmlId}:${plugin.version}"
+        }
+    })
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
 intellijPlatform {
@@ -143,16 +157,10 @@ tasks {
             csv.required.set(true)
         }
     }
+}
 
-    test {
-        useJUnit()
-        extensions.configure(JacocoTaskExtension::class) {
-            isIncludeNoLocationClasses = true
-            excludes = listOf("jdk.internal.reflect.*")
-        }
-        finalizedBy(jacocoTestReport)
-    }
-
+tasks.withType<Test> {
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 intellijPlatformTesting {

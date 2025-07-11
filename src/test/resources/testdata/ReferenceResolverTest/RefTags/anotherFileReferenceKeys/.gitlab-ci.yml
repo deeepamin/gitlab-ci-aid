@@ -1,0 +1,25 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+
+include:
+  - /pipeline.yml
+
+stages:
+  - validate
+  - build
+
+build-dev:
+  stage: build
+  image: java:latest
+  script:
+    - !reference [ .is_not_schedule, <caret>script ]
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev

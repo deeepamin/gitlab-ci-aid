@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid;
 
-import com.github.deeepamin.ciaid.services.GitlabCIYamlProjectService;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public abstract class BaseTest extends BasePlatformTestCase {
   protected static final String GITLAB_CI_DEFAULT_YAML_FILE = getOsAgnosticPath(".gitlab-ci.yml");
-  protected static final String PIPELINE_YML = getOsAgnosticPath("/pipeline.yml");
+  protected static final String PIPELINE_YML_PATH = getOsAgnosticPath("/pipeline.yml");
 
   @Override
   public void setUp() throws Exception {
@@ -39,7 +39,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
 
   protected VirtualFile getCIPipelineYamlFile(VirtualFile rootDir) {
     return Arrays.stream(rootDir.getChildren())
-            .filter(file -> file.getPath().contains(PIPELINE_YML))
+            .filter(file -> file.getPath().contains(PIPELINE_YML_PATH))
             .findFirst()
             .orElse(null);
   }
@@ -113,13 +113,13 @@ public abstract class BaseTest extends BasePlatformTestCase {
 
   public void readCIYamls(VirtualFile rootDir) {
     var project = getProject();
-    var projectService = GitlabCIYamlProjectService.getInstance(project);
+    var projectService = CIAidProjectService.getInstance(project);
     var ciYamlFile = getGitlabCIYamlFile(rootDir);
-    projectService.readGitlabCIYamlData(project, ciYamlFile);
+    projectService.readGitlabCIYamlData(ciYamlFile, false, false);
     // included file should get read with read code, but the base path in test isn't allowing that even after copying at beginning of test
     var pipelineYamlFile = getCIPipelineYamlFile(rootDir);
     if (pipelineYamlFile != null) {
-      projectService.readGitlabCIYamlData(project, pipelineYamlFile);
+      projectService.readGitlabCIYamlData(pipelineYamlFile, false, false);
     }
   }
 

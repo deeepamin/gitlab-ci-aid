@@ -1,0 +1,5 @@
+include:
+  - <caret>./pipeline.yml
+build-dev:
+  stage: build
+  image: java:latest

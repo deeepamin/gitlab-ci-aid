@@ -1,0 +1,35 @@
+image:
+  name: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  TEST_VAR1: TEST_VALUE1
+
+stages:
+  - validate
+  - build
+
+.is_not_schedule:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: always
+  script:
+    - echo "Not a scheduled pipeline"
+
+.is_merge_request:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+
+build-dev:
+  stage: build
+  image: java:latest
+  tags:
+    - build-dev-tag
+  variables:
+    ENV: dev
+  rules:
+    - !reference [ .is<caret>, rules ]
+
