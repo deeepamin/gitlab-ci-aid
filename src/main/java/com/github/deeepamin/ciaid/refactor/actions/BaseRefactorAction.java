@@ -19,6 +19,15 @@ import org.jetbrains.yaml.psi.YAMLMapping;
 public abstract class BaseRefactorAction extends AnAction {
   @Override
   public void update(@NotNull AnActionEvent e) {
+    var psiFile = e.getData(CommonDataKeys.PSI_FILE);
+    if (psiFile == null || psiFile.getVirtualFile() == null) {
+      return;
+    }
+    var virtualFile = psiFile.getVirtualFile();
+    if (!CIAidProjectService.isValidGitlabCIYamlFile(virtualFile)) {
+      return;
+    }
+
     PsiElement element = e.getData(CommonDataKeys.PSI_ELEMENT);
     e.getPresentation().setEnabledAndVisible(isAvailable(element));
   }
