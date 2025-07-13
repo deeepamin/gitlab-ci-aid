@@ -1,12 +1,12 @@
 name: Deploy Docusaurus Docs on Release
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    paths:
+      - 'docs/**'
   release:
     types: [published]
 jobs:
-  build-deploy:
+  build-deploy-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,13 +18,15 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
+        working-directory: docs
         run: npm ci
 
       - name: Build Docusaurus
+        working-directory: docs
         run: npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./docs/build

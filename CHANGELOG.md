@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+### Added
+- Detailed documentation for all features and configuration options [Documentation](https://deeepamin.github.io/gitlab-ci-aid/)
+
 ## [1.12.0] - 2025-07-05
 
 ### Added
