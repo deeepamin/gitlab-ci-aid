@@ -1,5 +1,8 @@
 name: Deploy Docusaurus Docs on Release
 on:
+  push:
+    branches:
+      - main
   release:
     types: [published]
 jobs:

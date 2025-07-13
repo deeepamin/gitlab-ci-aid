@@ -1,3 +1,6 @@
+---
+title: Remote Includes
+---
 # Remote Includes
 
 Remote included such as `component`, `template`, `remote` and `project` are supported by the plugin.

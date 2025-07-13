@@ -6,7 +6,7 @@ User can use `(Ctrl + Click)` or `(Cmd + Click)` on the element to navigate to i
 The navigation is available for the following elements:
 
 # include
-User can navigate to the included file from `include:` keyword, the plugin will open the file in the editor. If remote includes are used, configure them for the navigation ([Remote Includes](./remote-includes#remote-includes)).
+User can navigate to the included file from `include:` keyword, the plugin will open the file in the editor. If remote includes are used, configure them for the using with plugin. ([Remote Includes](./remote-includes#remote-includes)).
 
 # local files
 
