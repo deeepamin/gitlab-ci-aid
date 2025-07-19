@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.cache.providers;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -42,15 +43,21 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
       return;
     }
 
-    var filePathWithoutFileName = filePath.contains("/") ? filePath.substring(0, filePath.lastIndexOf("/")) : filePath;
-    var cacheFileDirectoryString = projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath +
-            File.separator +
-            (ref != null && !ref.isBlank() ? ref + File.separator : "") +
-            (filePathWithoutFileName.contains("/") ? filePathWithoutFileName.replaceAll("/", File.separator) : filePathWithoutFileName);
-    var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(cacheFileDirectoryString).resolve(fileName);
+    var cacheFileDirectoryString = getCacheFileDirectoryString();
+    var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath())
+            .resolve(cacheFileDirectoryString)
+            .resolve(fileName);
 
     var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, projectPath, filePath, ref);
     var cacheKey = getProjectFileCacheKey(projectPath, filePath, ref);
     validateAndCacheRemoteFile(downloadUrl, cacheKey, cacheFilePath.toString());
+  }
+
+  private @NotNull String getCacheFileDirectoryString() {
+    var filePathWithoutFileName = filePath.contains("/") && filePath.lastIndexOf("/") > 0 ? filePath.substring(0, filePath.lastIndexOf("/") - 1) : filePath;
+    return projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath +
+            File.separator +
+            (ref != null && !ref.isBlank() ? ref + File.separator : "") +
+            (filePathWithoutFileName.contains("/") ? filePathWithoutFileName.replaceAll("/", File.separator) : filePathWithoutFileName);
   }
 }
