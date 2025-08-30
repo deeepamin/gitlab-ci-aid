@@ -11,6 +11,11 @@ hide_table_of_contents: false
 
 ## [Unreleased]
 
+### Added
+
+- Support for wildcard (*) includes
+- Support for marking multiple files with globs in settings
+
 ## [1.12.0] - 2025-07-05
 
 ### Added

@@ -1,8 +1,5 @@
 name: Deploy Docusaurus Docs on Release
 on:
-  pull_request:
-    paths:
-      - 'docs/**'
   release:
     types: [published]
 jobs:
@@ -10,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.cache.providers;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.intellij.openapi.project.Project;
 
@@ -16,7 +17,15 @@ public class LocalIncludeProvider extends AbstractIncludeProvider {
   public void readIncludeFile() {
     var sanitizedYamlPath = FileUtils.sanitizeFilePath(filePath);
     var ciAidProjectService = CIAidProjectService.getInstance(project);
-    FileUtils.getVirtualFile(sanitizedYamlPath, project)
-            .ifPresent(includeVirtualFile -> ciAidProjectService.readGitlabCIYamlData(includeVirtualFile, userMarked, false));
+    if (CIAidUtils.containsWildcard(sanitizedYamlPath)) {
+      var matches = FileUtils.findVirtualFilesByGlob(sanitizedYamlPath, project);
+      for (var includeVirtualFile : matches) {
+        ciAidProjectService.readGitlabCIYamlData(includeVirtualFile, userMarked, false);
+      }
+    } else {
+      FileUtils.getVirtualFile(sanitizedYamlPath, project)
+              .ifPresent(includeVirtualFile -> ciAidProjectService.readGitlabCIYamlData(includeVirtualFile, userMarked, false));
+    }
   }
+
 }

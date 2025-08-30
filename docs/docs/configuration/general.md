@@ -21,6 +21,10 @@ The files can be added in the table with `+` button, removed with `-` button, an
 For adding the file, you can either type the file path in the text field or use the `Browse` button to select the file from the project.
 Added file paths (ignored or not) don't show editor notification, if enabled, to mark them as GitLab CI YAML files.
 
+### Multiple files with globs
+You can use glob patterns to mark multiple files same way as adding/removing files. Absolute path or path relative to the project root can be used for globs.
+The glob patterns follow the GitLab CI/CD wildcard includes syntax [Include with wildcard](https://docs.gitlab.com/ci/yaml/includes/#use-includelocal-with-wildcard-file-paths)
+
 ### Disable editor notification
 If you want to disable the editor notification for marking files as GitLab CI YAML, you can check the `Disable "Mark as GitLab CI" notification in editor` checkbox.
 
