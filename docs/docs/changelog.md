@@ -16,6 +16,11 @@ hide_table_of_contents: false
 - Support for wildcard (*) includes
 - Support for marking multiple files with globs in settings
 
+### Fixed
+
+- Clearing cache on settings page lags the IDE
+- Remote URLs with variables throws IllegalArgumentException
+
 ## [1.12.0] - 2025-07-05
 
 ### Added
