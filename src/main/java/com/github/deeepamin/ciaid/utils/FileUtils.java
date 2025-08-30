@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +63,35 @@ public class FileUtils {
               return absolutePath.contains(filePathToCheck);
             })
             .findFirst();
+  }
+
+  public static List<VirtualFile> findVirtualFilesByGlob(String globPattern, Project project) {
+    List<VirtualFile> result = new ArrayList<>();
+    String basePath = project.getBasePath();
+    if (basePath == null || globPattern == null) {
+      return result;
+    }
+    try {
+      Path root = Path.of(basePath);
+      String normalizedPattern = globPattern.replace("\\", "/");
+      if (normalizedPattern.startsWith("/")) {
+        normalizedPattern = normalizedPattern.substring(1);
+      }
+      PathMatcher matcher = root.getFileSystem().getPathMatcher("glob:" + normalizedPattern);
+      try (var paths = Files.walk(root)) {
+        paths.filter(Files::isRegularFile)
+                .filter(path -> matcher.matches(root.relativize(path)))
+                .forEach(path -> {
+                  VirtualFile vf = LocalFileSystem.getInstance().findFileByPath(path.toString());
+                  if (vf != null && vf.exists() && vf.isValid()) {
+                    result.add(vf);
+                  }
+                });
+      }
+    } catch (Exception e) {
+      LOG.warn("Error during glob file search: " + e.getMessage(), e);
+    }
+    return result;
   }
 
   public static void createFile(Path path) {

@@ -11,6 +11,10 @@ hide_table_of_contents: false
 
 ## [Unreleased]
 
+### Added
+
+- Support for wildcard (*) includes
+
 ## [1.12.0] - 2025-07-05
 
 ### Added

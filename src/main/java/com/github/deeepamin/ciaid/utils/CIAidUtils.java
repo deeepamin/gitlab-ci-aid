@@ -44,4 +44,8 @@ public class CIAidUtils {
     }
     return text;
   }
+
+  public static boolean containsWildcard(String path) {
+    return path != null && path.contains("*");
+  }
 }

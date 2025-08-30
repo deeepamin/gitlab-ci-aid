@@ -1,13 +1,11 @@
 package com.github.deeepamin.ciaid.parser;
 
-import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeProject;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
-import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
@@ -127,9 +125,6 @@ public class CIAidGitLabYamlParser {
         include.setFileType(IncludeFileType.REMOTE);
       } else {
         include.setFileType(IncludeFileType.LOCAL);
-        var localFilePath = FileUtils.getFilePath(path, project);
-        var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
-        CIAidCacheService.getInstance().addIncludeIdentifierToCacheFilePath(path, localFilePathString);
       }
       include.setPath(path);
       ciAidYamlData.addInclude(include);
@@ -151,11 +146,6 @@ public class CIAidGitLabYamlParser {
         var include = new IncludeFile();
         include.setFileType(includeFileType);
         var path = handleQuotedText(keyValue.getValueText());
-        if (includeFileType == IncludeFileType.LOCAL) {
-          var localFilePath = FileUtils.getFilePath(path, project);
-          var localFilePathString = localFilePath != null ? localFilePath.toString() : null;
-          CIAidCacheService.getInstance().addIncludeIdentifierToCacheFilePath(path, localFilePathString);
-        }
         include.setPath(path);
         ciAidYamlData.addInclude(include);
       });
