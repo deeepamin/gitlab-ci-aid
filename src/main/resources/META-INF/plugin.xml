@@ -36,9 +36,9 @@
                              key="settings.display.name"
                              nonDefaultProject="true"/>
         <projectConfigurable parentId="com.github.deeepamin.ciaid.settings.CIAidSettingsConfigurable"
-                             instance="com.github.deeepamin.ciaid.settings.remotes.CIAidRemotesConfigurable"
+                             instance="com.github.deeepamin.ciaid.settings.remote.CIAidRemoteConfigurable"
                              bundle="messages.CIAid"
-                             key="settings.remotes.display.name"
+                             key="settings.remote.display.name"
                              nonDefaultProject="true"/>
         <localInspection language="yaml"
                          shortName="CIAidGitLabYamlScriptUnavailable"

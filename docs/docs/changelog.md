@@ -12,14 +12,7 @@ hide_table_of_contents: false
 ## [Unreleased]
 
 ### Added
-
-- Support for wildcard (*) includes
-- Support for marking multiple files with globs in settings
-
-### Fixed
-
-- Clearing cache on settings page lags the IDE
-- Remote URLs with variables throws IllegalArgumentException
+- Detailed documentation for all features and configuration options [Documentation](https://deeepamin.github.io/gitlab-ci-aid/)
 
 ## [1.12.0] - 2025-07-05
 
