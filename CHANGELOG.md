@@ -5,7 +5,20 @@
 ## [Unreleased]
 
 ### Added
+
 - Detailed documentation for all features and configuration options [Documentation](https://deeepamin.github.io/gitlab-ci-aid/)
+- Support for wildcard (*) includes
+- Support for marking multiple files with globs in settings
+
+### Changed
+
+- Personal Access Tokens (PATs) can be used instead of group or project tokens for remote files
+
+### Fixed
+
+- Clearing cache on settings page lags the IDE
+- Remote URLs with variables throws IllegalArgumentException
+- Under the hood improvements for avoiding freezes and lags
 
 ## [1.12.0] - 2025-07-05
 
