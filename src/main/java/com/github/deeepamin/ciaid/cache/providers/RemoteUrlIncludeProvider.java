@@ -28,4 +28,9 @@ public class RemoteUrlIncludeProvider extends AbstractRemoteIncludeProvider {
   public String getProjectPath() {
     return null;
   }
+
+  @Override
+  protected String getAccessToken() {
+    return null;
+  }
 }

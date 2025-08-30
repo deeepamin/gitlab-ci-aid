@@ -21,9 +21,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class GitLabConnectionUtils {
   private static final Logger LOG = Logger.getInstance(GitLabConnectionUtils.class);
-  public static final String DEFAULT_GITLAB_SERVER_API_URL = "https://gitlab.com/api/v4";
   public static final String GITLAB_PROJECT_TAGS_PATH = "%s/projects/%s/repository/tags";
-  private static final String GITLAB_PRIVATE_TOKEN_HEADER = "PRIVATE-TOKEN";
+  public static final String GITLAB_PRIVATE_TOKEN_HEADER = "PRIVATE-TOKEN";
   private static final String GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH = "%s/projects/%s/repository/files/%s/raw";
 
   public static String downloadContent(final String urlString, final String accessToken) {
@@ -63,7 +62,7 @@ public class GitLabConnectionUtils {
   }
 
   public static String getRepositoryFileDownloadUrl(Project project, String projectName, String file, String ref) {
-    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(projectName);
+    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabAPIUrl();
     if (projectName.startsWith("/")) {
       projectName = projectName.substring(1);
     }
@@ -73,8 +72,8 @@ public class GitLabConnectionUtils {
     }
     String encodedFile = URLEncoder.encode(file, StandardCharsets.UTF_8);
     var downloadUrl = String.format(GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH, gitlabApiUrl, encodedProject, encodedFile);
-    var refPlaceholder = "?ref=%s";
     if (ref != null && !ref.isBlank()) {
+      var refPlaceholder = "?ref=%s";
       ref = String.format(refPlaceholder, ref);
       downloadUrl = downloadUrl.concat(ref);
     }
