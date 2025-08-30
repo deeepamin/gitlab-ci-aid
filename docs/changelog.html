@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.8.1">
 <title data-rh="true">📝 Changelog | CI Aid for GitLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://deeepamin.github.io/gitlab-ci-aid/docs/changelog"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="📝 Changelog | CI Aid for GitLab"><meta data-rh="true" name="description" content="https://keepachangelog.com --&gt;"><meta data-rh="true" property="og:description" content="https://keepachangelog.com --&gt;"><link data-rh="true" rel="canonical" href="https://deeepamin.github.io/gitlab-ci-aid/docs/changelog"><link data-rh="true" rel="alternate" href="https://deeepamin.github.io/gitlab-ci-aid/docs/changelog" hreflang="en"><link data-rh="true" rel="alternate" href="https://deeepamin.github.io/gitlab-ci-aid/docs/changelog" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"📝 Changelog","item":"https://deeepamin.github.io/gitlab-ci-aid/docs/changelog"}]}</script><link rel="stylesheet" href="/gitlab-ci-aid/assets/css/styles.752d84e9.css">
-<script src="/gitlab-ci-aid/assets/js/runtime~main.a4b69f4a.js" defer="defer"></script>
-<script src="/gitlab-ci-aid/assets/js/main.1a400432.js" defer="defer"></script>
+<script src="/gitlab-ci-aid/assets/js/runtime~main.d892cf1b.js" defer="defer"></script>
+<script src="/gitlab-ci-aid/assets/js/main.78558846.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs>
@@ -16,6 +16,18 @@
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h3>
 <ul>
 <li>Detailed documentation for all features and configuration options <a href="https://deeepamin.github.io/gitlab-ci-aid/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+<li>Support for wildcard (*) includes</li>
+<li>Support for marking multiple files with globs in settings</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed">Changed<a href="#changed" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<ul>
+<li>Personal Access Tokens (PATs) can be used instead of group or project tokens for remote files</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<ul>
+<li>Clearing cache on settings page lags the IDE</li>
+<li>Remote URLs with variables throws IllegalArgumentException</li>
+<li>Under the hood improvements for avoiding freezes and lags</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="1120---2025-07-05"><a href="https://github.com/deeepamin/gitlab-ci-aid/compare/v1.11.0...v1.12.0" target="_blank" rel="noopener noreferrer">1.12.0</a> - 2025-07-05<a href="#1120---2025-07-05" class="hash-link" aria-label="Direct link to 1120---2025-07-05" title="Direct link to 1120---2025-07-05">​</a></h2>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="added-1">Added<a href="#added-1" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h3>
@@ -25,11 +37,11 @@
 <li>Move job to other files using Move refactoring</li>
 <li>Extract keys to !reference tag using &quot;Extract !reference&quot; refactoring action</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed">Changed<a href="#changed" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-1">Changed<a href="#changed-1" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Empty API URL is allowed in remote settings</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-1">Fixed<a href="#fixed-1" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Remote edit doesn&#x27;t populate the content in settings page</li>
 <li>Literal block conversion results in error on GitLab</li>
@@ -43,11 +55,11 @@
 <li>Intent action to convert folded (&gt;) script blocks to literal (|) blocks</li>
 <li>Editor notification to mark files as GitLab CI Yaml files can be disabled</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-1">Changed<a href="#changed-1" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-2">Changed<a href="#changed-2" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Script injection is not done in folded (&gt;) script blocks</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-1">Fixed<a href="#fixed-1" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-2">Fixed<a href="#fixed-2" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Needs with job key sometimes doesn&#x27;t resolve to correct reference</li>
 <li>Needs with optional or other keys except job, show jobs in auto-completion</li>
@@ -60,18 +72,18 @@
 <li>Configurable caching support for remote GitLab CI Yaml files</li>
 <li>Inspections for GitLab CI Yaml files (Editor &gt; Inspections &gt; Gitlab CI inspections)</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-2">Changed<a href="#changed-2" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-3">Changed<a href="#changed-3" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Multiple inputs in a single line shows documentation for each input</li>
 <li>Errors in yaml files can be configured in inspections</li>
 <li>Undefined stage in job errors will not be reported anymore</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-2">Fixed<a href="#fixed-2" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-3">Fixed<a href="#fixed-3" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Inputs with arrays show empty value in documentation</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="191---2025-05-29"><a href="https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.0...v1.9.1" target="_blank" rel="noopener noreferrer">1.9.1</a> - 2025-05-29<a href="#191---2025-05-29" class="hash-link" aria-label="Direct link to 191---2025-05-29" title="Direct link to 191---2025-05-29">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-3">Fixed<a href="#fixed-3" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-4">Fixed<a href="#fixed-4" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Settings page doesn&#x27;t shrink with resizing</li>
 <li>!reference tag with only one key doesn&#x27;t resolve to correct reference</li>
@@ -85,11 +97,11 @@
 <li>Variables navigation and autocompletion</li>
 <li>!reference tag auto-completion in script blocks</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-3">Changed<a href="#changed-3" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-4">Changed<a href="#changed-4" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Settings page visual improvements</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-4">Fixed<a href="#fixed-4" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-5">Fixed<a href="#fixed-5" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Auto-completion doesn&#x27;t show file path for jobs</li>
 <li>Stage/job with quoted strings doesn&#x27;t resolve to correct reference</li>
@@ -100,12 +112,12 @@
 <li><strong>!reference</strong> tag navigation, autocompletion, renaming and more</li>
 <li>Inputs highlighting</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-4">Changed<a href="#changed-4" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-5">Changed<a href="#changed-5" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Uses latest version of compatible bash support pro plugin from marketplace</li>
 <li>Code completions are provided using more robust implementation</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-5">Fixed<a href="#fixed-5" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-6">Fixed<a href="#fixed-6" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Renaming input or needs/extends job doesn&#x27;t update the references</li>
 <li>Unknown input renders empty documentation popup</li>
@@ -126,7 +138,7 @@
 <li>Inputs are autocompleted and navigable</li>
 <li>Quick documentation for inputs</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-6">Fixed<a href="#fixed-6" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-7">Fixed<a href="#fixed-7" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Default keywords e.g., stage, stages in inputs generates unexpected errors</li>
 </ul>
@@ -138,20 +150,20 @@ CI Aid for GitLab can be installed without the JetBrains Shell or BashSupport Pr
 will be available as soon as one of the plugins is enabled.</li>
 <li>Support for script/file reference resolve in YAML multi line block (| and &gt;) for script tags</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-5">Changed<a href="#changed-5" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-6">Changed<a href="#changed-6" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Script path detection and navigation handles more cases</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-7">Fixed<a href="#fixed-7" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-8">Fixed<a href="#fixed-8" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Stages to job reference wouldn&#x27;t resolve due to cached element</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="140---2025-05-03"><a href="https://github.com/deeepamin/gitlab-ci-aid/compare/v1.3.0...v1.4.0" target="_blank" rel="noopener noreferrer">1.4.0</a> - 2025-05-03<a href="#140---2025-05-03" class="hash-link" aria-label="Direct link to 140---2025-05-03" title="Direct link to 140---2025-05-03">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-6">Changed<a href="#changed-6" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-7">Changed<a href="#changed-7" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Under the hood YAML handling</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-8">Fixed<a href="#fixed-8" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-9">Fixed<a href="#fixed-9" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Non included and user marked YAML files are not highlighted (Thanks @gtaylor1981 for the contribution)</li>
 <li>Stages to job reference couldn&#x27;t be resolved sometimes</li>
@@ -161,11 +173,11 @@ will be available as soon as one of the plugins is enabled.</li>
 <p>Name of the plugin is changed to &quot;CI Aid for GitLab&quot; to comply with GitLab official trademark guidelines.
 All the good features (and bugs) offered by plugin stay the same as before.</p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="120---2025-04-30"><a href="https://github.com/deeepamin/gitlab-ci-aid/compare/v1.1.0...v1.2.0" target="_blank" rel="noopener noreferrer">1.2.0</a> - 2025-04-30<a href="#120---2025-04-30" class="hash-link" aria-label="Direct link to 120---2025-04-30" title="Direct link to 120---2025-04-30">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-7">Changed<a href="#changed-7" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-8">Changed<a href="#changed-8" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Updated GitLab CI schema for inputs and other elements support</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-9">Fixed<a href="#fixed-9" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-10">Fixed<a href="#fixed-10" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Script element resolves to wrong path in project</li>
 <li>Ignore action doesn&#x27;t remove the Editor notification panel</li>
@@ -183,11 +195,11 @@ All the good features (and bugs) offered by plugin stay the same as before.</p>
 <ul>
 <li>Support for navigation, autocompletion and highlighting for &quot;extends&quot; keyword</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-8">Changed<a href="#changed-8" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-9">Changed<a href="#changed-9" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Hidden jobs (starting with .) are highlighted and can be navigated to, not shown in autocompletion</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-10">Fixed<a href="#fixed-10" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-11">Fixed<a href="#fixed-11" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Quoted text in file path resolves in not navigating to file</li>
 </ul>
@@ -197,13 +209,13 @@ All the good features (and bugs) offered by plugin stay the same as before.</p>
 <li>Script injection for multiline literal (|) and folded (&gt;) blocks</li>
 <li>Multiple script paths detection in script blocks</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-9">Changed<a href="#changed-9" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="changed-10">Changed<a href="#changed-10" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h3>
 <ul>
 <li>Improved caching for yaml parsing</li>
 <li>Script and include files don’t require absolute path for navigation</li>
 <li>Updated GitLab CI schema json</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-11">Fixed<a href="#fixed-11" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-12">Fixed<a href="#fixed-12" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Quoted text in include file name resolves correctly</li>
 </ul>
@@ -213,7 +225,7 @@ All the good features (and bugs) offered by plugin stay the same as before.</p>
 <li>.gitlab-ci.yml and .gitlab-ci.yaml both are considered as default files</li>
 <li>Improved job processing</li>
 </ul>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-12">Fixed<a href="#fixed-12" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-13">Fixed<a href="#fixed-13" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Non GitLab CI Yaml files are annotated/highlighted</li>
 <li>Some python script paths weren&#x27;t highlighted correctly</li>
@@ -224,7 +236,7 @@ All the good features (and bugs) offered by plugin stay the same as before.</p>
 <li>Jetbrains marketplace exception analyzer</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="101---2024-11-18"><a href="https://github.com/deeepamin/gitlab-ci-aid/compare/v1.0.0...v1.0.1" target="_blank" rel="noopener noreferrer">1.0.1</a> - 2024-11-18<a href="#101---2024-11-18" class="hash-link" aria-label="Direct link to 101---2024-11-18" title="Direct link to 101---2024-11-18">​</a></h2>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-13">Fixed<a href="#fixed-13" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="fixed-14">Fixed<a href="#fixed-14" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h3>
 <ul>
 <li>Intellij plugin verification issues fixed</li>
 </ul>
@@ -236,6 +248,6 @@ All the good features (and bugs) offered by plugin stay the same as before.</p>
 <li>Errors and Quick fix: IDE integrated warning/error for undefined stages, jobs, scripts and quick fix to create scripts on the fly</li>
 <li>Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts</li>
 <li>Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords</li>
-</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/gitlab-ci-aid/docs/configuration/remotes"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Remotes</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#unreleased" class="table-of-contents__link toc-highlight">Unreleased</a><ul><li><a href="#added" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#1120---2025-07-05" class="table-of-contents__link toc-highlight">1.12.0 - 2025-07-05</a><ul><li><a href="#added-1" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#1110---2025-06-09" class="table-of-contents__link toc-highlight">1.11.0 - 2025-06-09</a><ul><li><a href="#added-2" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-1" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-1" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#1100---2025-06-01" class="table-of-contents__link toc-highlight">1.10.0 - 2025-06-01</a><ul><li><a href="#added-3" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-2" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-2" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#191---2025-05-29" class="table-of-contents__link toc-highlight">1.9.1 - 2025-05-29</a><ul><li><a href="#fixed-3" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#190---2025-05-22" class="table-of-contents__link toc-highlight">1.9.0 - 2025-05-22</a><ul><li><a href="#added-4" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-3" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-4" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#180---2025-05-17" class="table-of-contents__link toc-highlight">1.8.0 - 2025-05-17</a><ul><li><a href="#added-5" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-4" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-5" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#170---2025-05-11" class="table-of-contents__link toc-highlight">1.7.0 - 2025-05-11</a><ul><li><a href="#added-6" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#160---2025-05-09" class="table-of-contents__link toc-highlight">1.6.0 - 2025-05-09</a><ul><li><a href="#added-7" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#fixed-6" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#150---2025-05-06" class="table-of-contents__link toc-highlight">1.5.0 - 2025-05-06</a><ul><li><a href="#added-8" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-5" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-7" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#140---2025-05-03" class="table-of-contents__link toc-highlight">1.4.0 - 2025-05-03</a><ul><li><a href="#changed-6" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-8" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#130---2025-05-02" class="table-of-contents__link toc-highlight">1.3.0 - 2025-05-02</a></li><li><a href="#120---2025-04-30" class="table-of-contents__link toc-highlight">1.2.0 - 2025-04-30</a><ul><li><a href="#changed-7" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-9" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#110---2025-04-16" class="table-of-contents__link toc-highlight">1.1.0 - 2025-04-16</a><ul><li><a href="#added-9" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#105---2025-01-20" class="table-of-contents__link toc-highlight">1.0.5 - 2025-01-20</a><ul><li><a href="#added-10" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-8" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-10" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#104---2024-12-15" class="table-of-contents__link toc-highlight">1.0.4 - 2024-12-15</a><ul><li><a href="#added-11" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-9" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-11" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#103---2024-11-20" class="table-of-contents__link toc-highlight">1.0.3 - 2024-11-20</a><ul><li><a href="#added-12" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#fixed-12" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#102---2024-11-18" class="table-of-contents__link toc-highlight">1.0.2 - 2024-11-18</a><ul><li><a href="#added-13" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#101---2024-11-18" class="table-of-contents__link toc-highlight">1.0.1 - 2024-11-18</a><ul><li><a href="#fixed-13" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#100---2024-11-16" class="table-of-contents__link toc-highlight">1.0.0 - 2024-11-16</a><ul><li><a href="#added-14" class="table-of-contents__link toc-highlight">Added</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Resources</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/deeepamin/gitlab-ci-aid/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer__link-item">License<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/deeepamin/gitlab-ci-aid/releases" target="_blank" rel="noopener noreferrer" class="footer__link-item">Releases<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Support</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://plugins.jetbrains.com/plugin/25859-ci-aid-for-gitlab" target="_blank" rel="noopener noreferrer" class="footer__link-item">Rate and Share the plugin<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://ko-fi.com/deeepamin" target="_blank" rel="noopener noreferrer" class="footer__link-item">Buy me a coffee<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/sponsors/deeepamin" target="_blank" rel="noopener noreferrer" class="footer__link-item">Sponsor on GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div></div></footer></div>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/gitlab-ci-aid/docs/configuration/remote"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Remote</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#unreleased" class="table-of-contents__link toc-highlight">Unreleased</a><ul><li><a href="#added" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#1120---2025-07-05" class="table-of-contents__link toc-highlight">1.12.0 - 2025-07-05</a><ul><li><a href="#added-1" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-1" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-1" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#1110---2025-06-09" class="table-of-contents__link toc-highlight">1.11.0 - 2025-06-09</a><ul><li><a href="#added-2" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-2" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-2" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#1100---2025-06-01" class="table-of-contents__link toc-highlight">1.10.0 - 2025-06-01</a><ul><li><a href="#added-3" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-3" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-3" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#191---2025-05-29" class="table-of-contents__link toc-highlight">1.9.1 - 2025-05-29</a><ul><li><a href="#fixed-4" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#190---2025-05-22" class="table-of-contents__link toc-highlight">1.9.0 - 2025-05-22</a><ul><li><a href="#added-4" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-4" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-5" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#180---2025-05-17" class="table-of-contents__link toc-highlight">1.8.0 - 2025-05-17</a><ul><li><a href="#added-5" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-5" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-6" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#170---2025-05-11" class="table-of-contents__link toc-highlight">1.7.0 - 2025-05-11</a><ul><li><a href="#added-6" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#160---2025-05-09" class="table-of-contents__link toc-highlight">1.6.0 - 2025-05-09</a><ul><li><a href="#added-7" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#fixed-7" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#150---2025-05-06" class="table-of-contents__link toc-highlight">1.5.0 - 2025-05-06</a><ul><li><a href="#added-8" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-6" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-8" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#140---2025-05-03" class="table-of-contents__link toc-highlight">1.4.0 - 2025-05-03</a><ul><li><a href="#changed-7" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-9" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#130---2025-05-02" class="table-of-contents__link toc-highlight">1.3.0 - 2025-05-02</a></li><li><a href="#120---2025-04-30" class="table-of-contents__link toc-highlight">1.2.0 - 2025-04-30</a><ul><li><a href="#changed-8" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-10" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#110---2025-04-16" class="table-of-contents__link toc-highlight">1.1.0 - 2025-04-16</a><ul><li><a href="#added-9" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#105---2025-01-20" class="table-of-contents__link toc-highlight">1.0.5 - 2025-01-20</a><ul><li><a href="#added-10" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-9" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-11" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#104---2024-12-15" class="table-of-contents__link toc-highlight">1.0.4 - 2024-12-15</a><ul><li><a href="#added-11" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#changed-10" class="table-of-contents__link toc-highlight">Changed</a></li><li><a href="#fixed-12" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#103---2024-11-20" class="table-of-contents__link toc-highlight">1.0.3 - 2024-11-20</a><ul><li><a href="#added-12" class="table-of-contents__link toc-highlight">Added</a></li><li><a href="#fixed-13" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#102---2024-11-18" class="table-of-contents__link toc-highlight">1.0.2 - 2024-11-18</a><ul><li><a href="#added-13" class="table-of-contents__link toc-highlight">Added</a></li></ul></li><li><a href="#101---2024-11-18" class="table-of-contents__link toc-highlight">1.0.1 - 2024-11-18</a><ul><li><a href="#fixed-14" class="table-of-contents__link toc-highlight">Fixed</a></li></ul></li><li><a href="#100---2024-11-16" class="table-of-contents__link toc-highlight">1.0.0 - 2024-11-16</a><ul><li><a href="#added-14" class="table-of-contents__link toc-highlight">Added</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Resources</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/deeepamin/gitlab-ci-aid/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer__link-item">License<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/deeepamin/gitlab-ci-aid/releases" target="_blank" rel="noopener noreferrer" class="footer__link-item">Releases<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Support</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://plugins.jetbrains.com/plugin/25859-ci-aid-for-gitlab" target="_blank" rel="noopener noreferrer" class="footer__link-item">Rate and Share the plugin<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://ko-fi.com/deeepamin" target="_blank" rel="noopener noreferrer" class="footer__link-item">Buy me a coffee<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/sponsors/deeepamin" target="_blank" rel="noopener noreferrer" class="footer__link-item">Sponsor on GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div></div></footer></div>
 </body>
 </html>
