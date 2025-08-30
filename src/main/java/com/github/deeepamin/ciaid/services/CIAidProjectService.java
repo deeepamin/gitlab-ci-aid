@@ -21,6 +21,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,7 +158,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
 
   private void readUserMarkedYamls() {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
-    ciAidSettingsState.getYamlToUserMarkings().forEach((path, ignore) -> {
+    var entries = new ArrayList<>(ciAidSettingsState.getYamlToUserMarkings().entrySet());
+    for (var entry : entries) {
+      String path = entry.getKey();
+      boolean ignore = entry.getValue();
       var pathContainsWildcard = CIAidUtils.containsWildcard(path);
       if (pathContainsWildcard) {
         var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
@@ -168,7 +172,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
           doReadUserMarkedYaml(gitlabCIYamlFile, ignore);
         }
       }
-    });
+    }
   }
 
   private void doReadUserMarkedYaml(VirtualFile virtualFile, boolean ignore) {

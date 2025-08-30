@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -107,7 +108,16 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
   }
 
   public void clearCache() {
-    state.filePathToCache.clear();
-    state.remoteIncludeIdentifierToLocalPath.clear();
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
+      var cacheDirFiles = getCiAidCacheDir().listFiles();
+      if (cacheDirFiles != null) {
+        try {
+          Arrays.stream(cacheDirFiles).forEach(File::delete);
+        } catch (Exception ignored) {
+        }
+      }
+      state.filePathToCache.clear();
+      state.remoteIncludeIdentifierToLocalPath.clear();
+    });
   }
 }

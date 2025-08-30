@@ -56,6 +56,8 @@ public class GitLabConnectionUtils {
       }
     } catch (IOException | InterruptedException e) {
       LOG.debug("Exception while calling URL" + urlString + " " + e);
+    } catch (IllegalArgumentException e) {
+      LOG.debug("Invalid URL: " + urlString + " " + e);
     }
     return null;
   }

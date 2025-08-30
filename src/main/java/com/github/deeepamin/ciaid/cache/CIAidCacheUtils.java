@@ -37,7 +37,17 @@ public class CIAidCacheUtils {
         var projectService = CIAidProjectService.getInstance(project);
         projectService.readGitlabCIYamlData(virtualFile, false, false);
       }
-      ApplicationManager.getApplication().invokeLater(() -> PsiManager.getInstance(project).dropPsiCaches());
+      if (ApplicationManager.getApplication().isDispatchThread()) {
+        if (!project.isDisposed()) {
+          PsiManager.getInstance(project).dropPsiCaches();
+        }
+      } else {
+        ApplicationManager.getApplication().invokeLater(() -> {
+          if (!project.isDisposed()) {
+            PsiManager.getInstance(project).dropPsiCaches();
+          }
+        });
+      }
     });
   }
 
