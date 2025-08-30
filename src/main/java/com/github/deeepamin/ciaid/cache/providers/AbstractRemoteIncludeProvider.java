@@ -46,14 +46,9 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     return getOrCreateDir(getCiAidCacheDir().getPath(), getCacheDirName());
   }
 
-  protected String getAccessTokenForMatchingProject(String projectPath) {
+  protected String getAccessToken() {
     var ciAidSettingsState = CIAidSettingsState.getInstance(project);
-    var matchingProjectPath = ciAidSettingsState.getMatchingProjectPath(projectPath);
-    if (matchingProjectPath == null) {
-      LOG.debug("No matching project path found for " + projectPath);
-      return null;
-    }
-    return ciAidSettingsState.getGitLabAccessToken(matchingProjectPath);
+    return ciAidSettingsState.getGitLabAccessToken();
   }
 
   protected void validateAndCacheRemoteFile(String downloadUrl, String cacheKey, String cacheFilePath) {
@@ -73,7 +68,7 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
       LOG.debug("Download URL is null or empty for " + this.getClass().getSimpleName());
       return;
     }
-    var accessToken = getAccessTokenForMatchingProject(getProjectPath());
+    var accessToken = getAccessToken();
     cacheRemoteFile(downloadUrl, cacheKey, cacheFilePath, accessToken);
   }
 

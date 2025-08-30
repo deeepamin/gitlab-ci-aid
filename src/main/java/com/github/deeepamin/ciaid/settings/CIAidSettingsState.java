@@ -1,7 +1,6 @@
 package com.github.deeepamin.ciaid.settings;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
-import com.github.deeepamin.ciaid.settings.remotes.Remote;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.application.ApplicationManager;
@@ -11,15 +10,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.github.deeepamin.ciaid.utils.GitLabConnectionUtils.DEFAULT_GITLAB_SERVER_API_URL;
 import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_PREFIX;
 
 @Service(Service.Level.PROJECT)
@@ -28,17 +24,20 @@ import static com.intellij.credentialStore.CredentialAttributesKt.SERVICE_NAME_P
         storages = {@Storage("CIAidSettingsState.xml")}
 )
 public final class CIAidSettingsState implements PersistentStateComponent<CIAidSettingsState.State> {
+    private static final String DEFAULT_GITLAB_SERVER_URL = "https://gitlab.com";
+    private static final String API_PATH = "api/v4";
     public static class State {
-    public String defaultGitlabCIYamlPath = "";
-    public boolean isEditorNotificationDisabled = false;
-    public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
+      public String defaultGitlabCIYamlPath = "";
+      public boolean isEditorNotificationDisabled = false;
+      public Map<String, Boolean> yamlToUserMarkings = new HashMap<>();
 
-    // Remotes settings
-    public List<Remote> remotes = new ArrayList<>();
-    public String gitlabTemplatesProject;
-    public String gitlabTemplatesPath;
-    private boolean isCachingEnabled = true;
-    public Long cacheExpiryTime = 24L; // Default to 24 hours
+      public String serverUrl;
+      @Transient
+      public String accessToken;
+      public String gitlabTemplatesProject;
+      public String gitlabTemplatesPath;
+      private boolean isCachingEnabled = true;
+      public Long cacheExpiryTime = 24L; // Default to 24 hours
   }
 
   private State state = new State();
@@ -69,44 +68,38 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
   @Override
   public void initializeComponent() {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
-      state.remotes = state.remotes.stream()
-              .peek(remote -> {
-                var accessToken = getGitLabAccessToken(remote.getProjectPath());
-                remote.setToken(accessToken);
-              })
-              .toList();
+      this.state.accessToken = readGitLabAccessToken(state.serverUrl);
     });
-
   }
 
-  public String getMatchingProjectPath(String projectPath) {
-    // separate public method for testing purposes
-    if (projectPath == null) {
+  public String readGitLabAccessToken(String serverUrl) {
+    if (serverUrl == null) {
       return null;
     }
-    var sanitizedProjectPath = projectPath.startsWith("/") ? projectPath.substring(1) : projectPath;
-    var settingsPaths = getRemotes().stream()
-            .map(Remote::getProjectPath)
-            .toList();
-    if (settingsPaths.contains(sanitizedProjectPath)) {
-      return sanitizedProjectPath;
-    }
-    return settingsPaths.stream()
-            .filter(sanitizedProjectPath::startsWith)
-            .max(Comparator.comparingInt(String::length)) // Get the longest matching path
-            .orElse(null);
+    var credentialAttributes = getCredentialAttributes(serverUrl);
+    return PasswordSafe.getInstance().getPassword(credentialAttributes);
   }
 
-  public String getGitLabApiUrl(String projectPath) {
-    var matchingProjectPath = getMatchingProjectPath(projectPath);
-    if (matchingProjectPath == null) {
-      return DEFAULT_GITLAB_SERVER_API_URL;
+  public void saveGitLabAccessToken(String serverUrl, String token) {
+    PasswordSafe.getInstance().setPassword(getCredentialAttributes(serverUrl), token);
+  }
+
+  public String getGitLabServerUrl() {
+    if (state.serverUrl != null && !state.serverUrl.isBlank()) {
+      return state.serverUrl;
     }
-    var apiUrlOptional = state.remotes.stream()
-            .filter(remote -> matchingProjectPath.equals(remote.getProjectPath()))
-            .map(Remote::getApiUrl)
-            .findFirst();
-    return apiUrlOptional.orElse(DEFAULT_GITLAB_SERVER_API_URL);
+    return DEFAULT_GITLAB_SERVER_URL;
+  }
+
+  public String getGitLabAPIUrl() {
+    if (state.serverUrl != null && !state.serverUrl.isBlank()) {
+      return state.serverUrl + (state.serverUrl.endsWith("/") ? "" : "/") + API_PATH;
+    }
+    return DEFAULT_GITLAB_SERVER_URL + "/" + API_PATH;
+  }
+
+  public String getGitLabAccessToken() {
+    return state.accessToken != null ? state.accessToken : "";
   }
 
   public String getGitlabTemplatesProject() {
@@ -117,21 +110,8 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     return state.gitlabTemplatesPath;
   }
 
-  public String getGitLabAccessToken(String projectPath) {
-    if (projectPath == null) {
-      return null;
-    }
-    var credentialAttributes = getCredentialAttributes(project, projectPath);
-    return PasswordSafe.getInstance().getPassword(credentialAttributes);
-  }
-
-  public void saveGitLabAccessToken(String projectPath, String token) {
-    PasswordSafe.getInstance().setPassword(getCredentialAttributes(project, projectPath), token);
-  }
-
-  private CredentialAttributes getCredentialAttributes(Project project, String projectPath) {
-    var projectLocationHash = project.getLocationHash();
-    return new CredentialAttributes(SERVICE_NAME_PREFIX + " CIAidGitlabAccessToken - " + projectLocationHash, projectPath);
+  private CredentialAttributes getCredentialAttributes(String gitLabServerUrl) {
+    return new CredentialAttributes(SERVICE_NAME_PREFIX + " CIAidGitlabAccessToken", gitLabServerUrl);
   }
 
   public String getDefaultGitlabCIYamlPath() {
@@ -158,12 +138,12 @@ public final class CIAidSettingsState implements PersistentStateComponent<CIAidS
     this.state.yamlToUserMarkings = yamlToUserMarkings;
   }
 
-  public List<Remote> getRemotes() {
-    return state.remotes;
+  public void setGitLabServerUrl(String serverUrl) {
+    this.state.serverUrl = serverUrl;
   }
 
-  public void setRemotes(List<Remote> remotes) {
-    state.remotes = remotes;
+  public void setGitLabAccessToken(String accessToken) {
+    this.state.accessToken = accessToken;
   }
 
   public void setGitlabTemplatesProject(String gitlabTemplatesProject) {

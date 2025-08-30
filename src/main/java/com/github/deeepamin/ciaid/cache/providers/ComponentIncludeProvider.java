@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static com.github.deeepamin.ciaid.utils.GitLabConnectionUtils.GITLAB_PRIVATE_TOKEN_HEADER;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
@@ -60,7 +61,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       LOG.debug("Component project path or component name is null for " + this.getClass().getSimpleName());
       return;
     }
-    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, getAccessTokenForMatchingProject(componentProjectPath));
+    var resolvedComponentVersion = resolveComponentVersion(project, componentVersion, getAccessToken());
 
     // one of the possible paths for component file in GitLab will be found
     var possiblePaths = List.of(
@@ -86,7 +87,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
       return versionRef;
     }
     String encodedProject = URLEncoder.encode(componentProjectPath, StandardCharsets.UTF_8);
-    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabApiUrl(componentProjectPath);
+    var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabAPIUrl();
 
     String url = String.format(GitLabConnectionUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
     try (var httpClient = HttpClient.newBuilder()
@@ -97,7 +98,7 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
               .uri(URI.create(url));
 
       if (accessToken != null && !accessToken.isBlank()) {
-        requestBuilder.header("PRIVATE-TOKEN", accessToken);
+        requestBuilder.header(GITLAB_PRIVATE_TOKEN_HEADER, accessToken);
       }
 
       HttpResponse<String> response;
