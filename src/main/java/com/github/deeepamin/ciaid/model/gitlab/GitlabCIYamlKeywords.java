@@ -43,6 +43,8 @@ public class GitlabCIYamlKeywords {
   public static final String REFERENCE_TAG = "!reference";
   public static final String HOOKS = "hooks";
   public static final String INTERRUPTIBLE = "interruptible";
+  public static final String TRIGGER = "trigger";
+
   private static final String ID_TOKENS = "id_tokens";
   private static final String IDENTITY = "identity";
   private static final String RETRY = "retry";

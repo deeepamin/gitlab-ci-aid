@@ -13,7 +13,7 @@ public class GitlabCIYamlUtils {
   }
 
   public static boolean isIncludeElement(PsiElement element) {
-    return PsiUtils.isChild(element, List.of(INCLUDE));
+    return PsiUtils.isChild(element, List.of(INCLUDE)) && !PsiUtils.isChild(element, List.of(TRIGGER));
   }
 
   public static boolean isNeedsElement(PsiElement element) {
