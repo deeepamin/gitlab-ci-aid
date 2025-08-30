@@ -1,8 +1,5 @@
 name: Deploy Docusaurus Docs on Release
 on:
-  pull_request:
-    paths:
-      - 'docs/**'
   release:
     types: [published]
 jobs:
