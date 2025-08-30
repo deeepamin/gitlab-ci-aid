@@ -26,6 +26,7 @@ import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
   private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, COMPONENT, EXTENDS);
+  private static final List<String> NON_GITLAB_CI_ELEMENTS = List.of("kind");
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
@@ -84,6 +85,11 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
     var psiFile = PsiManager.getInstance(project).findFile(file);
     if (!(psiFile instanceof YAMLFile)) {
       return false;
+    }
+    for (var nonGitlabCiElement : NON_GITLAB_CI_ELEMENTS) {
+      if (PsiUtils.hasChild(psiFile, nonGitlabCiElement)) {
+        return false;
+      }
     }
     for (var potentialGitlabCiElement : POTENTIAL_GITLAB_CI_ELEMENTS) {
       if (PsiUtils.hasChild(psiFile, potentialGitlabCiElement)) {

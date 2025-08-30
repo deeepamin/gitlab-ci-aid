@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PsiUtils {
+  private static final int MAX_RECURSION_DEPTH = 20;
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
     Optional<YAMLKeyValue> parent = findParent(element, parentKeys);
@@ -48,7 +49,11 @@ public class PsiUtils {
   }
 
   public static boolean hasChild(PsiElement element, String childKey) {
-    if (element == null || childKey == null) {
+    return hasChild(element, childKey, 0, MAX_RECURSION_DEPTH);
+  }
+
+  private static boolean hasChild(PsiElement element, String childKey, int depth, int maxDepth) {
+    if (element == null || childKey == null || depth > maxDepth) {
       return false;
     }
     if (element instanceof YAMLKeyValue keyValue) {
@@ -59,9 +64,8 @@ public class PsiUtils {
     if (element.getText().equals(childKey)) {
       return true;
     }
-    var children = element.getChildren();
-    for (PsiElement child : children) {
-      if (hasChild(child, childKey)) {
+    for (PsiElement child : element.getChildren()) {
+      if (hasChild(child, childKey, depth + 1, maxDepth)) {
         return true;
       }
     }
