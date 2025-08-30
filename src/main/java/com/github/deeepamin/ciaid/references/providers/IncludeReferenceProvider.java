@@ -3,7 +3,6 @@ package com.github.deeepamin.ciaid.references.providers;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.references.resolvers.IncludeFileReferenceResolver;
-import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
@@ -13,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,15 +37,11 @@ public class IncludeReferenceProvider extends AbstractReferenceProvider {
       var includePathCacheKey = getIncludeCacheKey(element);
       var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
       if (includePath != null) {
-        try {
-          return Optional.of(new PsiReference[]{new IncludeFileReferenceResolver(element, Path.of(includePath))});
-        } catch (InvalidPathException e) {
-          LOG.warn("Invalid path for include file: " + includePath, e);
-        }
+        return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, includePath) });
       }
     } else {
-      var filePath = FileUtils.getFilePath(handleQuotedText(element.getText()), element.getProject());
-      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePath) });
+      var filePattern = handleQuotedText(element.getText());
+      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePattern) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }

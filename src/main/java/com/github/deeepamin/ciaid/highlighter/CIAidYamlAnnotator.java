@@ -191,6 +191,17 @@ public class CIAidYamlAnnotator implements Annotator {
                 return;
               }
               var project = includeElement.getProject();
+              var pathContainsWildcard = CIAidUtils.containsWildcard(filePath);
+              if (pathContainsWildcard) {
+                var includeFiles = FileUtils.findVirtualFilesByGlob(filePath, project);
+                if (includeFiles.isEmpty()) {
+                  return;
+                } else {
+                  holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+                          .textAttributes(INCLUDE_HIGHLIGHTER)
+                          .create();
+                }
+              }
               var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               var isRemoteInclude = CIAidUtils.isValidUrl(filePath);
               if (includeVirtualFile != null && !isRemoteInclude) {

@@ -36,13 +36,20 @@ public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspection
                 return;
               }
               var project = element.getProject();
+              var pathContainsWildcard = CIAidUtils.containsWildcard(filePath);
+              if (pathContainsWildcard) {
+                var includeFiles = FileUtils.findVirtualFilesByGlob(filePath, project);
+                if (includeFiles.isEmpty()) {
+                  registerProblemAndQuickFix(element, holder);
+                } else {
+                  return;
+                }
+              }
               var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               var isRemoteInclude = CIAidUtils.isValidUrl(filePath);
               if (includeVirtualFile == null) {
                 if (!isRemoteInclude) {
-                  var inspectionText = CIAidBundle.message("inspections.gitlab.ci.include-not-found", handleQuotedText(element.getText()));
-                  var quickFix = new CreateIncludeFileQuickFix();
-                  holder.registerProblem(element, inspectionText, quickFix);
+                  registerProblemAndQuickFix(element, holder);
                 }
               }
             }
@@ -50,5 +57,11 @@ public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspection
         }
       }
     };
+  }
+
+  private void registerProblemAndQuickFix(@NotNull PsiElement element, @NotNull ProblemsHolder holder) {
+    var inspectionText = CIAidBundle.message("inspections.gitlab.ci.include-not-found", handleQuotedText(element.getText()));
+    var quickFix = new CreateIncludeFileQuickFix();
+    holder.registerProblem(element, inspectionText, quickFix);
   }
 }

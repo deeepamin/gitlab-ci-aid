@@ -36,4 +36,12 @@ public class IncludeFileReferenceResolverTest extends BaseTest {
     assertNotNull(reference);
     assertTrue(reference instanceof IncludeFileReferenceResolver);
   }
+
+  public void testWildcardInclude() {
+    var testDir = getTestDirectoryName();
+    var gitlabCIYamlPath = TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
+    var reference = myFixture.getReferenceAtCaretPosition(gitlabCIYamlPath);
+    assertNotNull(reference);
+    assertTrue(reference instanceof IncludeFileReferenceResolver);
+  }
 }
