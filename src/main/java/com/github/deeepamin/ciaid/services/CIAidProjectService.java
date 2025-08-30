@@ -3,6 +3,8 @@ package com.github.deeepamin.ciaid.services;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
 import com.github.deeepamin.ciaid.services.listeners.CIAidPsiTreeChangeListener;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
+import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
@@ -156,15 +158,25 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   private void readUserMarkedYamls() {
     final var ciAidSettingsState = CIAidSettingsState.getInstance(project);
     ciAidSettingsState.getYamlToUserMarkings().forEach((path, ignore) -> {
-      final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(path);
-      if (gitlabCIYamlFile != null) {
-        if (ignore) {
-          ignoreCIYamlFile(gitlabCIYamlFile, project);
-          return;
+      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      if (pathContainsWildcard) {
+        var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
+        matchingFiles.forEach(file -> doReadUserMarkedYaml(file, ignore));
+      } else {
+        final var gitlabCIYamlFile = LocalFileSystem.getInstance().findFileByPath(path);
+        if (gitlabCIYamlFile != null) {
+          doReadUserMarkedYaml(gitlabCIYamlFile, ignore);
         }
-        readGitlabCIYamlData(gitlabCIYamlFile, true, false);
       }
     });
+  }
+
+  private void doReadUserMarkedYaml(VirtualFile virtualFile, boolean ignore) {
+    if (ignore) {
+      ignoreCIYamlFile(virtualFile, project);
+      return;
+    }
+    readGitlabCIYamlData(virtualFile, true, false);
   }
 
   @Override

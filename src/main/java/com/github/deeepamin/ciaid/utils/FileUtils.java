@@ -72,11 +72,15 @@ public class FileUtils {
       return result;
     }
     try {
-      Path root = Path.of(basePath);
-      String normalizedPattern = globPattern.replace("\\", "/");
+      String normalizedPattern = globPattern;
+      if (normalizedPattern.startsWith(basePath)) {
+        normalizedPattern = normalizedPattern.substring(basePath.length());
+      }
+      normalizedPattern = normalizedPattern.replace("\\", "/");
       if (normalizedPattern.startsWith("/")) {
         normalizedPattern = normalizedPattern.substring(1);
       }
+      Path root = Path.of(basePath);
       PathMatcher matcher = root.getFileSystem().getPathMatcher("glob:" + normalizedPattern);
       try (var paths = Files.walk(root)) {
         paths.filter(Files::isRegularFile)

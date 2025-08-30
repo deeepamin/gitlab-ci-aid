@@ -2,6 +2,8 @@ package com.github.deeepamin.ciaid.settings;
 
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.CIAidUtils;
+import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
@@ -11,6 +13,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ContextHelpLabel;
+import com.intellij.ui.EditorNotifications;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBCheckBox;
@@ -132,7 +135,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     editorNotificationDisabledCheckBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     editorNotificationDisabledCheckBox.setSelected(CIAidSettingsState.getInstance(project).isEditorNotificationDisabled());
 
-    DefaultTableModel tableModel = new DefaultTableModel(new Object[]{CIAidBundle.message("settings.user.yamls.table.path-column"), CIAidBundle.message("settings.user.yamls.table.ignore-column")}, 0) {
+    DefaultTableModel tableModel = new DefaultTableModel(new Object[]{CIAidBundle.message("settings.user.yamls.table.path-or-glob-column"), CIAidBundle.message("settings.user.yamls.table.ignore-column")}, 0) {
     };
 
     userMarkedFilesTable = new JBTable(tableModel);
@@ -189,18 +192,6 @@ public class CIAidSettingsConfigurable implements Configurable {
     return yamlToUserMarkings;
   }
 
-  private void handleFile(VirtualFile virtualFile, boolean ignore) {
-    var projectService = CIAidProjectService.getInstance(project);
-    if (ignore) {
-      CIAidProjectService.ignoreCIYamlFile(virtualFile, project);
-      projectService.getPluginData().remove(virtualFile);
-    } else {
-      CIAidProjectService.markAsUserCIYamlFile(virtualFile, project);
-      projectService.readGitlabCIYamlData(virtualFile, true, false);
-    }
-    refreshVirtualFile(virtualFile);
-  }
-
   private void refreshVirtualFile(VirtualFile virtualFile) {
     virtualFile.refresh(true, false);
   }
@@ -222,32 +213,61 @@ public class CIAidSettingsConfigurable implements Configurable {
 
     PsiManager.getInstance(project).dropPsiCaches();
     removedFiles.forEach(path -> {
-      var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
-      if (virtualFile != null) {
-        var projectService = CIAidProjectService.getInstance(project);
-        CIAidProjectService.removeMarkingOfUserCIYamlFile(virtualFile);
-        projectService.getPluginData().remove(virtualFile);
-        refreshVirtualFile(virtualFile);
+      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      if (pathContainsWildcard) {
+        var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
+        matchingFiles.forEach(this::doRemoveVirtualFile);
+      } else {
+        var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
+        if (virtualFile != null) {
+          doRemoveVirtualFile(virtualFile);
+        }
       }
       ciaidSettingsState.getYamlToUserMarkings().remove(path);
     });
     removedFiles.clear();
 
     getYamlToUserMarkings().forEach((path, markOrIgnore) -> {
-      var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
-      if (virtualFile == null) {
-        return;
-      }
-      if (ciaidSettingsState.getYamlToUserMarkings().containsKey(path)) {
-        var markOrIgnoreFromState = ciaidSettingsState.getYamlToUserMarkings().get(path);
-        if (markOrIgnore != markOrIgnoreFromState) {
-          handleFile(virtualFile, markOrIgnore);
-        }
+      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      if (pathContainsWildcard) {
+        var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
+        matchingFiles.forEach(file -> doReadVirtualFile(path, markOrIgnore != null ? markOrIgnore : false, file));
       } else {
-        handleFile(virtualFile, markOrIgnore);
+        var virtualFile = LocalFileSystem.getInstance().findFileByPath(path);
+        if (virtualFile != null) {
+          doReadVirtualFile(path, markOrIgnore != null ? markOrIgnore : false, virtualFile);
+        }
       }
     });
     ciaidSettingsState.setYamlToUserMarkings(getYamlToUserMarkings());
+  }
+
+  private void doReadVirtualFile(String path, Boolean markOrIgnore, VirtualFile virtualFile) {
+    var ciAidSettingsState = CIAidSettingsState.getInstance(project);
+
+    if (ciAidSettingsState.getYamlToUserMarkings().containsKey(path)) {
+      var markOrIgnoreFromState = ciAidSettingsState.getYamlToUserMarkings().get(path);
+      if (markOrIgnore.equals(markOrIgnoreFromState)) {
+        return;
+      }
+    }
+    var projectService = CIAidProjectService.getInstance(project);
+    if (markOrIgnore) {
+      CIAidProjectService.ignoreCIYamlFile(virtualFile, project);
+      projectService.getPluginData().remove(virtualFile);
+    } else {
+      CIAidProjectService.markAsUserCIYamlFile(virtualFile, project);
+      projectService.readGitlabCIYamlData(virtualFile, true, false);
+      EditorNotifications.getInstance(project).updateNotifications(virtualFile);
+    }
+    refreshVirtualFile(virtualFile);
+  }
+
+  private void doRemoveVirtualFile(VirtualFile virtualFile) {
+    var projectService = CIAidProjectService.getInstance(project);
+    CIAidProjectService.removeMarkingOfUserCIYamlFile(virtualFile);
+    projectService.getPluginData().remove(virtualFile);
+    refreshVirtualFile(virtualFile);
   }
 
   @Override
