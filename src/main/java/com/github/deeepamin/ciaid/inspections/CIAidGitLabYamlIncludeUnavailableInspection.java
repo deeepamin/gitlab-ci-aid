@@ -36,7 +36,7 @@ public class CIAidGitLabYamlIncludeUnavailableInspection extends LocalInspection
                 return;
               }
               var project = element.getProject();
-              var pathContainsWildcard = CIAidUtils.containsWildcard(filePath);
+              var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(filePath);
               if (pathContainsWildcard) {
                 var includeFiles = FileUtils.findVirtualFilesByGlob(filePath, project);
                 if (includeFiles.isEmpty()) {

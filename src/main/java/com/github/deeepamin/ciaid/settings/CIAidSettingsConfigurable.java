@@ -213,7 +213,7 @@ public class CIAidSettingsConfigurable implements Configurable {
 
     PsiManager.getInstance(project).dropPsiCaches();
     removedFiles.forEach(path -> {
-      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(path);
       if (pathContainsWildcard) {
         var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
         matchingFiles.forEach(this::doRemoveVirtualFile);
@@ -228,7 +228,7 @@ public class CIAidSettingsConfigurable implements Configurable {
     removedFiles.clear();
 
     getYamlToUserMarkings().forEach((path, markOrIgnore) -> {
-      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(path);
       if (pathContainsWildcard) {
         var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
         matchingFiles.forEach(file -> doReadVirtualFile(path, markOrIgnore != null ? markOrIgnore : false, file));

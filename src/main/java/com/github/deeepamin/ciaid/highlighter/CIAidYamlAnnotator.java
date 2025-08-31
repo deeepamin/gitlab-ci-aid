@@ -191,7 +191,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 return;
               }
               var project = includeElement.getProject();
-              var pathContainsWildcard = CIAidUtils.containsWildcard(filePath);
+              var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(filePath);
               if (pathContainsWildcard) {
                 var includeFiles = FileUtils.findVirtualFilesByGlob(filePath, project);
                 if (includeFiles.isEmpty()) {

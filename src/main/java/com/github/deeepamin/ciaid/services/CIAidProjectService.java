@@ -130,6 +130,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   }
 
   public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
+    if (file == null) {
+      LOG.warn("Cannot read GitlabCIYamlData: file is null");
+      return;
+    }
     dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);
   }
 
@@ -162,7 +166,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     for (var entry : entries) {
       String path = entry.getKey();
       boolean ignore = entry.getValue();
-      var pathContainsWildcard = CIAidUtils.containsWildcard(path);
+      var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(path);
       if (pathContainsWildcard) {
         var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
         matchingFiles.forEach(file -> doReadUserMarkedYaml(file, ignore));
