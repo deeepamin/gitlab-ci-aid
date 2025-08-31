@@ -17,7 +17,7 @@ public class LocalIncludeProvider extends AbstractIncludeProvider {
   public void readIncludeFile() {
     var sanitizedYamlPath = FileUtils.sanitizeFilePath(filePath);
     var ciAidProjectService = CIAidProjectService.getInstance(project);
-    if (CIAidUtils.containsWildcard(sanitizedYamlPath)) {
+    if (CIAidUtils.containsWildcardWithYmlExtension(sanitizedYamlPath)) {
       var matches = FileUtils.findVirtualFilesByGlob(sanitizedYamlPath, project);
       for (var includeVirtualFile : matches) {
         ciAidProjectService.readGitlabCIYamlData(includeVirtualFile, userMarked, false);

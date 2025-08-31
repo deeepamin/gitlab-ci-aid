@@ -21,7 +21,7 @@ public class IncludeFileReferenceResolver extends PsiPolyVariantReferenceBase<Ps
   @Override
   public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
     var project = myElement.getProject();
-    if (CIAidUtils.containsWildcard(filePattern)) {
+    if (CIAidUtils.containsWildcardWithYmlExtension(filePattern)) {
       var files = FileUtils.findVirtualFilesByGlob(filePattern, project);
       var psiManager = PsiManager.getInstance(project);
       return files.stream()

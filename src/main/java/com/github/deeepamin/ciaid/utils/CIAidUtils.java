@@ -45,6 +45,10 @@ public class CIAidUtils {
     return text;
   }
 
+  public static boolean containsWildcardWithYmlExtension(String path) {
+    return containsWildcard(path) && (path.endsWith(".yml") || path.endsWith(".yaml"));
+  }
+
   public static boolean containsWildcard(String path) {
     return path != null && path.contains("*");
   }

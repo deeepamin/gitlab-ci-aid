@@ -28,8 +28,7 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
     }
     PsiDocumentManager.getInstance(project).performLaterWhenAllCommitted(() -> {
       var ciAidProjectService = CIAidProjectService.getInstance(project);
-      ciAidProjectService.getDataProvider()
-              .readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
+      ciAidProjectService.readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
       DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
     });
   }

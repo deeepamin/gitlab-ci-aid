@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,14 +65,13 @@ public class FileUtils {
             .findFirst();
   }
 
-  public static List<VirtualFile> findVirtualFilesByGlob(String globPattern, Project project) {
-    List<VirtualFile> result = new ArrayList<>();
-    String basePath = project.getBasePath();
-    if (basePath == null || globPattern == null) {
-      return result;
+  public static List<VirtualFile> findVirtualFilesByGlob(String glob, Project project) {
+    var basePath = project.getBasePath();
+    if (basePath == null || glob == null) {
+      return new ArrayList<>();
     }
-    try {
-      String normalizedPattern = globPattern;
+    return ReadAction.compute(() -> {
+      String normalizedPattern = glob;
       if (normalizedPattern.startsWith(basePath)) {
         normalizedPattern = normalizedPattern.substring(basePath.length());
       }
@@ -80,22 +79,33 @@ public class FileUtils {
       if (normalizedPattern.startsWith("/")) {
         normalizedPattern = normalizedPattern.substring(1);
       }
-      Path root = Path.of(basePath);
-      PathMatcher matcher = root.getFileSystem().getPathMatcher("glob:" + normalizedPattern);
-      try (var paths = Files.walk(root)) {
-        paths.filter(Files::isRegularFile)
-                .filter(path -> matcher.matches(root.relativize(path)))
-                .forEach(path -> {
-                  VirtualFile vf = LocalFileSystem.getInstance().findFileByPath(path.toString());
-                  if (vf != null && vf.exists() && vf.isValid()) {
-                    result.add(vf);
-                  }
-                });
-      }
-    } catch (Exception e) {
-      LOG.warn("Error during glob file search: " + e.getMessage(), e);
-    }
-    return result;
+      final var sanitizedPattern = normalizedPattern;
+      var files = new ArrayList<VirtualFile>();
+      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yml"));
+      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yaml"));
+      return files;
+    });
+  }
+
+  private static List<VirtualFile> getGlobMatchingVirtualFilesByExtension(Project project, String glob, String extension) {
+    return FilenameIndex.getAllFilesByExt(project, extension)
+            .stream()
+            .filter(virtualFile -> {
+              try {
+                var basePath = project.getBasePath();
+                if (basePath == null) {
+                  return false;
+                }
+                var projectBasePath = Path.of(basePath);
+                var virtualFilePath = Path.of(virtualFile.getPath());
+                var matcher = projectBasePath.getFileSystem().getPathMatcher("glob:" + glob);
+                return matcher.matches(projectBasePath.relativize(virtualFilePath));
+              } catch (Exception e) {
+                LOG.warn("Error matching file " + virtualFile.getPath(), e);
+              }
+              return false;
+            })
+            .toList();
   }
 
   public static void createFile(Path path) {
