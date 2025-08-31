@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.13.1] - 2025-08-31
+
 ### Added
 
 - Detailed documentation for all features and configuration options [Documentation](https://deeepamin.github.io/gitlab-ci-aid/)
@@ -260,7 +262,8 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.1...HEAD
+[1.13.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.12.0...v1.13.1
 [1.12.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.9.1...v1.10.0
