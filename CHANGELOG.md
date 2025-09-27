@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Component include regex char missing
+- Improvements for handling background tasks
+- Under the hood improvements for avoiding freezes
+
 ## [1.13.1] - 2025-08-31
 
 ### Added
