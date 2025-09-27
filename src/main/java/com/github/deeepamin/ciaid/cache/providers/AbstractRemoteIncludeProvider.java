@@ -103,6 +103,6 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     var ciAidCacheService = CIAidCacheService.getInstance();
     ciAidCacheService.addIncludeIdentifierToCacheFilePath(cacheKey, cacheFile.getAbsolutePath());
     ciAidCacheService.addFilePathToStateCache(project, cacheFile.getAbsolutePath());
-    CIAidCacheUtils.refreshAndReadFile(project, cacheFile);
+    CIAidCacheUtils.refreshAndReadFile(project, cacheFile, true);
   }
 }
