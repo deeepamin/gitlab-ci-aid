@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for includes under trigger
+
 ## [1.13.1] - 2025-08-31
 
 ### Added
