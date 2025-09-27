@@ -18,6 +18,9 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
 
   @Override
   public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
+    if (ApplicationManager.getApplication().isUnitTestMode()) {
+      return;
+    }
     var psiFile = event.getFile();
     if (psiFile == null || !CIAidProjectService.hasGitlabYamlFile(psiFile)) {
       return;
