@@ -27,17 +27,17 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
     if (virtualFile == null) {
       return;
     }
-    PsiDocumentManager.getInstance(project).performLaterWhenAllCommitted(() -> {
-      ApplicationManager.getApplication().executeOnPooledThread(() -> {
-        // Execute heavy operations on background thread
-        var ciAidProjectService = CIAidProjectService.getInstance(project);
-        ciAidProjectService.readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
+    PsiDocumentManager.getInstance(project)
+            .performLaterWhenAllCommitted(() -> ApplicationManager.getApplication()
+                    .executeOnPooledThread(() -> {
+      // Execute heavy operations on background thread
+      var ciAidProjectService = CIAidProjectService.getInstance(project);
+      ciAidProjectService
+              .readGitlabCIYamlData(virtualFile, CIAidProjectService.isMarkedAsUserCIYamlFile(virtualFile), true);
 
-        // Switch back to EDT for UI operations
-        ApplicationManager.getApplication().invokeLater(() -> {
-          DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
-        });
-      });
-    });
+      // Switch back to EDT for UI operations
+      ApplicationManager.getApplication()
+              .invokeLater(() -> DaemonCodeAnalyzer.getInstance(project).restart(psiFile));
+    }));
   }
 }
