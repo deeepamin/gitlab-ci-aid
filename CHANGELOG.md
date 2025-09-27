@@ -10,6 +10,7 @@
 
 ### Fixed
 
+- Project file with same name under same group had conflicting caches
 - Component include regex char missing
 - Improvements for handling background tasks
 - Under the hood improvements for avoiding freezes
