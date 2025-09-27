@@ -29,7 +29,7 @@ public class CIAidCacheUtils {
     return null;
   }
 
-  public static void refreshAndReadFile(Project project, File file) {
+  public static void refreshAndReadFile(Project project, File file, boolean dropPsiCache) {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
       var virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
       if (virtualFile != null) {
@@ -37,16 +37,18 @@ public class CIAidCacheUtils {
         var projectService = CIAidProjectService.getInstance(project);
         projectService.readGitlabCIYamlData(virtualFile, false, false);
       }
-      if (ApplicationManager.getApplication().isDispatchThread()) {
-        if (!project.isDisposed()) {
-          PsiManager.getInstance(project).dropPsiCaches();
-        }
-      } else {
-        ApplicationManager.getApplication().invokeLater(() -> {
+      if (dropPsiCache) {
+        if (ApplicationManager.getApplication().isDispatchThread()) {
           if (!project.isDisposed()) {
             PsiManager.getInstance(project).dropPsiCaches();
           }
-        });
+        } else {
+          ApplicationManager.getApplication().invokeLater(() -> {
+            if (!project.isDisposed()) {
+              PsiManager.getInstance(project).dropPsiCaches();
+            }
+          });
+        }
       }
     });
   }

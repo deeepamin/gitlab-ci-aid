@@ -54,8 +54,8 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
   }
 
   private @NotNull String getCacheFileDirectoryString() {
-    var filePathWithoutFileName = filePath.contains("/") && filePath.lastIndexOf("/") > 0 ? filePath.substring(0, filePath.lastIndexOf("/") - 1) : filePath;
-    return projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath +
+    var filePathWithoutFileName = filePath.contains("/") && filePath.lastIndexOf("/") > 0 ? filePath.substring(0, filePath.lastIndexOf("/")) : filePath;
+    return (projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath) +
             File.separator +
             (ref != null && !ref.isBlank() ? ref + File.separator : "") +
             (filePathWithoutFileName.contains("/") ? filePathWithoutFileName.replaceAll("/", File.separator) : filePathWithoutFileName);

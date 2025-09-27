@@ -56,7 +56,7 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
     state.filePathToCache.forEach((path, metadata) -> {
       File file = new File(path);
       if (file.exists()) {
-        CIAidCacheUtils.refreshAndReadFile(project, file);
+        CIAidCacheUtils.refreshAndReadFile(project, file, false);
       } else {
         LOG.warn("Cached file does not exist: " + path);
       }

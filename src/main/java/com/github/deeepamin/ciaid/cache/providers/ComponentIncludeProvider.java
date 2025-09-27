@@ -71,10 +71,10 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
 
     for (String path : possiblePaths) {
       var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, resolvedComponentVersion);
-      var projectFilePath = componentProjectPath.replaceAll("/", "_") +
+      var projectFilePath = (componentProjectPath.contains("/") ? componentProjectPath.replaceAll("/", "_") : componentProjectPath) +
               File.separator +
               (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + File.separator : "") +
-              path.replaceAll("/", File.separator);
+              (path.contains("/") ? path.replaceAll("/", File.separator) : path);
 
       var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(projectFilePath).toString();
       validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath);
