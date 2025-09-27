@@ -204,7 +204,8 @@ public class CIAidYamlAnnotator implements Annotator {
               }
               var includeVirtualFile = FileUtils.findVirtualFile(filePath, project).orElse(null);
               var isRemoteInclude = CIAidUtils.isValidUrl(filePath);
-              if (includeVirtualFile != null && !isRemoteInclude) {
+              var isTriggerInclude = PsiUtils.isChild(includeElement, List.of(TRIGGER));
+              if (includeVirtualFile != null && !isRemoteInclude && !isTriggerInclude) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
                         .textAttributes(INCLUDE_HIGHLIGHTER)
                         .create();

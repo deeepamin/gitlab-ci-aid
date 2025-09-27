@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for includes under trigger
+
 ### Fixed
 
 - Component include regex char missing
