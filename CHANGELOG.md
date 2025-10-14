@@ -8,6 +8,13 @@
 
 - Support for includes under trigger
 
+### Fixed
+
+- Project file with same name under same group had conflicting caches
+- Component include regex char missing
+- Improvements for handling background tasks
+- Under the hood improvements for avoiding freezes
+
 ## [1.13.1] - 2025-08-31
 
 ### Added
