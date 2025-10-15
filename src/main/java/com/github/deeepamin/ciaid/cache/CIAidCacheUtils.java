@@ -38,18 +38,18 @@ public class CIAidCacheUtils {
         projectService.readGitlabCIYamlData(virtualFile, false, false);
       }
       if (dropPsiCache) {
-        if (ApplicationManager.getApplication().isDispatchThread()) {
-          if (!project.isDisposed()) {
-            PsiManager.getInstance(project).dropPsiCaches();
+        ApplicationManager.getApplication().invokeLater(() -> {
+          if (project.isDisposed()) {
+            return;
           }
-        } else {
-          ApplicationManager.getApplication().invokeLater(() -> {
+          ApplicationManager.getApplication().runWriteAction(() -> {
             if (!project.isDisposed()) {
               PsiManager.getInstance(project).dropPsiCaches();
             }
           });
-        }
+        });
       }
+
     });
   }
 

@@ -12,6 +12,8 @@
 
 - Script file paths are not automatically updated when files are renamed
 - Include file references resolve to files outside the project instead of local files
+- Path separator handling on Windows causing error
+- Cache refresh results in IDE freeze
 
 ## [1.13.2] - 2025-10-14
 

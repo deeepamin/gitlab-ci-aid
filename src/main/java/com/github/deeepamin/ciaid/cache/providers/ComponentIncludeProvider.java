@@ -8,7 +8,6 @@ import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.project.Project;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -71,11 +70,10 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
 
     for (String path : possiblePaths) {
       var downloadUrl = GitLabConnectionUtils.getRepositoryFileDownloadUrl(project, componentProjectPath, path, resolvedComponentVersion);
-      var projectFilePath = (componentProjectPath.contains("/") ? componentProjectPath.replaceAll("/", "_") : componentProjectPath) +
-              File.separator +
-              (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + File.separator : "") +
-              (path.contains("/") ? path.replaceAll("/", File.separator) : path);
-
+      var projectFilePath = (componentProjectPath.contains("/") ? componentProjectPath.replace("/", "_") : componentProjectPath) +
+              "/" +
+              (resolvedComponentVersion != null && !resolvedComponentVersion.isBlank() ? resolvedComponentVersion + "/" : "") +
+              path;
       var cacheFilePath = Paths.get(getCacheDir().getAbsolutePath()).resolve(projectFilePath).toString();
       validateAndCacheRemoteFile(downloadUrl, filePath, cacheFilePath);
     }

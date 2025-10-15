@@ -5,7 +5,6 @@ import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 import static com.github.deeepamin.ciaid.cache.CIAidCacheUtils.getProjectFileCacheKey;
@@ -55,9 +54,9 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
 
   private @NotNull String getCacheFileDirectoryString() {
     var filePathWithoutFileName = filePath.contains("/") && filePath.lastIndexOf("/") > 0 ? filePath.substring(0, filePath.lastIndexOf("/")) : filePath;
-    return (projectPath.contains("/") ? projectPath.replaceAll("/", "_") : projectPath) +
-            File.separator +
-            (ref != null && !ref.isBlank() ? ref + File.separator : "") +
-            (filePathWithoutFileName.contains("/") ? filePathWithoutFileName.replaceAll("/", File.separator) : filePathWithoutFileName);
+    return (projectPath.contains("/") ? projectPath.replace("/", "_") : projectPath) +
+            "/" +
+            (ref != null && !ref.isBlank() ? ref + "/" : "") +
+            filePathWithoutFileName;
   }
 }
