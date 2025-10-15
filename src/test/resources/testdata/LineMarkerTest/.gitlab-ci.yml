@@ -1,0 +1,52 @@
+.gradle:
+  script:
+    - echo "gradle build"
+  after_script:
+    - echo "gradle stats..."
+  image: gradle:latest
+
+.build:
+  extends: .gradle
+  before_script:
+    - echo "preparing build"
+  after_script:
+    - echo "build stats..."
+
+build_a:
+  extends: .build
+  script:
+    - echo "building A"
+  after_script:
+    - echo "override"
+  image: alpine:latest
+
+build_b:
+  extends: .build
+  script:
+    - echo "building B"
+
+# Job without extends - should not show override markers
+standalone_job:
+  script:
+    - echo "standalone"
+  after_script:
+    - echo "standalone after"
+
+# Test case for multiple inheritance levels
+.base:
+  variables:
+    VAR1: "base"
+  cache:
+    key: "base-cache"
+
+.middle:
+  extends: .base
+  variables:
+    VAR2: "middle"
+
+deep_job:
+  extends: .middle
+  variables:
+    VAR3: "deep"
+  cache:
+    key: "deep-cache"
