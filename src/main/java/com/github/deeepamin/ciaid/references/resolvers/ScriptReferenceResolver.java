@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,5 +23,23 @@ public class ScriptReferenceResolver extends PsiReferenceBase<PsiElement> {
       return PsiManager.getInstance(project).findFile(localFileSystemPath);
     }
     return null;
+  }
+
+  @Override
+  public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+    String currentValue = getValue().trim();
+
+    String newValue;
+    int lastSlashIndex = Math.max(currentValue.lastIndexOf('/'), currentValue.lastIndexOf('\\'));
+
+    if (lastSlashIndex >= 0) {
+      // Has directory path, replace only the filename
+      newValue = currentValue.substring(0, lastSlashIndex + 1) + newElementName;
+    } else {
+      // No directory path, just replace with new name
+      newValue = newElementName;
+    }
+
+    return super.handleElementRename(newValue);
   }
 }
