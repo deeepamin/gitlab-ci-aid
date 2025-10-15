@@ -8,6 +8,10 @@
 
 - Override indicators using gutter icons for extends job chain
 
+### Fixed
+
+- Script file paths are not automatically updated when files are renamed
+
 ## [1.13.2] - 2025-10-14
 
 ### Added
