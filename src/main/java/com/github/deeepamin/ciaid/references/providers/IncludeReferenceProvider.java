@@ -37,11 +37,11 @@ public class IncludeReferenceProvider extends AbstractReferenceProvider {
       var includePathCacheKey = getIncludeCacheKey(element);
       var includePath = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(includePathCacheKey);
       if (includePath != null) {
-        return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, includePath) });
+        return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, includePath, true) });
       }
     } else {
       var filePattern = handleQuotedText(element.getText());
-      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePattern) });
+      return Optional.of(new PsiReference[]{ new IncludeFileReferenceResolver(element, filePattern, false) });
     }
     return Optional.of(PsiReference.EMPTY_ARRAY);
   }
