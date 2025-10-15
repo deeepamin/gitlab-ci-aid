@@ -11,6 +11,7 @@
 ### Fixed
 
 - Script file paths are not automatically updated when files are renamed
+- Include file references resolve to files outside the project instead of local files
 
 ## [1.13.2] - 2025-10-14
 

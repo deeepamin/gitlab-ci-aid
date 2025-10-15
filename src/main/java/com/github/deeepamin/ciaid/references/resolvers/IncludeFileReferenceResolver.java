@@ -10,6 +10,8 @@ import com.intellij.psi.PsiPolyVariantReferenceBase;
 import com.intellij.psi.ResolveResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public class IncludeFileReferenceResolver extends PsiPolyVariantReferenceBase<PsiElement> {
   private final String filePattern;
 
@@ -30,14 +32,19 @@ public class IncludeFileReferenceResolver extends PsiPolyVariantReferenceBase<Ps
         .map(PsiElementResolveResult::new)
         .toArray(ResolveResult[]::new);
     } else {
-      var localFileSystemPath = LocalFileSystem.getInstance().findFileByPath(filePattern);
-      if (localFileSystemPath != null) {
-        var psiFile = PsiManager.getInstance(project).findFile(localFileSystemPath);
-        if (psiFile != null) {
-          return new ResolveResult[] { new PsiElementResolveResult(psiFile) };
+      var projectBasePath = project.getBasePath();
+      if (projectBasePath != null) {
+        var absolutePath = projectBasePath + File.separator + filePattern;
+        var localFileSystemPath = LocalFileSystem.getInstance().findFileByPath(absolutePath);
+        if (localFileSystemPath != null) {
+          var psiFile = PsiManager.getInstance(project).findFile(localFileSystemPath);
+          if (psiFile != null) {
+            return new ResolveResult[] { new PsiElementResolveResult(psiFile) };
+          }
         }
       }
-      // fallback to IntelliJ Filesystem Global search
+
+      // fallback to IntelliJ Filesystem Global search (only if not found in project)
       var fallback = FileUtils.findVirtualFile(filePattern, project).orElse(null);
       if (fallback != null) {
         var psiFile = PsiManager.getInstance(project).findFile(fallback);
