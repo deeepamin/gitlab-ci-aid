@@ -44,11 +44,11 @@ public class GitlabCIYamlKeywords {
   public static final String HOOKS = "hooks";
   public static final String INTERRUPTIBLE = "interruptible";
   public static final String TRIGGER = "trigger";
+  public static final String TAGS = "tags";
 
   private static final String ID_TOKENS = "id_tokens";
   private static final String IDENTITY = "identity";
   private static final String RETRY = "retry";
-  private static final String TAGS = "tags";
   private static final String TIMEOUT = "timeout";
 
   public static final List<String> TOP_LEVEL_KEYWORDS = List.of(

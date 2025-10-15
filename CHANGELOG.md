@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Override indicators using gutter icons for extends job chain
+
 ## [1.13.2] - 2025-10-14
 
 ### Added
