@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.lineMarkers;
 
-import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.cache.providers.BaseIntegrationTest;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.psi.PsiElement;
@@ -9,7 +9,7 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CIAidJobOverrideLineMarkerProviderIntegrationTest extends BaseTest {
+public class CIAidJobOverrideLineMarkerProviderIntegrationTest extends BaseIntegrationTest {
   private static final String TEST_DIR_PATH = getOsAgnosticPath("/LineMarkerTest");
   private CIAidJobOverrideLineMarkerProvider lineMarkerProvider;
   private PsiElement psiYaml;
