@@ -8,22 +8,13 @@ import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.openapi.project.Project;
 
-import java.io.IOException;
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static com.github.deeepamin.ciaid.utils.GitLabConnectionUtils.GITLAB_PRIVATE_TOKEN_HEADER;
-import static java.net.HttpURLConnection.HTTP_OK;
 
 public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
   private static final String COMPONENTS_DIR_IN_GITLAB = "templates";
@@ -88,32 +79,17 @@ public class ComponentIncludeProvider extends AbstractRemoteIncludeProvider {
     var gitlabApiUrl = CIAidSettingsState.getInstance(project).getGitLabAPIUrl();
 
     String url = String.format(GitLabConnectionUtils.GITLAB_PROJECT_TAGS_PATH, gitlabApiUrl, encodedProject);
-    try (var httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build()) {
 
-      HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-              .uri(URI.create(url));
+    // Use GitLabConnectionUtils.downloadContent instead of direct HTTP calls
+    String responseBody = GitLabConnectionUtils.downloadContent(url, accessToken);
+    if (responseBody == null) {
+      LOG.debug("Couldn't resolve component version - failed to fetch tags");
+      return versionRef;
+    }
 
-      if (accessToken != null && !accessToken.isBlank()) {
-        requestBuilder.header(GITLAB_PRIVATE_TOKEN_HEADER, accessToken);
-      }
-
-      HttpResponse<String> response;
-      try {
-        response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
-      } catch (IOException | InterruptedException e) {
-        LOG.debug("Couldn't resolve component version ");
-        return versionRef;
-      }
-
-      if (response.statusCode() != HTTP_OK) {
-        LOG.debug("Couldn't resolve component version " + response.body());
-        return versionRef;
-      }
-
+    try {
       var mapper = new ObjectMapper();
-      ArrayNode tags = (ArrayNode) mapper.readTree(response.body());
+      ArrayNode tags = (ArrayNode) mapper.readTree(responseBody);
       List<String> versions = new ArrayList<>();
       for (JsonNode tag : tags) {
         String name = tag.get("name").asText();
