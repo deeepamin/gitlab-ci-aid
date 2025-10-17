@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PsiUtils {
-  private static final int MAX_RECURSION_DEPTH = 20;
+  private static final int MAX_RECURSION_DEPTH = 10;
 
   public static boolean isChild(PsiElement element, List<String> parentKeys) {
     Optional<YAMLKeyValue> parent = findParent(element, parentKeys);
