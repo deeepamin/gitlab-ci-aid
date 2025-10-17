@@ -1,6 +1,6 @@
 package com.github.deeepamin.ciaid.references.providers;
 
-import com.github.deeepamin.ciaid.references.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.ciaid.references.resolvers.LocalIncludeFileResolver;
 
 public class IncludeReferenceProviderTest extends BaseReferenceProviderTest {
 
@@ -12,7 +12,7 @@ public class IncludeReferenceProviderTest extends BaseReferenceProviderTest {
     assertNotNull(referenceIncludeFile);
     assertTrue(referenceIncludeFile.isPresent());
     assertEquals(1, referenceIncludeFile.get().length);
-    assertTrue(referenceIncludeFile.get()[0] instanceof IncludeFileReferenceResolver);
+    assertTrue(referenceIncludeFile.get()[0] instanceof LocalIncludeFileResolver);
     assertEquals(includeFileElement, referenceIncludeFile.get()[0].getElement());
   }
 }

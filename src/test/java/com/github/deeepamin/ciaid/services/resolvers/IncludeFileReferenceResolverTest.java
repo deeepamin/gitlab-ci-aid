@@ -1,7 +1,8 @@
 package com.github.deeepamin.ciaid.services.resolvers;
 
 import com.github.deeepamin.ciaid.BaseTest;
-import com.github.deeepamin.ciaid.references.resolvers.IncludeFileReferenceResolver;
+import com.github.deeepamin.ciaid.references.resolvers.LocalIncludeFileResolver;
+import com.github.deeepamin.ciaid.references.resolvers.WildcardPatternIncludeFileResolver;
 
 import java.io.File;
 
@@ -14,7 +15,7 @@ public class IncludeFileReferenceResolverTest extends BaseTest {
     var pipelineCIYamlPath = TEST_DIR_PATH + File.separator + testDir + File.separator + "pipeline.yml";
     var reference = myFixture.getReferenceAtCaretPosition(gitlabCIYamlPath, pipelineCIYamlPath);
     assertNotNull(reference);
-    assertTrue(reference instanceof IncludeFileReferenceResolver);
+    assertTrue(reference instanceof LocalIncludeFileResolver);
     // reference resolve is null due to project basePath not returning copied dir in tests, so skipping that
   }
 
@@ -24,7 +25,7 @@ public class IncludeFileReferenceResolverTest extends BaseTest {
     var pipelineCIYamlPath = TEST_DIR_PATH + File.separator + testDir + File.separator + "pipeline.yml";
     var reference = myFixture.getReferenceAtCaretPosition(gitlabCIYamlPath, pipelineCIYamlPath);
     assertNotNull(reference);
-    assertTrue(reference instanceof IncludeFileReferenceResolver);
+    assertTrue(reference instanceof LocalIncludeFileResolver);
     // reference resolve is null due to project basePath not returning copied dir in tests, so skipping that
   }
 
@@ -34,7 +35,7 @@ public class IncludeFileReferenceResolverTest extends BaseTest {
     var pipelineCIYamlPath = TEST_DIR_PATH + File.separator + testDir + File.separator + "ci" + File.separator + PIPELINE_YML_PATH;
     var reference = myFixture.getReferenceAtCaretPosition(gitlabCIYamlPath, pipelineCIYamlPath);
     assertNotNull(reference);
-    assertTrue(reference instanceof IncludeFileReferenceResolver);
+    assertTrue(reference instanceof LocalIncludeFileResolver);
   }
 
   public void testWildcardInclude() {
@@ -42,6 +43,6 @@ public class IncludeFileReferenceResolverTest extends BaseTest {
     var gitlabCIYamlPath = TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
     var reference = myFixture.getReferenceAtCaretPosition(gitlabCIYamlPath);
     assertNotNull(reference);
-    assertTrue(reference instanceof IncludeFileReferenceResolver);
+    assertTrue(reference instanceof WildcardPatternIncludeFileResolver);
   }
 }

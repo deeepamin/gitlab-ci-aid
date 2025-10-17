@@ -1,8 +1,8 @@
 package com.github.deeepamin.ciaid.highlighter;
 
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
-import com.github.deeepamin.ciaid.references.providers.IncludeReferenceProvider;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
+import com.github.deeepamin.ciaid.references.resolvers.IncludeFileResolverFactory;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
@@ -174,7 +174,7 @@ public class CIAidYamlAnnotator implements Annotator {
             .ifPresent(includeElement -> {
               var isNonLocalInclude = PsiUtils.isChild(includeElement, NON_LOCAL_INCLUDE_KEYWORDS);
               if (isNonLocalInclude) {
-                var cacheKey = IncludeReferenceProvider.getIncludeCacheKey(includeElement);
+                var cacheKey = IncludeFileResolverFactory.getIncludeCacheKey(includeElement);
                 if (cacheKey != null) {
                   var path = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
                   if (path != null) {
