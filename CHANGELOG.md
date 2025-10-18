@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.14.0] - 2025-10-17
+
 ### Added
 
 - Override indicators using gutter icons for extends job chain
@@ -286,7 +288,8 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.2...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.2...v1.14.0
 [1.13.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.12.0...v1.13.1
 [1.12.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.11.0...v1.12.0
