@@ -4,7 +4,7 @@ junit = "4.13.2"
 
 # plugins
 changelog = "2.4.0"
-intelliJPlatform = "2.10.2"
+intelliJPlatform = "2.10.3"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
