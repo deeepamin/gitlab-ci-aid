@@ -41,6 +41,8 @@ jobs:
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-cleanup: on-success
 
       # Set environment variables
       - name: Export Properties
