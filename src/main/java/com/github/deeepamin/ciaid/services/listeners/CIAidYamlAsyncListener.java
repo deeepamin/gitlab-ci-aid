@@ -38,7 +38,7 @@ public class CIAidYamlAsyncListener implements AsyncFileListener {
             projectService.readGitlabCIYamlData(file, userMarked, false);
             var psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile != null) {
-              DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
+              DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "GitLab CI YAML changed, re-analyzing");
             }
           }
         };

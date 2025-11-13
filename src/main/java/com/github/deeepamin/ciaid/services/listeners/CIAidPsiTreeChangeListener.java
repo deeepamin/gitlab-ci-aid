@@ -40,7 +40,7 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
 
       // Switch back to EDT for UI operations
       ApplicationManager.getApplication()
-              .invokeLater(() -> DaemonCodeAnalyzer.getInstance(project).restart(psiFile));
+              .invokeLater(() -> DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "GitLab CI YAML changed, re-analyzing"));
     }));
   }
 }
