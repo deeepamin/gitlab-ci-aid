@@ -5,6 +5,8 @@ import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -12,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLFile;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
+import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_YAML_POTENTIAL_KEY;
 import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_YAML_USER_MARKED_KEY;
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
@@ -40,10 +44,21 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
         // already read/marked file: true/false
         return null;
       }
-      if (!isPotentialGitlabCIYamlFile(file, project)) {
-        return null;
+      Boolean isPotentialYamlKeySet = file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY);
+      if (Boolean.TRUE.equals(isPotentialYamlKeySet)) {
+        return getEditorNotificationPanel(project, file, projectService);
       }
-      return getEditorNotificationPanel(project, file, projectService);
+      // Run slow check in background to avoid EDT violation
+      ReadAction.nonBlocking(() -> isPotentialGitlabCIYamlFile(file, project))
+        .finishOnUiThread(ModalityState.any(), result -> {
+          if (Boolean.TRUE.equals(result)) {
+            file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, true);
+            EditorNotifications.getInstance(project).updateNotifications(file);
+          } else {
+            file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, false);
+          }
+        }).submit(AppExecutorUtil.getAppExecutorService());
+      return null;
     };
   }
 
