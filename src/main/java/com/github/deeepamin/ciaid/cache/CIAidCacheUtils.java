@@ -39,17 +39,11 @@ public class CIAidCacheUtils {
       }
       if (dropPsiCache) {
         ApplicationManager.getApplication().invokeLater(() -> {
-          if (project.isDisposed()) {
-            return;
+          if (!project.isDisposed()) {
+            PsiManager.getInstance(project).dropPsiCaches();
           }
-          ApplicationManager.getApplication().runWriteAction(() -> {
-            if (!project.isDisposed()) {
-              PsiManager.getInstance(project).dropPsiCaches();
-            }
-          });
         });
       }
-
     });
   }
 

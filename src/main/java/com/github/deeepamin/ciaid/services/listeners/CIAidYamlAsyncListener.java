@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class CIAidYamlAsyncListener implements AsyncFileListener {
   private static final Logger LOG = Logger.getInstance(CIAidYamlAsyncListener.class);
   @Override

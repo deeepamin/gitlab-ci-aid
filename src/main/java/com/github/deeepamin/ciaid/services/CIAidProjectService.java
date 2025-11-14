@@ -30,6 +30,7 @@ import java.util.Optional;
 public final class CIAidProjectService implements DumbAware, Disposable {
   public static final Key<Boolean> GITLAB_CI_YAML_MARKED_KEY = Key.create("CIAid.Gitlab.YAML");
   public static final Key<Boolean> GITLAB_CI_YAML_USER_MARKED_KEY = Key.create("CIAid.Gitlab.User.YAML");
+  public static final Key<Boolean> GITLAB_CI_YAML_POTENTIAL_KEY = Key.create("CIAid.Gitlab.Potential.YAML");
   public static final String GITLAB_CI_DEFAULT_YML_FILE = ".gitlab-ci.yml";
   public static final String GITLAB_CI_DEFAULT_YAML_FILE = ".gitlab-ci.yaml";
   public static final List<String> GITLAB_CI_DEFAULT_YAML_FILES = List.of(GITLAB_CI_DEFAULT_YML_FILE, GITLAB_CI_DEFAULT_YAML_FILE);

@@ -31,6 +31,14 @@ jobs:
 
     steps:
 
+      # Free GitHub Actions Environment Disk Space (only for Linux)
+      - name: Maximize Build Space
+        if: matrix.os == 'ubuntu-latest'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
+
       # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v5
@@ -45,6 +53,8 @@ jobs:
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-cleanup: on-success
 
       # Run IDEA prepared for UI testing
       - name: Run IDE
