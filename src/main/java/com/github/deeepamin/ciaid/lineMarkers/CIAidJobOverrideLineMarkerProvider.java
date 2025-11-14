@@ -46,10 +46,7 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
   @Override
   public @Nullable LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
     // Only process YAMLKeyValue elements
-    if (!(element instanceof YAMLKeyValue keyValue)) {
-      return null;
-    }
-    if (keyValue.getKey() == null) {
+    if (!(element instanceof YAMLKeyValue keyValue) || keyValue.getKey() == null) {
       return null;
     }
     var isGitLabCIYaml = CIAidProjectService.hasGitlabYamlFile(keyValue);
@@ -112,9 +109,9 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
 
     while (currentJob != null && depth < maxDepth) {
       // Find the extends property in the current job
-      YAMLMapping jobMapping = (YAMLMapping) currentJob.getValue();
-      if (jobMapping == null) {
-        break;
+      var jobValue = currentJob.getValue();
+      if (!(jobValue instanceof YAMLMapping jobMapping)) {
+        continue;
       }
 
       YAMLKeyValue extendsKeyValue = jobMapping.getKeyValueByKey(EXTENDS);
@@ -156,8 +153,8 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
         continue;
       }
 
-      YAMLMapping jobMapping = (YAMLMapping) job.getValue();
-      if (jobMapping == null) {
+      var jobValue = job.getValue();
+      if (!(jobValue instanceof YAMLMapping jobMapping)) {
         continue;
       }
 
