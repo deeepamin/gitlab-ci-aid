@@ -71,10 +71,14 @@ private void injectShell(MultiHostRegistrar registrar, PsiElement context, @NotN
     var isScript = PsiUtils.isChild(context, SCRIPT_KEYWORDS);
     var isRefTag = RefTagReferenceProvider.getReferenceTag(yamlPsiElement) != null;
     if (isScript && !isRefTag) {
-      registrar
-              .startInjecting(language)
-              .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
-              .doneInjecting();
+      try {
+        registrar
+                .startInjecting(language)
+                .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
+                .doneInjecting();
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to inject language into YAML element: " + context.getText(), e);
+      }
     }
   }
 
