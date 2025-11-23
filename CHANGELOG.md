@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- YAMLMapping class cast exception with certain files
+- Slow operations are moved off the EDT thread to avoid freezes
+- Null pointer exceptions for freshly opened files in certain cases
+
+### Changed
+
+- Job names are referenced from `stages` element instead of `stage` to easily distinguish between jobs
+
 ## [1.14.0] - 2025-10-17
 
 ### Added
