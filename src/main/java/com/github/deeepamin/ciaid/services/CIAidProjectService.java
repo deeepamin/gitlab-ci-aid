@@ -166,7 +166,7 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     var entries = new ArrayList<>(ciAidSettingsState.getYamlToUserMarkings().entrySet());
     for (var entry : entries) {
       String path = entry.getKey();
-      boolean ignore = entry.getValue();
+      boolean ignore = entry.getValue() != null && entry.getValue();
       var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(path);
       if (pathContainsWildcard) {
         var matchingFiles = FileUtils.findVirtualFilesByGlob(path, project);
