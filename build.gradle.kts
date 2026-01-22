@@ -33,7 +33,7 @@ jacoco {
 dependencies {
     testImplementation(libs.junit)
     testImplementation("org.opentest4j:opentest4j:1.3.0")
-    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-core:5.21.0")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
