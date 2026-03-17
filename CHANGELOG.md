@@ -6,6 +6,7 @@
 
 ### Fixed
 
+- Empty warnings from Annotator when inspecting code
 - YAMLMapping class cast exception with certain files
 - Slow operations are moved off the EDT thread to avoid freezes
 - Null pointer exceptions for freshly opened files in certain cases
