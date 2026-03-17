@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Inspection for artifacts: expose_as to identify invalid characters e.g., dots and spaces and provide quick fix to replace them with underscores
+
 ### Fixed
 
 - Empty warnings from Annotator when inspecting code
