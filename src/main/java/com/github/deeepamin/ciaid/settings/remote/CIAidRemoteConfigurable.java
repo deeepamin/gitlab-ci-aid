@@ -4,9 +4,12 @@ import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.Pair;
@@ -253,7 +256,23 @@ public class CIAidRemoteConfigurable implements Configurable {
 
     clearCacheButton = new JButton(CIAidBundle.message("settings.remote.caching.clear-cache"));
     clearCacheButton.setEnabled(cachingEnabledCheckBox.isSelected());
-    clearCacheButton.addActionListener(e -> CIAidCacheService.getInstance().clearCache());
+    clearCacheButton.addActionListener(e -> {
+      clearCacheButton.setEnabled(false);
+      CIAidCacheService.getInstance().clearCache((success, errorMessage) ->
+        ApplicationManager.getApplication().invokeLater(() -> {
+          clearCacheButton.setEnabled(cachingEnabledCheckBox.isSelected());
+          if (success) {
+            Messages.showInfoMessage(
+                    CIAidBundle.message("settings.remote.caching.clear-cache.success"),
+                    CIAidBundle.message("settings.remote.caching.clear-cache"));
+          } else {
+            Messages.showErrorDialog(
+                    CIAidBundle.message("settings.remote.caching.clear-cache.error", errorMessage != null ? errorMessage : "Unknown error"),
+                    CIAidBundle.message("settings.remote.caching.clear-cache"));
+          }
+        }, ModalityState.any())
+      );
+    });
     cachingSettingsPanel = new JPanel(new BorderLayout(5, 5));
     cachingSettingsPanel.add(cachingEnabledCheckBox, BorderLayout.NORTH);
     cacheExpiryTimeLabel = new JLabel(CIAidBundle.message("settings.remote.caching.expiry-time") + ":");
