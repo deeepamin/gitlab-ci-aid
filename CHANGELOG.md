@@ -7,6 +7,7 @@
 ### Fixed
 
 - Empty warnings from Annotator when inspecting code
+- Code completion suggestions for GitLab YAML elements are shown in comments
 - YAMLMapping class cast exception with certain files
 - Slow operations are moved off the EDT thread to avoid freezes
 - Null pointer exceptions for freshly opened files in certain cases
