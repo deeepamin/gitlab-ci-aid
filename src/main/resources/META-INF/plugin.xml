@@ -66,6 +66,14 @@
                          key="inspections.gitlab.ci.need.job.unavailable"
                          enabledByDefault="true"
                          implementationClass="com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlUndefinedNeedsInspection"/>
+        <localInspection language="yaml"
+                         shortName="CIAidGitLabYamlExposeAsInvalid"
+                         groupBundle="messages.CIAid"
+                         groupKey="inspections.gitlab.ci.display.name"
+                         key="inspections.gitlab.ci.expose-as.invalid.display.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlExposeAsInvalidInspection"/>
         <intentionAction>
             <language>yaml</language>
             <className>com.github.deeepamin.ciaid.injectors.intentionActions.ConvertFoldedToLiteralScriptBlockIntention</className>

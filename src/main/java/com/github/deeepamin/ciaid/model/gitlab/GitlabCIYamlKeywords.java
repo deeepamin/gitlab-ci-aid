@@ -18,6 +18,7 @@ public class GitlabCIYamlKeywords {
   public static final String STAGE = "stage";
   public static final String NEEDS = "needs";
   public static final String ARTIFACTS = "artifacts";
+  public static final String EXPOSE_AS = "expose_as";
   public static final String OPTIONAL = "optional";
   public static final String LOCAL = "local";
   public static final String PROJECT = "project";
