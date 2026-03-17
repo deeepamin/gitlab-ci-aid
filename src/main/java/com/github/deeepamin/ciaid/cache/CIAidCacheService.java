@@ -12,12 +12,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 @Service(Service.Level.APP)
 @State(
@@ -107,17 +109,28 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
     return currentTime > metadata.getExpiryTime();
   }
 
-  public void clearCache() {
+  public void clearCache(@Nullable BiConsumer<Boolean, String> callback) {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
-      var cacheDirFiles = getCiAidCacheDir().listFiles();
-      if (cacheDirFiles != null) {
-        try {
-          Arrays.stream(cacheDirFiles).forEach(File::delete);
-        } catch (Exception ignored) {
+      try {
+        var cacheDirFiles = getCiAidCacheDir().listFiles();
+        if (cacheDirFiles != null) {
+          Arrays.stream(cacheDirFiles).forEach(file -> {
+            if (!file.delete()) {
+              LOG.warn("Failed to delete cached file: " + file.getPath());
+            }
+          });
+        }
+        state.filePathToCache.clear();
+        state.remoteIncludeIdentifierToLocalPath.clear();
+        if (callback != null) {
+          callback.accept(true, null);
+        }
+      } catch (Exception e) {
+        LOG.error("Failed to clear cache", e);
+        if (callback != null) {
+          callback.accept(false, e.getMessage());
         }
       }
-      state.filePathToCache.clear();
-      state.remoteIncludeIdentifierToLocalPath.clear();
     });
   }
 }
