@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services.listeners;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
+import com.github.deeepamin.ciaid.utils.FileUtils;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -27,10 +28,11 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
       return;
     }
 
-    var virtualFile = psiFile.getVirtualFile();
+    var virtualFile = FileUtils.getValidVirtualFile(psiFile);
     if (virtualFile == null) {
       return;
     }
+
     PsiDocumentManager.getInstance(project)
             .performLaterWhenAllCommitted(() -> ApplicationManager.getApplication()
                     .executeOnPooledThread(() -> {

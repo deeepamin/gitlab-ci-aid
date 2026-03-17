@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
@@ -169,6 +170,14 @@ public class FileUtils {
       filePath = filePath.replaceAll("'", "");
     }
     return filePath.trim();
+  }
+
+  public static VirtualFile getValidVirtualFile(PsiFile psiFile) {
+    var virtualFile = psiFile.getVirtualFile();
+    if (virtualFile != null && virtualFile.exists() && !virtualFile.isDirectory() && virtualFile.isValid()) {
+      return virtualFile;
+    }
+    return null;
   }
 
   public record StringWithStartEndRange(String path, int start, int end) {

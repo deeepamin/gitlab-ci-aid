@@ -42,6 +42,10 @@ public class CIAidYamlAnnotator implements Annotator {
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+    // Skip highlighting-only annotations in batch mode (Inspect Code) to avoid empty rows in inspection results
+    if (holder.isBatchMode()) {
+      return;
+    }
     if (!CIAidProjectService.hasGitlabYamlFile(element)) {
       LOG.debug(String.format("%s is not an element in Gitlab CI Yaml.", element.getText()));
       return;
