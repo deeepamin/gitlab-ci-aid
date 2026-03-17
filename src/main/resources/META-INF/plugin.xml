@@ -14,6 +14,9 @@
     <resource-bundle>messages.CIAid</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="yaml"
+                                  implementationClass="com.github.deeepamin.ciaid.completion.CIAidYamlCommentCompletionContributor"
+                                  order="first"/>
         <psi.referenceContributor language="yaml"
                                   implementation="com.github.deeepamin.ciaid.references.contributors.CIAidYamlScalarReferenceContributor"/>
         <psi.referenceContributor language="yaml"
