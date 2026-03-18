@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-03-17
+
 ### Added
 
 - Inspection for artifacts: expose_as to identify invalid characters e.g., dots and spaces and provide quick fix to replace them with underscores
@@ -305,7 +307,8 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.2...v1.14.0
 [1.13.2]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.12.0...v1.13.1
