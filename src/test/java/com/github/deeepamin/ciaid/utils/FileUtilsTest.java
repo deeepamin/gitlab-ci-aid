@@ -25,6 +25,23 @@ public class FileUtilsTest extends BaseTest {
     });
   }
 
+  public void testGetFilePathsWithMultipleDotsInFileName() {
+    var scriptPathAndExpectedValues = Map.of(
+            "ci/stageone.gitlab-ci.yml", "ci/stageone.gitlab-ci.yml",
+            "stageone.gitlab-ci.yml", "stageone.gitlab-ci.yml",
+            "./ci/stageone.gitlab-ci.yml", "./ci/stageone.gitlab-ci.yml",
+            "/ci/stageone.gitlab-ci.yml", "/ci/stageone.gitlab-ci.yml",
+            "my-file.yaml", "my-file.yaml"
+    );
+    scriptPathAndExpectedValues.forEach((actual, expected) -> {
+      var scriptPaths = FileUtils.getFilePathAndIndexes(actual);
+      assertNotNull(scriptPaths);
+      assertFalse("Expected match for: " + actual, scriptPaths.isEmpty());
+      var actualScriptPath = scriptPaths.getFirst().path();
+      assertEquals(expected, actualScriptPath);
+    });
+  }
+
   public void testMultipleGetFilePaths() {
     var multipleScriptPathAndExpectedValues = Map.of(
             "cp common/infra/test_report.py common/infra/reports.html .", List.of("common/infra/test_report.py", "common/infra/reports.html"),

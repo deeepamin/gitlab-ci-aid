@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Include files extension parsing and create file quick fix for files with multiple dots in the name
+
 ## [1.15.0] - 2026-03-17
 
 ### Added
