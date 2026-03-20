@@ -150,7 +150,7 @@ public class FileUtils {
   }
 
   public static List<StringWithStartEndRange> getFilePathAndIndexes(String elementText) {
-    String regex = "(?<!\\w)(\\./|/)?[\\w\\-./]+?\\.\\w+(?!\\w)";
+    String regex = "(?<!\\w)(\\./|/)?[\\w\\-./]+\\.\\w+(?!\\w)";
     Pattern pattern = Pattern.compile(regex);
     var matcher = pattern.matcher(elementText);
     List<StringWithStartEndRange> result = new ArrayList<>();
