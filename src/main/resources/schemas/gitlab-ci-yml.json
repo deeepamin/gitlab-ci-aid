@@ -481,7 +481,10 @@
                               "string"
                             ]
                           }
-                        }
+                        },
+                        "required": [
+                          "type"
+                        ]
                       },
                       "then": {
                         "properties": {
@@ -502,7 +505,10 @@
                               "number"
                             ]
                           }
-                        }
+                        },
+                        "required": [
+                          "type"
+                        ]
                       },
                       "then": {
                         "properties": {
@@ -523,7 +529,10 @@
                               "boolean"
                             ]
                           }
-                        }
+                        },
+                        "required": [
+                          "type"
+                        ]
                       },
                       "then": {
                         "properties": {
@@ -544,7 +553,10 @@
                               "array"
                             ]
                           }
-                        }
+                        },
+                        "required": [
+                          "type"
+                        ]
                       },
                       "then": {
                         "properties": {
@@ -556,6 +568,25 @@
                               {
                                 "type": "null"
                               }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "not": {
+                          "required": [
+                            "type"
+                          ]
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "default": {
+                            "type": [
+                              "string",
+                              "null"
                             ]
                           }
                         }
@@ -597,7 +628,10 @@
                           "string"
                         ]
                       }
-                    }
+                    },
+                    "required": [
+                      "type"
+                    ]
                   },
                   "then": {
                     "properties": {
@@ -615,7 +649,10 @@
                           "number"
                         ]
                       }
-                    }
+                    },
+                    "required": [
+                      "type"
+                    ]
                   },
                   "then": {
                     "properties": {
@@ -633,7 +670,10 @@
                           "boolean"
                         ]
                       }
-                    }
+                    },
+                    "required": [
+                      "type"
+                    ]
                   },
                   "then": {
                     "properties": {
@@ -651,12 +691,31 @@
                           "array"
                         ]
                       }
-                    }
+                    },
+                    "required": [
+                      "type"
+                    ]
                   },
                   "then": {
                     "properties": {
                       "default": {
                         "type": "array"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "not": {
+                      "required": [
+                        "type"
+                      ]
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "default": {
+                        "type": "string"
                       }
                     }
                   }
