@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,6 +109,7 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
     int depth = 0;
 
     while (currentJob != null && depth < maxDepth) {
+      ProgressManager.checkCanceled();
       // Find the extends property in the current job
       var jobValue = currentJob.getValue();
       if (!(jobValue instanceof YAMLMapping jobMapping)) {
@@ -148,6 +150,7 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
 
   private Optional<YAMLKeyValue> findPropertyInExtendsChain(String propertyName, List<String> extendsChain, PsiElement context) {
     for (String jobName : extendsChain) {
+      ProgressManager.checkCanceled();
       YAMLKeyValue job = findJobByName(jobName, context);
       if (job == null) {
         continue;
