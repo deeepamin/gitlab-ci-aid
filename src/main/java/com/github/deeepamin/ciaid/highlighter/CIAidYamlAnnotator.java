@@ -13,7 +13,6 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -24,21 +23,9 @@ import java.util.Optional;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.services.CIAidProjectService.getCIAidProjectService;
-import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD;
-import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
-import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.NUMBER;
 
 public class CIAidYamlAnnotator implements Annotator {
   private static final Logger LOG = Logger.getInstance(CIAidYamlAnnotator.class);
-  private static final String STAGE_ATTRIBUTE = "STAGE";
-  private static final String JOB_ATTRIBUTE = "JOB";
-  private static final String SCRIPT_ATTRIBUTE = "SCRIPT";
-  private static final String INCLUDE_ATTRIBUTE = "INCLUDE";
-
-  private static final TextAttributesKey STAGE_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(STAGE_ATTRIBUTE, INSTANCE_FIELD);
-  private static final TextAttributesKey JOB_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(JOB_ATTRIBUTE, INSTANCE_METHOD);
-  private static final TextAttributesKey SCRIPT_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(SCRIPT_ATTRIBUTE, NUMBER);
-  private static final TextAttributesKey INCLUDE_HIGHLIGHTER = TextAttributesKey.createTextAttributesKey(INCLUDE_ATTRIBUTE, NUMBER);
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -75,7 +62,7 @@ public class CIAidYamlAnnotator implements Annotator {
       if (input.path() != null) {
         var highlightRange = CIAidUtils.getHighlightTextRange(element, input.start(), input.end());
         holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                .textAttributes(STAGE_HIGHLIGHTER)
+                .textAttributes(CIAidTextAttributes.STAGE)
                 .range(highlightRange)
                 .create();
       }
@@ -104,7 +91,7 @@ public class CIAidYamlAnnotator implements Annotator {
               }
               if (allStages.contains(stageName) || DEFAULT_STAGES.contains(stageName)) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                        .textAttributes(STAGE_HIGHLIGHTER)
+                        .textAttributes(CIAidTextAttributes.STAGE)
                         .create();
               }
             });
@@ -118,7 +105,7 @@ public class CIAidYamlAnnotator implements Annotator {
                     .contains(element.getText()))
             .filter(element -> !PsiUtils.isChild(element, List.of(STAGE, STAGES)))  // if stage and job name same, filter stages
             .ifPresent(job -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                  .textAttributes(JOB_HIGHLIGHTER)
+                  .textAttributes(CIAidTextAttributes.JOB)
                   .create()
             );
   }
@@ -127,7 +114,7 @@ public class CIAidYamlAnnotator implements Annotator {
     Optional.of(psiElement)
             .filter(GitlabCIYamlUtils::isStagesElement)
             .ifPresent(stage -> holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                    .textAttributes(STAGE_HIGHLIGHTER)
+                    .textAttributes(CIAidTextAttributes.STAGE)
                     .create());
   }
 
@@ -145,7 +132,7 @@ public class CIAidYamlAnnotator implements Annotator {
               }
               if (allJobs.contains(jobName)) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                        .textAttributes(JOB_HIGHLIGHTER)
+                        .textAttributes(CIAidTextAttributes.JOB)
                         .create();
               }
             });
@@ -164,7 +151,7 @@ public class CIAidYamlAnnotator implements Annotator {
                 if (virtualScriptFile != null) {
                   var highlightRange = CIAidUtils.getHighlightTextRange(scriptElement, scriptPathIndex.start(), scriptPathIndex.end());
                   holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                          .textAttributes(SCRIPT_HIGHLIGHTER)
+                          .textAttributes(CIAidTextAttributes.SCRIPT_PATH)
                           .range(highlightRange)
                           .create();
                 }
@@ -183,7 +170,7 @@ public class CIAidYamlAnnotator implements Annotator {
                   var path = CIAidCacheService.getInstance().getIncludeCacheFilePathFromKey(cacheKey);
                   if (path != null) {
                     holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                            .textAttributes(INCLUDE_HIGHLIGHTER)
+                            .textAttributes(CIAidTextAttributes.INCLUDE)
                             .create();
                   }
                 }
@@ -202,7 +189,7 @@ public class CIAidYamlAnnotator implements Annotator {
                   return;
                 } else {
                   holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                          .textAttributes(INCLUDE_HIGHLIGHTER)
+                          .textAttributes(CIAidTextAttributes.INCLUDE)
                           .create();
                 }
               }
@@ -211,7 +198,7 @@ public class CIAidYamlAnnotator implements Annotator {
               var isTriggerInclude = PsiUtils.isChild(includeElement, List.of(TRIGGER));
               if (includeVirtualFile != null && !isRemoteInclude && !isTriggerInclude) {
                 holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
-                        .textAttributes(INCLUDE_HIGHLIGHTER)
+                        .textAttributes(CIAidTextAttributes.INCLUDE)
                         .create();
               }
             });
