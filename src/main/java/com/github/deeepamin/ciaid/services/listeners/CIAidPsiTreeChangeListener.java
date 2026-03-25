@@ -10,7 +10,6 @@ import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("deprecation")
 public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
   private final Project project;
 
@@ -43,7 +42,7 @@ public class CIAidPsiTreeChangeListener extends PsiTreeChangeAdapter {
 
       // Switch back to EDT for UI operations
       ApplicationManager.getApplication()
-              .invokeLater(() -> DaemonCodeAnalyzer.getInstance(project).restart(psiFile));
+              .invokeLater(() -> DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "CIAidPsiTreeChangeListener: YAML children changed"));
     }));
   }
 }

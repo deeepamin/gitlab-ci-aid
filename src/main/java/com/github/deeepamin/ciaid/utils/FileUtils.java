@@ -71,20 +71,20 @@ public class FileUtils {
     if (basePath == null || glob == null) {
       return new ArrayList<>();
     }
-    return ReadAction.compute(() -> {
-      String normalizedPattern = glob;
-      if (normalizedPattern.startsWith(basePath)) {
-        normalizedPattern = normalizedPattern.substring(basePath.length());
-      }
-      normalizedPattern = normalizedPattern.replace("\\", "/");
-      if (normalizedPattern.startsWith("/")) {
-        normalizedPattern = normalizedPattern.substring(1);
-      }
-      final var sanitizedPattern = normalizedPattern;
-      var files = new ArrayList<VirtualFile>();
-      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yml"));
-      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yaml"));
-      return files;
+    return ReadAction.computeBlocking(() -> {
+        String normalizedPattern = glob;
+        if (normalizedPattern.startsWith(basePath)) {
+            normalizedPattern = normalizedPattern.substring(basePath.length());
+        }
+        normalizedPattern = normalizedPattern.replace("\\", "/");
+        if (normalizedPattern.startsWith("/")) {
+            normalizedPattern = normalizedPattern.substring(1);
+        }
+        final var sanitizedPattern = normalizedPattern;
+        var files = new ArrayList<VirtualFile>();
+        files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yml"));
+        files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yaml"));
+        return files;
     });
   }
 

@@ -40,57 +40,57 @@ public class CIAidGitLabYamlParser {
   }
 
   public CIAidYamlData parseGitlabCIYamlData(final VirtualFile file) {
-    return ReadAction.compute(() -> {
-      var psiManager = PsiManager.getInstance(project);
-      var psiFile = psiManager.findFile(file);
-      if (psiFile == null) {
-        LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
-        return null;
-      }
-      this.ciAidYamlData = new CIAidYamlData(file, file.getModificationStamp());
-
-      psiFile.accept(new YamlRecursivePsiElementVisitor() {
-        @Override
-        public void visitFile(@NotNull PsiFile file) {
-          readFile(file);
-          super.visitFile(file);
+    return ReadAction.computeBlocking(() -> {
+        var psiManager = PsiManager.getInstance(project);
+        var psiFile = psiManager.findFile(file);
+        if (psiFile == null) {
+            LOG.warn("Cannot find gitlab CI yaml file: " + file.getPath());
+            return null;
         }
+        this.ciAidYamlData = new CIAidYamlData(file, file.getModificationStamp());
 
-        @Override
-        public void visitAnchor(@NotNull YAMLAnchor anchor) {
-          ciAidYamlData.addAnchor(anchor);
-        }
-
-        @Override
-        public void visitScalar(@NotNull YAMLScalar scalar) {
-          if (GitlabCIYamlUtils.isNotSpecInputsElement(scalar)) {
-            if (YamlUtils.isYamlTextElement(scalar)) {
-              readStages(scalar);
-              readIncludes(scalar);
+        psiFile.accept(new YamlRecursivePsiElementVisitor() {
+            @Override
+            public void visitFile(@NotNull PsiFile file) {
+                readFile(file);
+                super.visitFile(file);
             }
-          }
-          super.visitScalar(scalar);
-        }
 
-        @Override
-        public void visitValue(@NotNull YAMLValue value) {
-          if (GitlabCIYamlUtils.isNotSpecInputsElement(value)) {
-            readJobStage(value);
-          }
-          super.visitValue(value);
-        }
+            @Override
+            public void visitAnchor(@NotNull YAMLAnchor anchor) {
+                ciAidYamlData.addAnchor(anchor);
+            }
 
-        @Override
-        public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
-          var keyText = keyValue.getKeyText();
-          switch (keyText) {
-            case INPUTS -> readInputs(keyValue);
-            case VARIABLES -> readVariables(keyValue);
-          }
-          super.visitKeyValue(keyValue);
-        }
-      });
-      return ciAidYamlData;
+            @Override
+            public void visitScalar(@NotNull YAMLScalar scalar) {
+                if (GitlabCIYamlUtils.isNotSpecInputsElement(scalar)) {
+                    if (YamlUtils.isYamlTextElement(scalar)) {
+                        readStages(scalar);
+                        readIncludes(scalar);
+                    }
+                }
+                super.visitScalar(scalar);
+            }
+
+            @Override
+            public void visitValue(@NotNull YAMLValue value) {
+                if (GitlabCIYamlUtils.isNotSpecInputsElement(value)) {
+                    readJobStage(value);
+                }
+                super.visitValue(value);
+            }
+
+            @Override
+            public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
+                var keyText = keyValue.getKeyText();
+                switch (keyText) {
+                    case INPUTS -> readInputs(keyValue);
+                    case VARIABLES -> readVariables(keyValue);
+                }
+                super.visitKeyValue(keyValue);
+            }
+        });
+        return ciAidYamlData;
     });
   }
 
