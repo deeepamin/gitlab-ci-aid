@@ -379,6 +379,10 @@
               "$ref": "#/definitions/string_file_list",
               "markdownDescription": "Path to file or list of files with cyclonedx report(s). [Learn More](https://docs.gitlab.com/ci/yaml/artifacts_reports/#artifactsreportscyclonedx)."
             },
+            "sarif": {
+              "$ref": "#/definitions/string_file_list",
+              "markdownDescription": "Path to file or list of files with SARIF 2.1.0 security report(s). [Learn More](https://docs.gitlab.com/ci/yaml/artifacts_reports/#artifactsreportssarif)."
+            },
             "load_performance": {
               "$ref": "#/definitions/string_file_list",
               "markdownDescription": "Path to file or list of files with load performance testing report(s). [Learn More](https://docs.gitlab.com/ci/yaml/artifacts_reports/#artifactsreportsload_performance)."
