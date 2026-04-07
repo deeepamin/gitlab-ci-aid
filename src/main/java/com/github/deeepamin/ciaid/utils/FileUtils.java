@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.utils;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -71,14 +72,15 @@ public class FileUtils {
     if (basePath == null || glob == null) {
       return new ArrayList<>();
     }
-    return ReadAction.compute(() -> {
+    return ReadAction.computeBlocking(() -> {
+      ProgressManager.checkCanceled();
       String normalizedPattern = glob;
       if (normalizedPattern.startsWith(basePath)) {
-        normalizedPattern = normalizedPattern.substring(basePath.length());
+          normalizedPattern = normalizedPattern.substring(basePath.length());
       }
       normalizedPattern = normalizedPattern.replace("\\", "/");
       if (normalizedPattern.startsWith("/")) {
-        normalizedPattern = normalizedPattern.substring(1);
+          normalizedPattern = normalizedPattern.substring(1);
       }
       final var sanitizedPattern = normalizedPattern;
       var files = new ArrayList<VirtualFile>();

@@ -6,6 +6,7 @@
 
 ### Added
 
+- IntelliJ 2026.1 support
 - Color scheme settings page for customizing syntax highlighting colors for GitLab CI YAML elements
 
 ### Fixed

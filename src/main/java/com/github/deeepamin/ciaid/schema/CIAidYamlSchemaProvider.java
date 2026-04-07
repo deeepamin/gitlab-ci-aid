@@ -14,8 +14,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final Logger LOG = Logger.getInstance(CIAidYamlSchemaProvider.class);
   private static final String SCHEMA_NAME = "Gitlab CI [Auto]";
@@ -59,9 +57,13 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
       return schemaFile;
     }
 
-    this.schemaFile = ReadAction.compute(() -> Optional.ofNullable(getClass().getResource(SCHEMA_PATH))
-            .map(VfsUtil::findFileByURL)
-            .orElse(null));
+    var schemaFileResource = getClass().getResource(SCHEMA_PATH);
+    if (schemaFileResource == null) {
+      LOG.warn(SCHEMA_PATH + " not found");
+      return null;
+    }
+
+    this.schemaFile = ReadAction.computeBlocking(() -> VfsUtil.findFileByURL(schemaFileResource));
     return schemaFile;
   }
 }
