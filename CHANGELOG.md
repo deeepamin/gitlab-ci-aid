@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Color scheme settings page for customizing syntax highlighting colors for GitLab CI YAML elements
+
 ### Fixed
 
 - Line marker information read fresh everytime causing UI freezes

@@ -29,6 +29,7 @@
                   fileNames=".gitlab-ci.yml;.gitlab-ci.yaml"/>
         <annotator language="yaml"
                    implementationClass="com.github.deeepamin.ciaid.highlighter.CIAidYamlAnnotator"/>
+        <colorSettingsPage implementation="com.github.deeepamin.ciaid.highlighter.CIAidColorSettingsPage"/>
         <postStartupActivity implementation="com.github.deeepamin.ciaid.services.CIAidPostStartup"/>
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
         <vfs.asyncListener implementation="com.github.deeepamin.ciaid.services.listeners.CIAidYamlAsyncListener"/>
