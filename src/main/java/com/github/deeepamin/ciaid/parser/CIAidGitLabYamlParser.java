@@ -11,6 +11,7 @@ import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -48,6 +49,7 @@ public class CIAidGitLabYamlParser {
             return null;
         }
         this.ciAidYamlData = new CIAidYamlData(file, file.getModificationStamp());
+        ProgressManager.checkCanceled();
 
         psiFile.accept(new YamlRecursivePsiElementVisitor() {
             @Override
