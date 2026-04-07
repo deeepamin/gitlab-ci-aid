@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-04-07
+
 ### Added
 
 - IntelliJ 2026.1 support
@@ -322,7 +324,8 @@ All the good features (and bugs) offered by plugin stay the same as before.
 - Script Language Injection: Injection of shell language in script blocks for .sh autocompletes, suggestions and shortcuts
 - Schema Support: Auto detection of GitLab CI YAML and auto schema configuration, with descriptions, errors and suggestions for GitLab known keywords
 
-[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.15.1...HEAD
+[Unreleased]: https://github.com/deeepamin/gitlab-ci-aid/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.15.1...v2.0.0
 [1.15.1]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/deeepamin/gitlab-ci-aid/compare/v1.13.2...v1.14.0
