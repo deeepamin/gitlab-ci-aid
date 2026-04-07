@@ -7,6 +7,11 @@
 ### Added
 
 - IntelliJ 2026.1 support
+- Color scheme settings page for customizing syntax highlighting colors for GitLab CI YAML elements
+
+### Fixed
+
+- Line marker information read fresh everytime causing UI freezes
 
 ## [1.15.1] - 2026-03-24
 

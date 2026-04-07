@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.utils;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -20,6 +21,7 @@ public class PsiUtils {
     if (element == null || parentKeys.isEmpty()) {
       return Optional.empty();
     }
+    ProgressManager.checkCanceled();
     if (element instanceof YAMLKeyValue keyValue) {
       var keyText = keyValue.getKeyText();
       if (parentKeys.contains(keyText)) {
