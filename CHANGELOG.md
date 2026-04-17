@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Editor notification ReadAction causing UI freezes
+
 ## [2.0.0] - 2026-04-07
 
 ### Added
