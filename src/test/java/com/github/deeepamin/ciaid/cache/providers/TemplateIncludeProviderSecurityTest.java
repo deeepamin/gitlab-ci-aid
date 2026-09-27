@@ -14,7 +14,8 @@ import static org.mockito.Mockito.mockStatic;
 
 public class TemplateIncludeProviderSecurityTest extends BaseIntegrationTest {
   public void testYamlProcessingIsSkippedForUntrustedProject() {
-    VirtualFile yamlFile = myFixture.addFileToProject(".gitlab-ci.yml", "include:\n  - template: shell.bat\n");
+    VirtualFile yamlFile = myFixture.addFileToProject(".gitlab-ci.yml", "include:\n  - template: shell.bat\n")
+            .getVirtualFile();
     var projectService = CIAidProjectService.getInstance(getProject());
 
     try (MockedStatic<TrustedProjects> trustedProjects = mockStatic(TrustedProjects.class)) {
