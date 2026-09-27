@@ -5,6 +5,7 @@ import com.github.deeepamin.ciaid.services.listeners.CIAidPsiTreeChangeListener;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
 import com.github.deeepamin.ciaid.utils.FileUtils;
+import com.intellij.ide.trustedProjects.TrustedProjects;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
@@ -133,6 +134,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
   public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
     if (file == null) {
       LOG.warn("Cannot read GitlabCIYamlData: file is null");
+      return;
+    }
+    if (!TrustedProjects.isProjectTrusted(project)) {
+      LOG.debug("Skipping GitLab CI YAML processing for an untrusted project");
       return;
     }
     dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);

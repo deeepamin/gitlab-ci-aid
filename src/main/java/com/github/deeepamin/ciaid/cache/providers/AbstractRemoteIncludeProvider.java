@@ -5,6 +5,7 @@ import com.github.deeepamin.ciaid.cache.CIAidCacheUtils;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
+import com.intellij.ide.trustedProjects.TrustedProjects;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -25,6 +26,10 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
 
   @Override
   public void readIncludeFile() {
+    if (!TrustedProjects.isProjectTrusted(project)) {
+      LOG.debug("Skipping remote include for an untrusted project");
+      return;
+    }
     if (filePath == null) {
       LOG.debug("File path is null for " + this.getClass().getSimpleName());
       return;
