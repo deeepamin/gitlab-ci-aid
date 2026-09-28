@@ -54,9 +54,14 @@ public class TemplateIncludeProvider extends AbstractRemoteIncludeProvider {
       LOG.warn("Skipping GitLab template with an absolute path");
       return;
     }
-    Path cacheFile = cacheRoot.resolve(templatePath).resolve(includePath).normalize();
-    if (!cacheFile.startsWith(cacheRoot)) {
+    Path templateCacheRoot = cacheRoot.resolve(templatePath).normalize();
+    if (!templateCacheRoot.startsWith(cacheRoot)) {
       LOG.warn("Skipping GitLab template path outside the cache directory");
+      return;
+    }
+    Path cacheFile = templateCacheRoot.resolve(includePath).normalize();
+    if (!cacheFile.startsWith(templateCacheRoot)) {
+      LOG.warn("Skipping GitLab template path outside the configured template directory");
       return;
     }
     var cacheFilePath = cacheFile.toString();

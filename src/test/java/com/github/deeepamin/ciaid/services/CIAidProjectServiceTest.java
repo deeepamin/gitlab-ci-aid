@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
-import java.io.File;
 import java.util.List;
 import java.util.function.Function;
 
@@ -138,7 +137,7 @@ public class CIAidProjectServiceTest extends BaseTest {
     var stageFileName = projectService.getDataProvider().getFileName((entry) -> entry.getValue().getJobStageElements()
             .stream()
             .anyMatch(jobStage -> jobStage.getText().equals(stage)));
-    var gitlabCIYamlPath = File.separator + GITLAB_CI_DEFAULT_YAML_FILE;
+    var gitlabCIYamlPath = "/" + GITLAB_CI_DEFAULT_YAML_FILE;
     assertTrue(stageFileName.contains(gitlabCIYamlPath));
   }
 
