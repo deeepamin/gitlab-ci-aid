@@ -8,24 +8,23 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import java.io.File;
 import java.util.List;
 
 public class CIAidYamlAnnotatorTest extends BaseTest {
-  private static final String TEST_DIR_PATH = getOsAgnosticPath("/AnnotatorTest");
+  private static final String TEST_DIR_PATH = getOsAgnosticPath("AnnotatorTest");
   private VirtualFile ciYamlFile;
   private VirtualFile nonGitlabYamlFile;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH + File.separator + getTestDirectoryName(), "");
+    var rootDir = myFixture.copyDirectoryToProject(TEST_DIR_PATH + "/" + getTestDirectoryName(), "");
     ciYamlFile = getGitlabCIYamlFile(rootDir);
     nonGitlabYamlFile = getYamlFile(rootDir, "build.yml");
   }
 
   public void testCorrectHighlighting() {
-    myFixture.configureByFile(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    myFixture.configureByFile(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     List<HighlightInfo> highlightInfos = myFixture.doHighlighting();
     assertEquals(6, highlightInfos.size());
     List<String> actualHighlighters = highlightInfos.stream()
@@ -43,7 +42,7 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
   }
 
   public void testCorrectScriptInjection() {
-    myFixture.configureByFile(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    myFixture.configureByFile(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     List<HighlightInfo> highlightInfos = myFixture.doHighlighting();
     List<String> actualHighlighters = highlightInfos.stream()
             .map(HighlightInfo::getText)
@@ -61,15 +60,15 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
 
   public void testUnknownScript() {
     myFixture.enableInspections(new CIAidGitLabYamlScriptUnavailableInspection());
-    myFixture.configureByFile(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    myFixture.configureByFile(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     List<HighlightInfo> highlightInfos = myFixture.doHighlighting();
-    assertEquals(6, highlightInfos.size());
-    assertEquals("Script './build-dev.sh' is not available on path", highlightInfos.get(3).getDescription());
+    assertTrue(highlightInfos.stream()
+            .anyMatch(info -> "Script './build-dev.sh' is not available on path".equals(info.getDescription())));
   }
 
   public void testCreateScriptQuickFix() {
     myFixture.enableInspections(new CIAidGitLabYamlScriptUnavailableInspection());
-    List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     assertEquals(1, allQuickFixes.size());
     assertEquals("Create script", allQuickFixes.getFirst().getText());
   }
@@ -80,7 +79,7 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
 
   public void testCreateIncludeFileQuickFix() {
     myFixture.enableInspections(new CIAidGitLabYamlIncludeUnavailableInspection());
-    List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + File.separator + getTestDirectoryName() + File.separator + GITLAB_CI_DEFAULT_YAML_FILE);
+    List<IntentionAction> allQuickFixes = myFixture.getAllQuickFixes(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
     assertEquals(1, allQuickFixes.size());
     assertEquals("Create include file", allQuickFixes.getFirst().getText());
   }

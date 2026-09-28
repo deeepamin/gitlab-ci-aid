@@ -4,8 +4,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- Latest GitLab CI schema support
+
 ### Fixed
 
+- Security fix for remote execution only on trusted platform
 - Editor notification ReadAction causing UI freezes
 
 ## [2.0.0] - 2026-04-07

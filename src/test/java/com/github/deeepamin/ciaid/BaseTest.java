@@ -127,12 +127,7 @@ public abstract class BaseTest extends BasePlatformTestCase {
     if (path == null) {
       return null;
     }
-    if (path.contains("/")) {
-      path = path.replaceAll("/", File.separator);
-    } else if (path.contains("\\")) {
-      path = path.replaceAll("\\\\", File.separator);
-    }
-    return path;
+    return path.replace('\\', '/');
   }
 
 }

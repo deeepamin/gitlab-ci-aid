@@ -48,7 +48,7 @@ jobs:
         uses: actions/setup-java@v6.0.1
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 25
 
       # Setup Gradle
       - name: Setup Gradle
