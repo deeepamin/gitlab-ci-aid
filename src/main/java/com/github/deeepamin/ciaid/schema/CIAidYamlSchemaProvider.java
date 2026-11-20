@@ -2,6 +2,7 @@ package com.github.deeepamin.ciaid.schema;
 
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.injected.editor.VirtualFileWindow;
+import com.intellij.json.JsonFileType;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -13,6 +14,8 @@ import com.jetbrains.jsonSchema.impl.JsonSchemaVersion;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.nio.charset.StandardCharsets;
 
 public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
   private static final Logger LOG = Logger.getInstance(CIAidYamlSchemaProvider.class);
@@ -63,7 +66,23 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
       return null;
     }
 
-    this.schemaFile = ReadAction.computeBlocking(() -> VfsUtil.findFileByURL(schemaFileResource));
+    var bundledSchema = ReadAction.computeBlocking(() -> VfsUtil.findFileByURL(schemaFileResource));
+    if (bundledSchema == null) {
+      return null;
+    }
+    var schemaText = ReadAction.computeBlocking(() -> {
+      try {
+        return new String(bundledSchema.contentsToByteArray(), StandardCharsets.UTF_8);
+      } catch (java.io.IOException exception) {
+        LOG.warn("Cannot read GitLab CI schema", exception);
+        return null;
+      }
+    });
+    if (schemaText == null) {
+      return null;
+    }
+    var extendedSchema = ComponentInputSchemaSupport.addComponentInputExpressions(schemaText);
+    this.schemaFile = new LightVirtualFile("gitlab-ci-yml.json", JsonFileType.INSTANCE, extendedSchema);
     return schemaFile;
   }
 }

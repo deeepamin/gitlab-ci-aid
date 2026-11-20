@@ -21,7 +21,7 @@ public class InputsReferenceProvider extends AbstractReferenceProvider {
     if (input == null) {
       return null;
     }
-    var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.(\\w+)");
+    var pattern = Pattern.compile("\\$\\[\\[\\s*inputs\\.([\\w-]+)");
     var matcher = pattern.matcher(input);
     var inputs = new ArrayList<FileUtils.StringWithStartEndRange>();
     while (matcher.find()) {
@@ -42,7 +42,7 @@ public class InputsReferenceProvider extends AbstractReferenceProvider {
     if (input == null) {
       return null;
     }
-    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.\\w+)\\s*]]");
+    var pattern = Pattern.compile("\\$\\[\\[\\s*(inputs\\.[\\w-]+)\\s*]]");
     var matcher = pattern.matcher(input);
     var inputs = new ArrayList<FileUtils.StringWithStartEndRange>();
     while (matcher.find()) {

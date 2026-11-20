@@ -4,6 +4,7 @@ import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.references.providers.InputsReferenceProvider;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.utils.CIAidUtils;
+import com.github.deeepamin.ciaid.utils.GitlabCIYamlUtils;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.codeInspection.LocalInspectionTool;
@@ -24,7 +25,8 @@ public class CIAidGitLabYamlUndefinedNeedsInspection extends LocalInspectionTool
       @Override
       public void visitElement(@NotNull PsiElement element) {
         if (CIAidProjectService.hasGitlabYamlFile(element) && YamlUtils.isYamlTextElement(element)) {
-          var isChildOfNeeds = PsiUtils.isChild(element, List.of(NEEDS));
+          var isChildOfNeeds = PsiUtils.isChild(element, List.of(NEEDS))
+                  && GitlabCIYamlUtils.isNotSpecInputsElement(element);
           if (isChildOfNeeds) {
             var notOtherNeeds =  !PsiUtils.isChild(element, NEEDS_POSSIBLE_CHILD_KEYWORDS);
             if (notOtherNeeds) {

@@ -33,12 +33,18 @@ public class InputsReferenceProviderTest extends BaseReferenceProviderTest {
     assertEmpty(getInputs("$$[ output.test ]]"));
   }
 
+  public void testGetHyphenatedInputNames() {
+    assertEquals("inputs.job-name", getInputs("$[[ inputs.job-name ]]").getFirst().path());
+    assertEquals("job-name", getInputNames("$[[ inputs.job-name ]]").getFirst().path());
+  }
+
   public void testGetInputNameString() {
     assertEquals("test", getInputNames("$[[inputs.test]]").getFirst().path());
     assertEquals("test", getInputNames("$[[ inputs.test ]]").getFirst().path());
     assertEquals("test", getInputNames("$[[inputs.test ]]").getFirst().path());
     assertEquals("test", getInputNames("$[[ inputs.test]]").getFirst().path());
     assertEquals("test", getInputNames("   $[[ inputs.test ]]  ").getFirst().path());
+    assertEquals("job-name", getInputNames("$[[ inputs.job-name ]]").getFirst().path());
 
     assertEmpty(getInputNames("$[[ input.test ]]"));
     assertEmpty(getInputNames("[[inputs.test ]]"));
