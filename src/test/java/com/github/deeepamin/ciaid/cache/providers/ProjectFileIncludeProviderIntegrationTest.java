@@ -26,7 +26,7 @@ public class ProjectFileIncludeProviderIntegrationTest extends BaseIntegrationTe
     settings.setCachingEnabled(true);
     settings.setGitLabAccessToken("test-token");
 
-    provider = new ProjectFileIncludeProvider(getProject(), FILE_PATH, PROJECT_PATH, REF);
+    provider = new ProjectFileIncludeProvider(getProject(), "/" + FILE_PATH, PROJECT_PATH, REF);
   }
 
   public void testGetCacheDirName() {
@@ -126,6 +126,12 @@ public class ProjectFileIncludeProviderIntegrationTest extends BaseIntegrationTe
               cachedFilePath.contains("main"));
       assertTrue("Cached file path should contain file path",
               cachedFilePath.contains("ci") && cachedFilePath.contains("build.yml"));
+      assertEquals(cacheKey, CIAidCacheUtils.getProjectFileCacheKey(PROJECT_PATH, "/" + FILE_PATH, REF));
+
+      var projectFileContext = cacheService.getProjectFileIncludeContext(cachedFilePath);
+      assertNotNull("Cached project file should retain its origin", projectFileContext);
+      assertEquals(PROJECT_PATH, projectFileContext.projectPath());
+      assertEquals(REF, projectFileContext.ref());
     } catch (Exception e) {
       fail("Test failed with exception: " + e.getMessage());
     }

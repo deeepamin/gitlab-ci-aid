@@ -57,6 +57,12 @@ public class CIAidCacheUtils {
   }
 
   public static String getProjectFileCacheKey(String projectName, String file, String ref) {
+    if (projectName.startsWith("/")) {
+      projectName = projectName.substring(1);
+    }
+    if (file.startsWith("/")) {
+      file = file.substring(1);
+    }
     return projectName + "_" + file + (ref != null ? "_" + ref : "");
   }
 }

@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.services;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.cache.providers.AbstractIncludeProvider;
 import com.github.deeepamin.ciaid.cache.providers.ComponentIncludeProvider;
 import com.github.deeepamin.ciaid.cache.providers.LocalIncludeProvider;
@@ -7,6 +8,7 @@ import com.github.deeepamin.ciaid.cache.providers.ProjectFileIncludeProvider;
 import com.github.deeepamin.ciaid.cache.providers.RemoteUrlIncludeProvider;
 import com.github.deeepamin.ciaid.cache.providers.TemplateIncludeProvider;
 import com.github.deeepamin.ciaid.model.CIAidYamlData;
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFile;
 import com.github.deeepamin.ciaid.model.gitlab.include.IncludeProject;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
@@ -59,7 +61,8 @@ public class CIAidYamlDataProvider {
       var parser = new CIAidGitLabYamlParser(project);
       var ciAidYamlData = parser.parseGitlabCIYamlData(file);
       pluginData.put(file, ciAidYamlData);
-      readIncludes(ciAidYamlData, userMarked);
+      var projectFileContext = CIAidCacheService.getInstance().getProjectFileIncludeContext(file.getPath());
+      readIncludes(ciAidYamlData, userMarked, projectFileContext);
     });
   }
 
@@ -156,28 +159,31 @@ public class CIAidYamlDataProvider {
     return "";
   }
 
-  private void readIncludes(CIAidYamlData ciAidYamlData, boolean userMarked) {
+  private void readIncludes(CIAidYamlData ciAidYamlData, boolean userMarked,
+                            CIAidCacheService.ProjectFileIncludeContext projectFileContext) {
     ciAidYamlData.getIncludes()
             .forEach(include -> {
-              var includeType = include.getFileType();
-              AbstractIncludeProvider includeProvider = null;
-              switch (includeType) {
-                case LOCAL -> includeProvider = new LocalIncludeProvider(project, include.getPath(), userMarked);
-                case PROJECT -> {
-                  IncludeProject includeProject = (IncludeProject) include;
-                  var projectName = includeProject.getProject();
-                  var refName = includeProject.getRef();
-                  var file = includeProject.getPath();
-                  includeProvider = new ProjectFileIncludeProvider(project, file, projectName, refName);
-                }
-                case REMOTE -> includeProvider = new RemoteUrlIncludeProvider(project, include.getPath());
-                case TEMPLATE -> includeProvider = new TemplateIncludeProvider(project, include.getPath());
-                case COMPONENT -> includeProvider = new ComponentIncludeProvider(project, include.getPath());
-              }
+              var includeProvider = createIncludeProvider(include, userMarked, projectFileContext);
               if (includeProvider != null) {
                 CIAidProjectService.executeOnThreadPool(project, includeProvider::readIncludeFile);
               }
             });
+  }
+
+  AbstractIncludeProvider createIncludeProvider(IncludeFile include, boolean userMarked,
+                                                CIAidCacheService.ProjectFileIncludeContext projectFileContext) {
+    return switch (include.getFileType()) {
+      case LOCAL -> projectFileContext == null
+              ? new LocalIncludeProvider(project, include.getPath(), userMarked)
+              : new ProjectFileIncludeProvider(project, include.getPath(), projectFileContext.projectPath(), projectFileContext.ref());
+      case PROJECT -> {
+        IncludeProject includeProject = (IncludeProject) include;
+        yield new ProjectFileIncludeProvider(project, includeProject.getPath(), includeProject.getProject(), includeProject.getRef());
+      }
+      case REMOTE -> new RemoteUrlIncludeProvider(project, include.getPath());
+      case TEMPLATE -> new TemplateIncludeProvider(project, include.getPath());
+      case COMPONENT -> new ComponentIncludeProvider(project, include.getPath());
+    };
   }
 
   public @NotNull Map<String, List<VirtualFile>> getVariableAndContainingFiles() {
