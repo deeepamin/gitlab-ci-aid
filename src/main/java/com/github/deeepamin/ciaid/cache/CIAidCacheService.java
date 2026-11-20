@@ -35,6 +35,10 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
     public Map<String, CIAidGitLabCacheMetadata> filePathToCache = new ConcurrentHashMap<>();
     public Map<String, String> remoteIncludeIdentifierToLocalPath = new ConcurrentHashMap<>();
   }
+
+  public record ProjectFileIncludeContext(String projectPath, String ref) {
+  }
+
   private final State state = new State();
   public static CIAidCacheService getInstance() {
     return ApplicationManager.getApplication().getService(CIAidCacheService.class);
@@ -55,7 +59,7 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
   }
 
   public void loadCacheFromDisk(@NotNull Project project) {
-    state.filePathToCache.forEach((path, metadata) -> {
+    state.filePathToCache.forEach((path, _) -> {
       File file = new File(path);
       if (file.exists()) {
         CIAidCacheUtils.refreshAndReadFile(project, file, false);
@@ -94,6 +98,22 @@ public final class CIAidCacheService implements PersistentStateComponent<CIAidCa
             .path(filePath)
             .expiryTime(expiryTimeMillis);
     state.filePathToCache.put(filePath, metadata);
+  }
+
+  public void addProjectFilePathToStateCache(Project project, String filePath, String projectPath, String ref) {
+    addFilePathToStateCache(project, filePath);
+    var metadata = state.filePathToCache.get(filePath);
+    if (metadata != null) {
+      metadata.projectFileContext(projectPath, ref);
+    }
+  }
+
+  public ProjectFileIncludeContext getProjectFileIncludeContext(String filePath) {
+    var metadata = state.filePathToCache.get(filePath);
+    if (metadata == null || metadata.getProjectPath() == null) {
+      return null;
+    }
+    return new ProjectFileIncludeContext(metadata.getProjectPath(), metadata.getRef());
   }
 
   public boolean isCacheExpired(String cacheFilePath) {

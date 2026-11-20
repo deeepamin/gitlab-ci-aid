@@ -48,6 +48,10 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
 
   public abstract String getProjectPath();
 
+  protected void addFilePathToStateCache(String filePath) {
+    CIAidCacheService.getInstance().addFilePathToStateCache(project, filePath);
+  }
+
   protected File getCacheDir() {
     return getOrCreateDir(getCiAidCacheDir().getPath(), getCacheDirName());
   }
@@ -117,7 +121,7 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
   private void updateCache(Project project, String cacheKey, File cacheFile) {
     var ciAidCacheService = CIAidCacheService.getInstance();
     ciAidCacheService.addIncludeIdentifierToCacheFilePath(cacheKey, cacheFile.getAbsolutePath());
-    ciAidCacheService.addFilePathToStateCache(project, cacheFile.getAbsolutePath());
+    addFilePathToStateCache(cacheFile.getAbsolutePath());
     CIAidCacheUtils.refreshAndReadFile(project, cacheFile, true);
   }
 }

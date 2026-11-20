@@ -1,5 +1,6 @@
 package com.github.deeepamin.ciaid.cache.providers;
 
+import com.github.deeepamin.ciaid.cache.CIAidCacheService;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.github.deeepamin.ciaid.utils.YamlUtils;
 import com.intellij.openapi.project.Project;
@@ -14,9 +15,13 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
   private final String ref;
 
   public ProjectFileIncludeProvider(Project project, String filePath, String projectPath, String ref) {
-    super(project, filePath);
+    super(project, normalizeFilePath(filePath));
     this.projectPath = projectPath;
     this.ref = ref;
+  }
+
+  private static String normalizeFilePath(String filePath) {
+    return filePath == null ? null : filePath.replaceFirst("^/+", "");
   }
 
   @Override
@@ -27,6 +32,11 @@ public class ProjectFileIncludeProvider extends AbstractRemoteIncludeProvider {
   @Override
   public String getProjectPath() {
     return projectPath;
+  }
+
+  @Override
+  protected void addFilePathToStateCache(String filePath) {
+    CIAidCacheService.getInstance().addProjectFilePathToStateCache(project, filePath, projectPath, ref);
   }
 
   @Override
