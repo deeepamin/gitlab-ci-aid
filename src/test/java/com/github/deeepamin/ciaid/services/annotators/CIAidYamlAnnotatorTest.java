@@ -4,6 +4,7 @@ import com.github.deeepamin.ciaid.BaseTest;
 import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlIncludeUnavailableInspection;
 import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlScriptUnavailableInspection;
 import com.github.deeepamin.ciaid.inspections.CIAidGitLabYamlUndefinedNeedsInspection;
+import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -56,6 +57,15 @@ public class CIAidYamlAnnotatorTest extends BaseTest {
   public void testUndefinedNeedsJob() {
     myFixture.enableInspections(new CIAidGitLabYamlUndefinedNeedsInspection());
     myFixture.testHighlighting(true, false, true, ciYamlFile);
+  }
+
+  public void testComponentInputNeedsJobIsNotUndefined() {
+    myFixture.configureByFile(TEST_DIR_PATH + "/" + getTestDirectoryName() + "/" + GITLAB_CI_DEFAULT_YAML_FILE);
+    CIAidProjectService.getInstance(getProject())
+            .readGitlabCIYamlData(ciYamlFile, false, false);
+    myFixture.enableInspections(new CIAidGitLabYamlUndefinedNeedsInspection());
+
+    myFixture.testHighlighting(true, false, true);
   }
 
   public void testUnknownScript() {

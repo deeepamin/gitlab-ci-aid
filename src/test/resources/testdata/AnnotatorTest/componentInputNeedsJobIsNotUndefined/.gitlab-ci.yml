@@ -1,0 +1,33 @@
+spec:
+  inputs:
+    job-name:
+      type: string
+    needs-job:
+      type: string
+    needs-job-optional:
+      type: boolean
+    stage:
+      type: string
+    image:
+      type: string
+    tags:
+      type: array
+    needs:
+      type: array
+    rules:
+      type: array
+---
+"$[[ inputs.job-name ]]":
+  stage: $[[ inputs.stage ]]
+  image: $[[ inputs.image ]]
+  tags: $[[ inputs.tags ]]
+  needs:
+    - job: $[[ inputs.needs-job ]]
+      artifacts: true
+      optional: $[[ inputs.needs-job-optional ]]
+  rules: $[[ inputs.rules ]]
+  script: echo
+another-job:
+  needs:
+    - job: <warning descr="Job 'missing-job' is undefined">missing-job</warning>
+  script: echo

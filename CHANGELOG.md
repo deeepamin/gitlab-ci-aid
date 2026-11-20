@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Extended GitLab CI schema support for templates with inputs
+
+### Fixed
+
+- Jobs/Needs defined from inputs shows as undefined
+
 ## [2.1.0] - 2026-09-28
 
 ### Added
