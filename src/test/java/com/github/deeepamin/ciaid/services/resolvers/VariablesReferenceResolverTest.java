@@ -51,6 +51,25 @@ public class VariablesReferenceResolverTest extends BaseTest {
     assertEquals("DOCKER_TLS_CERTDIR", ((YAMLKeyValue) resolve).getKeyText());
   }
 
+  public void testVariableReferenceInJobRuleAnchor() {
+    myFixture.configureByText(GITLAB_CI_DEFAULT_YAML_FILE, """
+            variables:
+              CUSTOM_PIPELINE: merge_request_event
+
+            .job_conditions: &job_conditions
+              rules:
+                - if: $CUSTOM_<caret>PIPELINE == "merge_request_event"
+            """);
+
+    var reference = myFixture.getFile().findReferenceAt(myFixture.getCaretOffset());
+
+    assertNotNull(reference);
+    var resolve = reference.resolve();
+    assertNotNull(resolve);
+    assertTrue(resolve instanceof YAMLKeyValue);
+    assertEquals("CUSTOM_PIPELINE", ((YAMLKeyValue) resolve).getKeyText());
+  }
+
   public void testAnotherFile() {
     var testDir = getTestDirectoryName();
     var reference = myFixture.getReferenceAtCaretPosition(TEST_DIR_PATH + File.separator + testDir + File.separator + GITLAB_CI_DEFAULT_YAML_FILE, TEST_DIR_PATH + File.separator + testDir + PIPELINE_YML_PATH);

@@ -77,11 +77,13 @@ public class CIAidYamlSchemaProvider implements JsonSchemaFileProvider {
         LOG.warn("Cannot read GitLab CI schema", exception);
         return null;
       }
+
     });
     if (schemaText == null) {
       return null;
     }
     var extendedSchema = ComponentInputSchemaSupport.addComponentInputExpressions(schemaText);
+    extendedSchema = JobAnchorSchemaSupport.addJobAnchorSchema(extendedSchema);
     this.schemaFile = new LightVirtualFile("gitlab-ci-yml.json", JsonFileType.INSTANCE, extendedSchema);
     return schemaFile;
   }

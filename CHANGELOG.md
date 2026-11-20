@@ -8,6 +8,7 @@
 
 - Extended GitLab CI schema support for templates with inputs
 - Nested local includes in components are correctly resolved and navigable
+- Anchor variables highlighting and autocompletion
 
 ### Fixed
 

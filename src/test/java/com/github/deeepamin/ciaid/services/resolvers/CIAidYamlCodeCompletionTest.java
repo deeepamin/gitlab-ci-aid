@@ -72,4 +72,8 @@ public class CIAidYamlCodeCompletionTest extends BaseTest {
     var expectedCompletions = List.of(".is_not_schedule", ".is_merge_request");
     assertTrue(completions.containsAll(expectedCompletions));
   }
+
+  public void testJobRuleAnchorCompletion() {
+    assertTrue(completions.containsAll(List.of("if", "changes", "exists", "variables")));
+  }
 }

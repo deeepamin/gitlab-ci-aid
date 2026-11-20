@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 
 public class CIAidYamlSchemaProviderTest extends BaseTest {
   private CIAidYamlSchemaProvider myProvider;
@@ -52,6 +53,16 @@ public class CIAidYamlSchemaProviderTest extends BaseTest {
               .map(alternative -> alternative.getAsJsonObject().getAsJsonObject("properties"))
               .filter(properties -> properties.has("optional"))
               .anyMatch(properties -> properties.getAsJsonObject("optional").has("anyOf")));
+
+      var hiddenKeySchema = JsonParser.parseString(schemaText).getAsJsonObject()
+              .getAsJsonObject("patternProperties").getAsJsonObject("^[.]");
+      var anchorJobKeys = hiddenKeySchema.getAsJsonObject("if").getAsJsonArray("anyOf");
+      var conditionalJobKeys = new HashSet<String>();
+      anchorJobKeys.forEach(requiredKey -> conditionalJobKeys.add(requiredKey.getAsJsonObject()
+              .getAsJsonArray("required").get(0).getAsString()));
+      assertEquals(jobProperties.keySet(), conditionalJobKeys);
+      assertEquals("#/definitions/job_template", hiddenKeySchema.getAsJsonObject("then").get("$ref").getAsString());
+      assertTrue(hiddenKeySchema.has("else"));
     } catch (java.io.IOException exception) {
       fail(exception.getMessage());
     }
