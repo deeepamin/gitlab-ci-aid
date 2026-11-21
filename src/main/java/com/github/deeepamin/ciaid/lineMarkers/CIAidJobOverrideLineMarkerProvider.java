@@ -71,6 +71,7 @@ public class CIAidJobOverrideLineMarkerProvider implements LineMarkerProvider {
             .values()
             .stream()
             .flatMap(yamlData -> yamlData.getJobElements().stream())
+            .filter(job -> job.getProject() == element.getProject())
             .toList();
     var jobNames = jobs.stream()
             .map(job -> handleQuotedText(job.getKeyText()))

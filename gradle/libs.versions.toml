@@ -1,6 +1,7 @@
 [versions]
 # libraries
 junit = "4.13.2"
+jackson = "2.19.0"
 
 # plugins
 changelog = "2.5.0"
@@ -8,6 +9,7 @@ intelliJPlatform = "2.20.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

@@ -3,6 +3,7 @@ package com.github.deeepamin.ciaid.services.listeners;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.ProjectLocator;
 import com.intellij.openapi.vfs.AsyncFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
@@ -35,11 +36,14 @@ public class CIAidYamlAsyncListener implements AsyncFileListener {
           @Override
           public void afterVfsChange() {
             boolean userMarked = CIAidProjectService.isMarkedAsUserCIYamlFile(file);
-            projectService.readGitlabCIYamlData(file, userMarked, false);
-            var psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile != null) {
-              DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "CIAidYamlAsyncListener: YAML children changed");
-            }
+            CIAidProjectService.executeOnThreadPool(project,
+                    () -> projectService.readGitlabCIYamlData(file, userMarked, false));
+            ApplicationManager.getApplication().invokeLater(() -> {
+              var psiFile = PsiManager.getInstance(project).findFile(file);
+              if (psiFile != null) {
+                DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "CIAidYamlAsyncListener: YAML children changed");
+              }
+            });
           }
         };
       }

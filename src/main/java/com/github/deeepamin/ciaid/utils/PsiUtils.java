@@ -21,14 +21,17 @@ public class PsiUtils {
     if (element == null || parentKeys.isEmpty()) {
       return Optional.empty();
     }
-    ProgressManager.checkCanceled();
-    if (element instanceof YAMLKeyValue keyValue) {
+    for (var current = element; current != null; current = current.getParent()) {
+      ProgressManager.checkCanceled();
+      if (!(current instanceof YAMLKeyValue keyValue)) {
+        continue;
+      }
       var keyText = keyValue.getKeyText();
       if (parentKeys.contains(keyText)) {
         return Optional.of(keyValue);
       }
     }
-    return findParent(element.getParent(), parentKeys);
+    return Optional.empty();
   }
 
   public static <T extends PsiElement> List<T> findChildren(final PsiElement element, final Class<T> clazz) {
@@ -97,12 +100,12 @@ public class PsiUtils {
   }
 
   public static <T extends PsiElement>  Optional<T> findParentOfType(PsiElement element,  final Class<T> clazz) {
-    if (element == null) {
-      return Optional.empty();
+    for (var current = element; current != null; current = current.getParent()) {
+      ProgressManager.checkCanceled();
+      if (clazz.isInstance(current)) {
+        return Optional.of(clazz.cast(current));
+      }
     }
-    if (clazz.isInstance(element)) {
-      return Optional.of(clazz.cast(element));
-    }
-    return findParentOfType(element.getParent(), clazz);
+    return Optional.empty();
   }
 }

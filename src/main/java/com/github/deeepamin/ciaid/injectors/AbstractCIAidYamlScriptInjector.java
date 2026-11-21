@@ -7,6 +7,7 @@ import com.intellij.lang.Language;
 import com.intellij.lang.injection.MultiHostInjector;
 import com.intellij.lang.injection.MultiHostRegistrar;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLanguageInjectionHost;
@@ -68,16 +69,24 @@ private void injectShell(MultiHostRegistrar registrar, PsiElement context, @NotN
     if (!(context instanceof YAMLPsiElement yamlPsiElement)) {
       return;
     }
+    if (!(context instanceof PsiLanguageInjectionHost host)
+            || !context.isValid()
+            || !host.isValidHost()) {
+      return;
+    }
+    ProgressManager.checkCanceled();
     var isScript = PsiUtils.isChild(context, SCRIPT_KEYWORDS);
     var isRefTag = RefTagReferenceProvider.getReferenceTag(yamlPsiElement) != null;
     if (isScript && !isRefTag) {
       try {
         registrar
                 .startInjecting(language)
-                .addPlace(null, null, (PsiLanguageInjectionHost) context, new TextRange(0, context.getTextLength()))
+                .addPlace(null, null, host, new TextRange(0, host.getTextLength()))
                 .doneInjecting();
       } catch (RuntimeException e) {
         LOG.warn("Failed to inject language into YAML element: " + context.getText(), e);
+      } catch (AssertionError e) {
+        LOG.debug("Skipping injection for an invalid YAML host: " + context, e);
       }
     }
   }

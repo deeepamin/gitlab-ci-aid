@@ -10,6 +10,9 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -20,6 +23,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -140,7 +144,21 @@ public final class CIAidProjectService implements DumbAware, Disposable {
       LOG.debug("Skipping GitLab CI YAML processing for an untrusted project");
       return;
     }
-    dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);
+    var application = ApplicationManager.getApplication();
+    if (application.isUnitTestMode()
+            || (!application.isDispatchThread() && ProgressManager.getInstance().getProgressIndicator() != null)) {
+      dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);
+      return;
+    }
+    new Task.Backgroundable(project, "Reading GitLab CI YAML", true) {
+      @Override
+      public void run(@NotNull ProgressIndicator indicator) {
+        if (!project.isDisposed()) {
+          indicator.setText2(file.getName());
+          dataProvider.readGitlabCIYamlData(file, userMarked, forceRead);
+        }
+      }
+    }.queue();
   }
 
   private void readDefaultGitlabCIYaml() {
@@ -171,6 +189,10 @@ public final class CIAidProjectService implements DumbAware, Disposable {
     var entries = new ArrayList<>(ciAidSettingsState.getYamlToUserMarkings().entrySet());
     for (var entry : entries) {
       String path = entry.getKey();
+      if (path == null || path.isBlank()) {
+        LOG.warn("Skipping user-marked YAML entry with an empty file path");
+        continue;
+      }
       boolean ignore = entry.getValue() != null && entry.getValue();
       var pathContainsWildcard = CIAidUtils.containsWildcardWithYmlExtension(path);
       if (pathContainsWildcard) {

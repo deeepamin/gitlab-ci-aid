@@ -1,6 +1,7 @@
 package com.github.deeepamin.ciaid.services;
 
 import com.github.deeepamin.ciaid.BaseTest;
+import com.github.deeepamin.ciaid.model.gitlab.include.IncludeFileType;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.parser.CIAidGitLabYamlParser;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -203,7 +204,6 @@ public class CIAidProjectServiceTest extends BaseTest {
     assertEquals(3, jobStageFunction.apply("build").size());
     assertEquals(1, jobStageFunction.apply("test").size());
     assertEquals(1, jobStageFunction.apply("deploy").size());
-
     var expectedJobNames = List.of(".extend-test","build-dev", "build-sit", "test-job", "deploy-job");
     var jobNames = gitlabCIYamlData.getJobElements().stream()
             .map(YAMLKeyValue::getKeyText)
@@ -212,5 +212,29 @@ public class CIAidProjectServiceTest extends BaseTest {
     assertTrue(expectedJobNames.containsAll(jobNames));
     assertNotNull(gitlabCIYamlData.getFile());
     assertNotNull(gitlabCIYamlData.getStagesItemElements());
+  }
+
+  public void testProjectIncludesUseScalarFilePathsOnly() {
+    myFixture.configureByText(GITLAB_CI_DEFAULT_YAML_FILE, """
+        include:
+          - project: group/project
+            file:
+              - ci/versioning.yml
+              - ci/pipeline.yml
+            ref: main
+          - project: group/project
+            file:
+              nested:
+                path: ci/invalid.yml
+        """);
+
+    var file = myFixture.getFile().getVirtualFile();
+    var data = new CIAidGitLabYamlParser(getProject()).parseGitlabCIYamlData(file);
+    var includes = data.getIncludes();
+
+    assertEquals(2, includes.size());
+    assertEquals(IncludeFileType.PROJECT, includes.get(0).getFileType());
+    assertEquals("ci/versioning.yml", includes.get(0).getPath());
+    assertEquals("ci/pipeline.yml", includes.get(1).getPath());
   }
 }

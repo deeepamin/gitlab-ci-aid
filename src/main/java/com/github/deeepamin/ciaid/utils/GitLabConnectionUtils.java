@@ -24,11 +24,12 @@ public class GitLabConnectionUtils {
   public static final String GITLAB_PROJECT_TAGS_PATH = "%s/projects/%s/repository/tags";
   public static final String GITLAB_PRIVATE_TOKEN_HEADER = "PRIVATE-TOKEN";
   private static final String GITLAB_PROJECT_FILES_RAW_DOWNLOAD_PATH = "%s/projects/%s/repository/files/%s/raw";
+  private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+          .connectTimeout(Duration.ofSeconds(10))
+          .build();
 
   public static String downloadContent(final String urlString, final String accessToken) {
-    try (var httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build()) {
+    try {
       HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
               .uri(URI.create(urlString))
               .timeout(Duration.ofSeconds(30))
@@ -39,21 +40,26 @@ public class GitLabConnectionUtils {
         requestBuilder.header(GITLAB_PRIVATE_TOKEN_HEADER, accessToken);
       }
       HttpRequest request = requestBuilder.build();
-      HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
-      if (response.statusCode() != HTTP_OK) {
-        LOG.debug("Error downloading file from " + urlString + " " + response);
-        return null;
-      }
-      try (final BufferedReader in = new BufferedReader(new InputStreamReader(response.body()))) {
-        var res = new StringBuilder();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-          res.append(inputLine).append(System.lineSeparator());
+      try (var body = response.body()) {
+        if (response.statusCode() != HTTP_OK) {
+          LOG.debug("Error downloading file from " + urlString + " " + response);
+          return null;
         }
-        return res.toString();
+        try (final BufferedReader in = new BufferedReader(new InputStreamReader(body))) {
+          var res = new StringBuilder();
+          String inputLine;
+          while ((inputLine = in.readLine()) != null) {
+            res.append(inputLine).append(System.lineSeparator());
+          }
+          return res.toString();
+        }
       }
-    } catch (IOException | InterruptedException e) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      LOG.debug("Interrupted while calling URL " + urlString, e);
+    } catch (IOException e) {
       LOG.debug("Exception while calling URL" + urlString + " " + e);
     } catch (IllegalArgumentException e) {
       LOG.debug("Invalid URL: " + urlString + " " + e);

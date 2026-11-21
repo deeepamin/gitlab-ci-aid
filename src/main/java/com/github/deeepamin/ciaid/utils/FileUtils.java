@@ -8,8 +8,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import org.jetbrains.yaml.YAMLFileType;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,33 +84,26 @@ public class FileUtils {
       if (normalizedPattern.startsWith("/")) {
           normalizedPattern = normalizedPattern.substring(1);
       }
-      final var sanitizedPattern = normalizedPattern;
+      var projectBasePath = Path.of(basePath);
+      var matcher = projectBasePath.getFileSystem().getPathMatcher("glob:" + normalizedPattern);
       var files = new ArrayList<VirtualFile>();
-      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yml"));
-      files.addAll(getGlobMatchingVirtualFilesByExtension(project, sanitizedPattern, "yaml"));
+      for (var virtualFile : FileTypeIndex.getFiles(YAMLFileType.YML, GlobalSearchScope.projectScope(project))) {
+        ProgressManager.checkCanceled();
+        var extension = virtualFile.getExtension();
+        if (!"yml".equalsIgnoreCase(extension) && !"yaml".equalsIgnoreCase(extension)) {
+          continue;
+        }
+        try {
+          var virtualFilePath = Path.of(virtualFile.getPath());
+          if (matcher.matches(projectBasePath.relativize(virtualFilePath))) {
+            files.add(virtualFile);
+          }
+        } catch (Exception e) {
+          LOG.warn("Error matching file " + virtualFile.getPath(), e);
+        }
+      }
       return files;
     });
-  }
-
-  private static List<VirtualFile> getGlobMatchingVirtualFilesByExtension(Project project, String glob, String extension) {
-    return FilenameIndex.getAllFilesByExt(project, extension)
-            .stream()
-            .filter(virtualFile -> {
-              try {
-                var basePath = project.getBasePath();
-                if (basePath == null) {
-                  return false;
-                }
-                var projectBasePath = Path.of(basePath);
-                var virtualFilePath = Path.of(virtualFile.getPath());
-                var matcher = projectBasePath.getFileSystem().getPathMatcher("glob:" + glob);
-                return matcher.matches(projectBasePath.relativize(virtualFilePath));
-              } catch (Exception e) {
-                LOG.warn("Error matching file " + virtualFile.getPath(), e);
-              }
-              return false;
-            })
-            .toList();
   }
 
   public static void createFile(Path path) {

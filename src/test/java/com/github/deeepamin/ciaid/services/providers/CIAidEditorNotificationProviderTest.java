@@ -35,20 +35,17 @@ public class CIAidEditorNotificationProviderTest extends BaseTest {
         """);
     var file = myFixture.getFile().getVirtualFile();
 
-    // First call sets potential key
     var notificationData = myProvider.collectNotificationData(getProject(), file);
     assertNotNull(notificationData);
 
-    // Simulate that the potential key was set to true
-    file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, true);
-
-    // Second call should return a function that produces a panel
-    notificationData = myProvider.collectNotificationData(getProject(), file);
-    assertNotNull(notificationData);
-    // The panel is produced regardless of the fileEditor argument when potential key is already set
     var panel = notificationData.apply(null);
     assertNotNull(panel);
     assertInstanceOf(panel, EditorNotificationPanel.class);
+    assertTrue(file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY));
+
+    notificationData = myProvider.collectNotificationData(getProject(), file);
+    assertNotNull(notificationData);
+    assertInstanceOf(notificationData.apply(null), EditorNotificationPanel.class);
   }
 
   public void testNoNotificationForNonYamlFile() {
@@ -56,10 +53,7 @@ public class CIAidEditorNotificationProviderTest extends BaseTest {
     var file = myFixture.getFile().getVirtualFile();
 
     var notificationData = myProvider.collectNotificationData(getProject(), file);
-    // For non-yaml files the function is returned but produces no panel
-    if (notificationData != null) {
-      assertNull(notificationData.apply(null));
-    }
+    assertNull(notificationData);
   }
 
   public void testNoNotificationWhenDisabled() {
@@ -116,10 +110,8 @@ public class CIAidEditorNotificationProviderTest extends BaseTest {
     var file = myFixture.getFile().getVirtualFile();
 
     var notificationData = myProvider.collectNotificationData(getProject(), file);
-    assertNotNull(notificationData);
-    // The function should return null since it's not a GitLab CI YAML
-    var panel = notificationData.apply(null);
-    assertNull(panel);
+    assertNull(notificationData);
+    assertFalse(file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY));
   }
 
   public void testNoNotificationForYamlWithoutGitlabKeywords() {
@@ -130,8 +122,7 @@ public class CIAidEditorNotificationProviderTest extends BaseTest {
     var file = myFixture.getFile().getVirtualFile();
 
     var notificationData = myProvider.collectNotificationData(getProject(), file);
-    assertNotNull(notificationData);
-    var panel = notificationData.apply(null);
-    assertNull(panel);
+    assertNull(notificationData);
+    assertFalse(file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY));
   }
 }

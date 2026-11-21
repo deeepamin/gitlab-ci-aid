@@ -14,8 +14,11 @@ import com.github.deeepamin.ciaid.model.gitlab.inputs.Input;
 import com.github.deeepamin.ciaid.model.gitlab.inputs.InputType;
 import com.github.deeepamin.ciaid.parser.CIAidGitLabYamlParser;
 import com.github.deeepamin.ciaid.utils.PsiUtils;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.SmartPointerManager;
@@ -42,28 +45,54 @@ public class CIAidYamlDataProvider {
   private static final Logger LOG = Logger.getInstance(CIAidYamlDataProvider.class);
   private final Project project;
   private final Map<VirtualFile, CIAidYamlData> pluginData;
+  private final Map<VirtualFile, ProgressIndicator> activeReads;
 
   public CIAidYamlDataProvider(Project project) {
     this.project = project;
     pluginData = new ConcurrentHashMap<>();
+    activeReads = new ConcurrentHashMap<>();
   }
 
   public void readGitlabCIYamlData(VirtualFile file, boolean userMarked, boolean forceRead) {
     if (!forceRead && pluginData.containsKey(file) && pluginData.get(file).isUpToDate(file)) {
       return;
     }
-    ApplicationManager.getApplication().runReadAction(() -> {
-      if (userMarked) {
-        CIAidProjectService.markAsUserCIYamlFile(file, project);
-      } else {
-        CIAidProjectService.markAsCIYamlFile(file);
+    var indicator = ProgressManager.getInstance().getProgressIndicator();
+    if (indicator == null) {
+      indicator = new EmptyProgressIndicator();
+    }
+    var previousIndicator = activeReads.put(file, indicator);
+    if (previousIndicator != null && previousIndicator != indicator) {
+      previousIndicator.cancel();
+    }
+    try {
+      var activeIndicator = indicator;
+      ProgressManager.getInstance().runProcess(() -> readGitlabCIYamlData(file, userMarked, activeIndicator), activeIndicator);
+    } catch (ProcessCanceledException e) {
+      if (!indicator.isCanceled()) {
+        throw e;
       }
-      var parser = new CIAidGitLabYamlParser(project);
-      var ciAidYamlData = parser.parseGitlabCIYamlData(file);
-      pluginData.put(file, ciAidYamlData);
-      var projectFileContext = CIAidCacheService.getInstance().getProjectFileIncludeContext(file.getPath());
-      readIncludes(ciAidYamlData, userMarked, projectFileContext);
-    });
+    } finally {
+      activeReads.remove(file, indicator);
+    }
+  }
+
+  private void readGitlabCIYamlData(VirtualFile file, boolean userMarked, ProgressIndicator indicator) {
+    indicator.checkCanceled();
+    if (userMarked) {
+      CIAidProjectService.markAsUserCIYamlFile(file, project);
+    } else {
+      CIAidProjectService.markAsCIYamlFile(file);
+    }
+    var parser = new CIAidGitLabYamlParser(project);
+    var ciAidYamlData = parser.parseGitlabCIYamlData(file);
+    indicator.checkCanceled();
+    if (ciAidYamlData == null) {
+      return;
+    }
+    pluginData.put(file, ciAidYamlData);
+    var projectFileContext = CIAidCacheService.getInstance().getProjectFileIncludeContext(file.getPath());
+    readIncludes(ciAidYamlData, userMarked, projectFileContext);
   }
 
   public Map<VirtualFile, CIAidYamlData> getPluginData() {
@@ -99,44 +128,43 @@ public class CIAidYamlDataProvider {
   public List<Input> getInputs() {
     return pluginData.values().stream()
             .flatMap(yamlData -> yamlData.getInputs().stream())
+            .filter(inputsKeyValue -> inputsKeyValue.getValue() instanceof YAMLBlockMappingImpl)
             .map(inputsKeyValue -> {
                 var inputName = inputsKeyValue.getKeyText();
                 var inputValue = inputsKeyValue.getValue();
                 String inputDescription = "";
                 String defaultValue = "";
                 var inputType = InputType.STRING;
-                if (inputValue instanceof YAMLBlockMappingImpl blockMappingInput) {
-                  for (YAMLKeyValue inputKeyValue : blockMappingInput.getKeyValues()) {
-                    switch (inputKeyValue.getKeyText()) {
+                var blockMappingInput = (YAMLBlockMappingImpl) inputValue;
+                for (YAMLKeyValue inputKeyValue : blockMappingInput.getKeyValues()) {
+                  switch (inputKeyValue.getKeyText()) {
                       case TYPE -> {
-                        var valueText = inputKeyValue.getValueText();
-                        inputType = switch (valueText) {
-                          case STRING -> InputType.STRING;
-                          case BOOLEAN -> InputType.BOOLEAN;
-                          case NUMBER -> InputType.NUMBER;
-                          case ARRAY -> InputType.ARRAY;
-                          default -> inputType;
-                        };
+                          var valueText = inputKeyValue.getValueText();
+                          inputType = switch (valueText) {
+                              case STRING -> InputType.STRING;
+                              case BOOLEAN -> InputType.BOOLEAN;
+                              case NUMBER -> InputType.NUMBER;
+                              case ARRAY -> InputType.ARRAY;
+                              default -> inputType;
+                          };
                       }
                       case DEFAULT -> {
-                        var value = inputKeyValue.getValue();
-                        var arrayChildren = PsiUtils.findChildren(value, YAMLArrayImpl.class);
-                        if (!arrayChildren.isEmpty()) {
-                          defaultValue = arrayChildren.stream()
-                                  .map(YAMLArrayImpl::getText)
-                                  .collect(Collectors.joining(", "));
-                        } else if (value instanceof YAMLScalar yamlScalar) {
-                          defaultValue = handleQuotedText(yamlScalar.getText());
-                        }
+                          var value = inputKeyValue.getValue();
+                          var arrayChildren = PsiUtils.findChildren(value, YAMLArrayImpl.class);
+                          if (!arrayChildren.isEmpty()) {
+                              defaultValue = arrayChildren.stream()
+                                      .map(YAMLArrayImpl::getText)
+                                      .collect(Collectors.joining(", "));
+                          } else if (value instanceof YAMLScalar yamlScalar) {
+                              defaultValue = handleQuotedText(yamlScalar.getText());
+                          }
                       }
                       case DESCRIPTION -> inputDescription = handleQuotedText(inputKeyValue.getValueText());
-                    }
                   }
-                  SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
-                  SmartPsiElementPointer<YAMLKeyValue> inputPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
-                  return new Input(inputName, inputDescription, defaultValue, inputType, inputPointer);
                 }
-              return null;
+                SmartPointerManager pointerManager = SmartPointerManager.getInstance(inputsKeyValue.getProject());
+                SmartPsiElementPointer<YAMLKeyValue> inputPointer = pointerManager.createSmartPsiElementPointer(inputsKeyValue);
+                return new Input(inputName, inputDescription, defaultValue, inputType, inputPointer);
             })
             .toList();
   }

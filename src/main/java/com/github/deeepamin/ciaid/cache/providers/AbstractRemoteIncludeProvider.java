@@ -7,19 +7,22 @@ import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
 import com.github.deeepamin.ciaid.utils.GitLabConnectionUtils;
 import com.intellij.ide.trustedProjects.TrustedProjects;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 import static com.github.deeepamin.ciaid.cache.CIAidCacheService.getCiAidCacheDir;
 import static com.github.deeepamin.ciaid.cache.CIAidCacheUtils.getOrCreateDir;
 
 public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvider {
+  private static final ExecutorService DOWNLOAD_EXECUTOR =
+          AppExecutorUtil.createBoundedApplicationPoolExecutor("CI Aid remote include downloads", 4);
+
   protected AbstractRemoteIncludeProvider(Project project, String filePath) {
     super(project, filePath);
   }
@@ -109,12 +112,11 @@ public abstract class AbstractRemoteIncludeProvider extends AbstractIncludeProvi
     if (ApplicationManager.getApplication().isUnitTestMode()) {
       cacheTask.run();
     } else {
-      new Task.Backgroundable(project, "Resolving GitLab CI includes", false) {
-        @Override
-        public void run(@NotNull final ProgressIndicator indicator) {
-          cacheTask.run();
-        }
-      }.queue();
+      try {
+        DOWNLOAD_EXECUTOR.execute(cacheTask);
+      } catch (RejectedExecutionException e) {
+        LOG.warn("Could not queue remote include download for " + downloadUrl, e);
+      }
     }
   }
 

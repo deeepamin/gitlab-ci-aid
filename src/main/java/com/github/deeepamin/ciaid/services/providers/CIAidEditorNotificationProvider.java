@@ -3,10 +3,10 @@ package com.github.deeepamin.ciaid.services.providers;
 import com.github.deeepamin.ciaid.CIAidBundle;
 import com.github.deeepamin.ciaid.services.CIAidProjectService;
 import com.github.deeepamin.ciaid.settings.CIAidSettingsState;
-import com.github.deeepamin.ciaid.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
@@ -14,11 +14,12 @@ import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.psi.YAMLFile;
 
 import javax.swing.JComponent;
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
 import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_YAML_POTENTIAL_KEY;
@@ -26,8 +27,9 @@ import static com.github.deeepamin.ciaid.services.CIAidProjectService.GITLAB_CI_
 import static com.github.deeepamin.ciaid.utils.YamlUtils.isYamlFile;
 
 public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNotificationProvider {
+  private static final Logger LOG = Logger.getInstance(CIAidEditorNotificationProvider.class);
   private static final List<String> POTENTIAL_GITLAB_CI_ELEMENTS = List.of(STAGES, AFTER_SCRIPT, BEFORE_SCRIPT, SCRIPT, INCLUDE, STAGE, VARIABLES, WORKFLOW, COMPONENT, EXTENDS);
-  private static final List<String> NON_GITLAB_CI_ELEMENTS = List.of("kind");
+  private static final Pattern YAML_KEY_PATTERN = Pattern.compile("(?m)^\\s*(?:-\\s*)?[\"']?([^\\s\"']+)[\"']?\\s*:");
 
   @Override
   public @Nullable Function<? super @NotNull FileEditor, ? extends @Nullable JComponent> collectNotificationData(@NotNull Project project, @NotNull VirtualFile file) {
@@ -41,21 +43,18 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
       return null;
     }
 
-    final var isPotentialGitlabCIYaml = isPotentialGitlabCIYamlFile(file, project);
-    return fileEditor -> {
-      Boolean isPotentialYamlKeySet = file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY);
-      if (Boolean.TRUE.equals(isPotentialYamlKeySet)) {
-        return getEditorNotificationPanel(project, file, projectService);
-      }
+    Boolean isPotentialYamlKeySet = file.getUserData(GITLAB_CI_YAML_POTENTIAL_KEY);
+    if (isPotentialYamlKeySet != null) {
+      return isPotentialYamlKeySet
+              ? fileEditor -> getEditorNotificationPanel(project, file, projectService)
+              : null;
+    }
 
-      if (isPotentialGitlabCIYaml) {
-        file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, true);
-        EditorNotifications.getInstance(project).updateNotifications(file);
-      } else {
-        file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, false);
-      }
-      return null;
-    };
+    final var isPotentialGitlabCIYaml = isPotentialGitlabCIYamlFile(file);
+    file.putUserData(GITLAB_CI_YAML_POTENTIAL_KEY, isPotentialGitlabCIYaml);
+    return isPotentialGitlabCIYaml
+            ? fileEditor -> getEditorNotificationPanel(project, file, projectService)
+            : null;
   }
 
   private static @NotNull EditorNotificationPanel getEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, CIAidProjectService projectService) {
@@ -89,24 +88,35 @@ public class CIAidEditorNotificationProvider implements com.intellij.ui.EditorNo
     return false;
   }
 
-  private boolean isPotentialGitlabCIYamlFile(@NotNull VirtualFile file, Project project) {
+  private boolean isPotentialGitlabCIYamlFile(@NotNull VirtualFile file) {
     if (!isYamlFile(file)) {
       return false;
     }
-    var psiFile = PsiManager.getInstance(project).findFile(file);
-    if (!(psiFile instanceof YAMLFile)) {
-      return false;
-    }
-    for (var nonGitlabCiElement : NON_GITLAB_CI_ELEMENTS) {
-      if (PsiUtils.hasChild(psiFile, nonGitlabCiElement)) {
+
+    var document = FileDocumentManager.getInstance().getCachedDocument(file);
+    String text;
+    if (document != null) {
+      text = document.getText();
+    } else {
+      try {
+        text = new String(file.contentsToByteArray(), file.getCharset());
+      } catch (IOException e) {
+        LOG.warn("Unable to read YAML file for editor notification: " + file.getPath(), e);
         return false;
       }
     }
-    for (var potentialGitlabCiElement : POTENTIAL_GITLAB_CI_ELEMENTS) {
-      if (PsiUtils.hasChild(psiFile, potentialGitlabCiElement)) {
-        return true;
+
+    var matcher = YAML_KEY_PATTERN.matcher(text);
+    boolean hasGitlabCiElement = false;
+    while (matcher.find()) {
+      var key = matcher.group(1);
+      if ("kind".equals(key)) {
+        return false;
+      }
+      if (POTENTIAL_GITLAB_CI_ELEMENTS.contains(key)) {
+        hasGitlabCiElement = true;
       }
     }
-    return false;
+    return hasGitlabCiElement;
   }
 }
