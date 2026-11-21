@@ -21,11 +21,16 @@ import org.jetbrains.yaml.psi.YAMLAnchor;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLSequence;
+import org.jetbrains.yaml.psi.YAMLSequenceItem;
 import org.jetbrains.yaml.psi.YAMLValue;
 import org.jetbrains.yaml.psi.YamlRecursivePsiElementVisitor;
 import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.deeepamin.ciaid.model.gitlab.GitlabCIYamlKeywords.*;
@@ -34,6 +39,8 @@ import static com.github.deeepamin.ciaid.utils.CIAidUtils.handleQuotedText;
 public class CIAidGitLabYamlParser {
   private static final Logger LOG = Logger.getInstance(CIAidGitLabYamlParser.class);
   private final Project project;
+  private final Set<YAMLBlockMappingImpl> processedProjectIncludes =
+          Collections.newSetFromMap(new IdentityHashMap<>());
   private CIAidYamlData ciAidYamlData;
 
   public CIAidGitLabYamlParser(Project project) {
@@ -42,6 +49,7 @@ public class CIAidGitLabYamlParser {
 
   public CIAidYamlData parseGitlabCIYamlData(final VirtualFile file) {
     return ReadAction.computeBlocking(() -> {
+        processedProjectIncludes.clear();
         var psiManager = PsiManager.getInstance(project);
         var psiFile = psiManager.findFile(file);
         if (psiFile == null) {
@@ -54,17 +62,20 @@ public class CIAidGitLabYamlParser {
         psiFile.accept(new YamlRecursivePsiElementVisitor() {
             @Override
             public void visitFile(@NotNull PsiFile file) {
+                ProgressManager.checkCanceled();
                 readFile(file);
                 super.visitFile(file);
             }
 
             @Override
             public void visitAnchor(@NotNull YAMLAnchor anchor) {
+                ProgressManager.checkCanceled();
                 ciAidYamlData.addAnchor(anchor);
             }
 
             @Override
             public void visitScalar(@NotNull YAMLScalar scalar) {
+                ProgressManager.checkCanceled();
                 if (GitlabCIYamlUtils.isNotSpecInputsElement(scalar)) {
                     if (YamlUtils.isYamlTextElement(scalar)) {
                         readStages(scalar);
@@ -76,6 +87,7 @@ public class CIAidGitLabYamlParser {
 
             @Override
             public void visitValue(@NotNull YAMLValue value) {
+                ProgressManager.checkCanceled();
                 if (GitlabCIYamlUtils.isNotSpecInputsElement(value)) {
                     readJobStage(value);
                 }
@@ -84,6 +96,7 @@ public class CIAidGitLabYamlParser {
 
             @Override
             public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
+                ProgressManager.checkCanceled();
                 var keyText = keyValue.getKeyText();
                 switch (keyText) {
                     case INPUTS -> readInputs(keyValue);
@@ -104,6 +117,7 @@ public class CIAidGitLabYamlParser {
       var topLevelKeys = YamlUtils.getTopLevelKeysForAllDocuments(yamlFile);
 
       topLevelKeys.forEach(topLevelKey -> {
+        ProgressManager.checkCanceled();
         if (!TOP_LEVEL_KEYWORDS.contains(topLevelKey.getKeyText())) {
           // this means it's a job
           ciAidYamlData.addJob(topLevelKey);
@@ -161,25 +175,43 @@ public class CIAidGitLabYamlParser {
       var blockMappingOptional = PsiUtils.findParentOfType(scalar, YAMLBlockMappingImpl.class);
       if (blockMappingOptional.isPresent()) {
         var blockMapping = blockMappingOptional.get();
-        var keyValues = blockMapping.getKeyValues();
-        var keys = keyValues.stream()
-                .map(YAMLKeyValue::getKeyText)
-                .collect(Collectors.toSet());
-        if (keys.contains(PROJECT) && keys.contains(FILE)) {
-          var includeProject = new IncludeProject();
-          includeProject.setFileType(IncludeFileType.PROJECT);
-          keyValues.forEach(keyValue -> {
-            var keyText = keyValue.getKeyText();
-            switch (keyText) {
-              case PROJECT -> includeProject.setProject(keyValue.getValueText());
-              case REF -> includeProject.setRef(keyValue.getValueText());
-              case FILE -> includeProject.setPath(handleQuotedText(scalar.getText()));
+        if (!processedProjectIncludes.add(blockMapping)) {
+          return;
+        }
+        var projectKeyValue = blockMapping.getKeyValueByKey(PROJECT);
+        var fileKeyValue = blockMapping.getKeyValueByKey(FILE);
+        if (projectKeyValue != null && fileKeyValue != null) {
+          var projectPath = projectKeyValue.getValueText();
+          var ref = blockMapping.getKeyValueByKey(REF);
+          for (var filePath : getProjectIncludeFilePaths(fileKeyValue.getValue())) {
+            var includeProject = new IncludeProject();
+            includeProject.setFileType(IncludeFileType.PROJECT);
+            includeProject.setProject(projectPath);
+            if (ref != null) {
+              includeProject.setRef(ref.getValueText());
             }
-          });
-          ciAidYamlData.addInclude(includeProject);
+            includeProject.setPath(filePath);
+            ciAidYamlData.addInclude(includeProject);
+          }
         }
       }
     }
+  }
+
+  private List<String> getProjectIncludeFilePaths(YAMLValue value) {
+    if (value instanceof YAMLScalar scalar) {
+      return List.of(handleQuotedText(scalar.getText()));
+    }
+    if (value instanceof YAMLSequence sequence) {
+      return sequence.getItems().stream()
+              .map(YAMLSequenceItem::getValue)
+              .filter(YAMLScalar.class::isInstance)
+              .map(YAMLScalar.class::cast)
+              .map(YAMLScalar::getText)
+              .map(CIAidUtils::handleQuotedText)
+              .toList();
+    }
+    return List.of();
   }
 
   private void readJobStage(@NotNull YAMLValue value) {

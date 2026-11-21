@@ -119,6 +119,17 @@ public class ComponentIncludeProviderIntegrationTest extends BaseIntegrationTest
     }
   }
 
+  public void testResolveComponentVersion_ParsesTagsWithoutMissingJsonDependency() {
+    try (MockedStatic<GitLabConnectionUtils> mockedUtils = mockStatic(GitLabConnectionUtils.class)) {
+      mockedUtils.when(() -> GitLabConnectionUtils.downloadContent(anyString(), anyString()))
+              .thenReturn(MOCK_TAGS_JSON);
+
+      var resolvedVersion = provider.resolveComponentVersion(getProject(), "~latest", "test-token");
+
+      assertEquals("2.0.0", resolvedVersion);
+    }
+  }
+
   public void testResolveComponentVersion_PartialVersion() {
     var componentWithPartial = new ComponentIncludeProvider(
             getProject(),

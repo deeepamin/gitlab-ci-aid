@@ -32,6 +32,7 @@ jacoco {
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     testImplementation(libs.junit)
+    implementation(libs.jackson.databind)
     testImplementation("org.opentest4j:opentest4j:1.3.0")
     testImplementation("org.mockito:mockito-core:5.24.0")
 
