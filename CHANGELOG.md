@@ -13,6 +13,8 @@
 ### Fixed
 
 - Jobs/Needs defined from inputs shows as undefined
+- Dependency not found exceptions
+- Under the hood improvements for avoiding IDE freezes and exceptions
 
 ## [2.1.0] - 2026-09-28
 
