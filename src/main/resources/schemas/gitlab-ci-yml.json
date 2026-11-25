@@ -1006,7 +1006,7 @@
         },
         {
           "type": "string",
-          "description": "Time-to-live duration using `minutes`, `hours`, or `days`, for example '30 minutes' or '1 day'. Minimum '1 minute'.",
+          "description": "Time-to-live duration using `minutes`, `hours`, or `days`, for example '30 minutes' or '1 day'. Minimum '1 minute', maximum '1 day'.",
           "minLength": 1
         }
       ]
@@ -1319,6 +1319,12 @@
                   "uniqueItems": true
                 }
               ]
+            },
+            "target_audience": {
+              "type": "string",
+              "markdownDescription": "The service the ID token is exchanged for, set as the `target_audience` claim. [Learn More](https://docs.gitlab.com/ci/yaml/#id_tokens).",
+              "minLength": 1,
+              "maxLength": 255
             }
           },
           "required": [
